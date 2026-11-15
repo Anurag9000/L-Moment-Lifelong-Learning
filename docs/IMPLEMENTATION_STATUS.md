@@ -20,7 +20,7 @@ This is a **truthful capability ledger**. A module's existence does not imply it
 
 ## Local validation
 
-24 local tests (including multivariate L-comoments, sketch approximation, differentiable L-moment gradients, manifest generation and deterministic sweeps) and `python -m lmoment_lifelong.cli --study all` were executed with `PYTHONPATH=src`. Results from these synthetic smoke tests only demonstrate that code paths execute; no ImageNet findings or superiority claims are supported.
+26 local tests (including multivariate L-comoments, sketch approximation, differentiable L-moment gradients, manifest generation and deterministic sweeps) and `python -m lmoment_lifelong.cli --study all` were executed with `PYTHONPATH=src`. Results from these synthetic smoke tests only demonstrate that code paths execute; no ImageNet findings or superiority claims are supported.
 
 ## Known scientific limitations
 
@@ -46,3 +46,7 @@ This is a **truthful capability ledger**. A module's existence does not imply it
 8. Build an actual task-free neural training/evaluation loop and integrate approved historical adapters.
 9. Port, test and verify ADP growth families and the original BGD update from source references.
 10. Execute staged multi-seed experiments; store results and negatives with provenance.
+
+## Executed research pilot
+
+A five-seed distribution-shape power study with n=64 and matched population mean/variance was executed and stored as `results/synthetic_shape_power.json`. L-moment shape rejection rates were 0.804 on standardized Gamma, 0.238 on standardized Student-t df5, and 0.134 on bimodal mixture; ordinary skew/kurt scores gave 0.540, 0.430, and 0.090. See `docs/SYNTHETIC_RESULTS.md` for the experimental design, null false-alarm rates, limits and reproduction. This is **not** an ImageNet/CL benchmark.

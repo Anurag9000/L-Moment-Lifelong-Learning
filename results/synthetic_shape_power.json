@@ -1,0 +1,416 @@
+{
+  "study": "E01",
+  "type": "synthetic_statistical_power",
+  "interpretation": "normal scenario is a held-out null; other scenarios are alternatives",
+  "no_image_data_or_gpu_training": true,
+  "runs": [
+    {
+      "seed": 0,
+      "group_size": 64,
+      "alpha_target": 0.05,
+      "calibration_trials": 100,
+      "evaluation_trials": 100,
+      "thresholds": {
+        "L_moment_shape": 0.15550118071853947,
+        "classical_skew_kurt": 1.806828096016612,
+        "RBF_MMD": 0.04645553916848972
+      },
+      "scenarios": {
+        "normal": {
+          "L_moment_shape": {
+            "rejection_rate": 0.08,
+            "mean_score": 0.09252448406481426
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.04,
+            "mean_score": 0.820026007445245
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.01,
+            "mean_score": 0.01330216885182154
+          }
+        },
+        "skewed": {
+          "L_moment_shape": {
+            "rejection_rate": 0.85,
+            "mean_score": 0.2350733662266794
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.52,
+            "mean_score": 2.9617647312368702
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.13,
+            "mean_score": 0.029044908589514643
+          }
+        },
+        "heavy_tail": {
+          "L_moment_shape": {
+            "rejection_rate": 0.3,
+            "mean_score": 0.11890812220100144
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.39,
+            "mean_score": 2.134079095106529
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.01,
+            "mean_score": 0.015416599364943526
+          }
+        },
+        "bimodal": {
+          "L_moment_shape": {
+            "rejection_rate": 0.18,
+            "mean_score": 0.11606770083739837
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.11,
+            "mean_score": 1.068193153615228
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.03,
+            "mean_score": 0.016837337332289714
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "group_size": 64,
+      "alpha_target": 0.05,
+      "calibration_trials": 100,
+      "evaluation_trials": 100,
+      "thresholds": {
+        "L_moment_shape": 0.16091405347146492,
+        "classical_skew_kurt": 1.9728712351191362,
+        "RBF_MMD": 0.037836892780966386
+      },
+      "scenarios": {
+        "normal": {
+          "L_moment_shape": {
+            "rejection_rate": 0.07,
+            "mean_score": 0.08507227753406882
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.03,
+            "mean_score": 0.7619388798534653
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.06,
+            "mean_score": 0.012623611942241734
+          }
+        },
+        "skewed": {
+          "L_moment_shape": {
+            "rejection_rate": 0.79,
+            "mean_score": 0.2326649716715626
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.49,
+            "mean_score": 2.6386800107433293
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.26,
+            "mean_score": 0.02887066447175379
+          }
+        },
+        "heavy_tail": {
+          "L_moment_shape": {
+            "rejection_rate": 0.2,
+            "mean_score": 0.12285327048070602
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.37,
+            "mean_score": 2.3256674186659607
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.02,
+            "mean_score": 0.013717712803436734
+          }
+        },
+        "bimodal": {
+          "L_moment_shape": {
+            "rejection_rate": 0.13,
+            "mean_score": 0.10993927576201502
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.07,
+            "mean_score": 0.9589027179179608
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.05,
+            "mean_score": 0.016163520831566178
+          }
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "group_size": 64,
+      "alpha_target": 0.05,
+      "calibration_trials": 100,
+      "evaluation_trials": 100,
+      "thresholds": {
+        "L_moment_shape": 0.18894349964051446,
+        "classical_skew_kurt": 1.67467995710592,
+        "RBF_MMD": 0.034967933736723515
+      },
+      "scenarios": {
+        "normal": {
+          "L_moment_shape": {
+            "rejection_rate": 0.02,
+            "mean_score": 0.06957492789694064
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.07,
+            "mean_score": 0.7579428268240989
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.06,
+            "mean_score": 0.013376727188978733
+          }
+        },
+        "skewed": {
+          "L_moment_shape": {
+            "rejection_rate": 0.72,
+            "mean_score": 0.23566454061895978
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.59,
+            "mean_score": 2.385125578547188
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.39,
+            "mean_score": 0.03023232509185114
+          }
+        },
+        "heavy_tail": {
+          "L_moment_shape": {
+            "rejection_rate": 0.19,
+            "mean_score": 0.1303078007039317
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.5,
+            "mean_score": 2.7037859218286386
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.08,
+            "mean_score": 0.015906146383020882
+          }
+        },
+        "bimodal": {
+          "L_moment_shape": {
+            "rejection_rate": 0.05,
+            "mean_score": 0.10641779711593945
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.11,
+            "mean_score": 0.8997764695663895
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.08,
+            "mean_score": 0.014778663473242476
+          }
+        }
+      }
+    },
+    {
+      "seed": 3,
+      "group_size": 64,
+      "alpha_target": 0.05,
+      "calibration_trials": 100,
+      "evaluation_trials": 100,
+      "thresholds": {
+        "L_moment_shape": 0.153051505422633,
+        "classical_skew_kurt": 1.8274327414696303,
+        "RBF_MMD": 0.051039347474347345
+      },
+      "scenarios": {
+        "normal": {
+          "L_moment_shape": {
+            "rejection_rate": 0.07,
+            "mean_score": 0.08672330518620316
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.05,
+            "mean_score": 0.7746477098190627
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.01,
+            "mean_score": 0.011920526911231829
+          }
+        },
+        "skewed": {
+          "L_moment_shape": {
+            "rejection_rate": 0.88,
+            "mean_score": 0.24473127260718402
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.54,
+            "mean_score": 2.815243738572611
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.14,
+            "mean_score": 0.03021001804932852
+          }
+        },
+        "heavy_tail": {
+          "L_moment_shape": {
+            "rejection_rate": 0.37,
+            "mean_score": 0.13672039581668793
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.45,
+            "mean_score": 2.8480372353217236
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.02,
+            "mean_score": 0.01648962087761665
+          }
+        },
+        "bimodal": {
+          "L_moment_shape": {
+            "rejection_rate": 0.14,
+            "mean_score": 0.09967520561785362
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.05,
+            "mean_score": 0.8329000574899262
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.02,
+            "mean_score": 0.013829594215768324
+          }
+        }
+      }
+    },
+    {
+      "seed": 4,
+      "group_size": 64,
+      "alpha_target": 0.05,
+      "calibration_trials": 100,
+      "evaluation_trials": 100,
+      "thresholds": {
+        "L_moment_shape": 0.1735493689298547,
+        "classical_skew_kurt": 1.7345317573380188,
+        "RBF_MMD": 0.03100938691377628
+      },
+      "scenarios": {
+        "normal": {
+          "L_moment_shape": {
+            "rejection_rate": 0.02,
+            "mean_score": 0.08560230053738961
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.05,
+            "mean_score": 0.7883081247941233
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.07,
+            "mean_score": 0.013833970523445108
+          }
+        },
+        "skewed": {
+          "L_moment_shape": {
+            "rejection_rate": 0.78,
+            "mean_score": 0.23045492283533736
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.56,
+            "mean_score": 2.6621363705747125
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.39,
+            "mean_score": 0.030394551295464863
+          }
+        },
+        "heavy_tail": {
+          "L_moment_shape": {
+            "rejection_rate": 0.13,
+            "mean_score": 0.1206111645443844
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.44,
+            "mean_score": 2.7552761330864097
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.13,
+            "mean_score": 0.016316876097616777
+          }
+        },
+        "bimodal": {
+          "L_moment_shape": {
+            "rejection_rate": 0.17,
+            "mean_score": 0.10615105974635625
+          },
+          "classical_skew_kurt": {
+            "rejection_rate": 0.11,
+            "mean_score": 0.9408013500242929
+          },
+          "RBF_MMD": {
+            "rejection_rate": 0.13,
+            "mean_score": 0.017327417740074874
+          }
+        }
+      }
+    }
+  ],
+  "summary": {
+    "normal": {
+      "L_moment_shape": {
+        "mean_rejection_rate": 0.052000000000000005,
+        "sd_over_seeds": 0.029495762407505254
+      },
+      "classical_skew_kurt": {
+        "mean_rejection_rate": 0.048,
+        "sd_over_seeds": 0.01483239697419133
+      },
+      "RBF_MMD": {
+        "mean_rejection_rate": 0.042,
+        "sd_over_seeds": 0.02949576240750525
+      }
+    },
+    "skewed": {
+      "L_moment_shape": {
+        "mean_rejection_rate": 0.804,
+        "sd_over_seeds": 0.06268971207462992
+      },
+      "classical_skew_kurt": {
+        "mean_rejection_rate": 0.54,
+        "sd_over_seeds": 0.03807886552931954
+      },
+      "RBF_MMD": {
+        "mean_rejection_rate": 0.262,
+        "sd_over_seeds": 0.12755391017134676
+      }
+    },
+    "heavy_tail": {
+      "L_moment_shape": {
+        "mean_rejection_rate": 0.238,
+        "sd_over_seeds": 0.0957601169589929
+      },
+      "classical_skew_kurt": {
+        "mean_rejection_rate": 0.43,
+        "sd_over_seeds": 0.051478150704935
+      },
+      "RBF_MMD": {
+        "mean_rejection_rate": 0.052000000000000005,
+        "sd_over_seeds": 0.05167204273105525
+      }
+    },
+    "bimodal": {
+      "L_moment_shape": {
+        "mean_rejection_rate": 0.134,
+        "sd_over_seeds": 0.051283525619832335
+      },
+      "classical_skew_kurt": {
+        "mean_rejection_rate": 0.09,
+        "sd_over_seeds": 0.0282842712474619
+      },
+      "RBF_MMD": {
+        "mean_rejection_rate": 0.062,
+        "sd_over_seeds": 0.044384682042344296
+      }
+    }
+  }
+}

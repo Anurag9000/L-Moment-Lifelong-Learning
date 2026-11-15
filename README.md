@@ -8,7 +8,7 @@ An experiment-first, **L-moment-centered** research monorepo for fully unsupervi
 
 This initial implementation is an **executable research foundation**, not completed ImageNet-1K research or a verified reproduction of STAM/SimGCD/DYDM/ODDL/BGD. It contains exact L-moment estimators, trimmed L-moments, projected L-comoments, differentiable L-moment objectives, compact quantile-sketch approximations, projection, comparisons, sample/feature memory, reversible structural operations, discovery and monitoring prototypes, a PyTorch expandable MLP, an independent implementation of the original BGD closed-form Gaussian-posterior update, CPU/synthetic experiments and regression tests. Core interfaces exist across all nine tracks; many publication-scale algorithms and empirical runs remain pending. See [implementation status](docs/IMPLEMENTATION_STATUS.md).
 
-No numerical results from this repo should be described as ImageNet or publication-level results unless the experiment manifest and executed evidence actually establish that.
+An executed **synthetic** distribution-shape discrimination pilot is available in [results](docs/SYNTHETIC_RESULTS.md). The L-moment shape score was more sensitive to the skewed Gamma alternative but less sensitive than classical skew/kurtosis to the heavy-tail Student-t alternative in this chosen setup. These are not ImageNet or publication-level results.
 
 ## Install
 
@@ -52,6 +52,7 @@ To enumerate immutable paired-seed smoke jobs, use `lmoment-sweep --studies E01 
 - `cli.py`: executable synthetic/NPZ smoke runs for all nine tracks.
 - `features.py`: optional DINOv2/Transformers image-folder extraction to float32 memmapped features with a checkpoint/dataset manifest.
 - `sweeps.py`: paired-seed deterministic experiment manifests, SHA256 input tracking, non-overwriting JSON run artifacts.
+- `experiments/shape_power.py`: executed synthetic L-moment-versus-classical-moment-versus-MMD controlled distribution-change study.
 
 ## Research standard
 
