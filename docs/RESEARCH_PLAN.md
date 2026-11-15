@@ -85,3 +85,7 @@
 7. **Confirm:** new class orders, independent seeds and ImageNet-1K only for survivors; retain all failed and negative runs.
 
 For each experiment record: hypothesis, source baseline/commit, dataset rights and manifest, inputs available to learner, mechanism activated, parameters, seeds, runtime/hardware, complete metrics, failure cases, test status and result provenance. Git commits must include code/tests/config/docs/evidence ledger changes together on main only.
+
+## Runnable experiment entrypoints and remaining wiring
+
+`lmoment-study --study E01` through `E12` (the nine allowed study IDs) currently execute statistical/feature-space diagnostic flows on generated or NPZ feature vectors, with no false claim of published reproduction. `lmoment-extract` optionally extracts from a licensed local image folder via an explicitly named Transformers checkpoint, storing memmapped feature arrays and manifest SHA256. `lmoment-sweep` prepares paired seeds and immutable JSON run outputs. The next layer must wire these components into full trainable published method reproductions, and is **not implemented yet**.

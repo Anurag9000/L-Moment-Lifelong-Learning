@@ -11,5 +11,5 @@
     "E11": {"title": "Task-free statistical adaptation", "status": "monitor_and_router_prototype", "main_metric": "online_accuracy_per_compute"},
     "E12": {"title": "Neural growth and Bayesian uncertainty statistics", "status": "expandable_mlp_and_uncertainty_monitor", "main_metric": "accuracy_per_parameter"}
   },
-  "execution_evidence": {"synthetic_smoke": "local_only_until_verified", "imagenet": "not_run", "gpu_training": "not_run"}
+  "execution_evidence": {"synthetic_smoke": "22_local_tests_passed_and_cli_verified", "imagenet": "not_run", "gpu_training": "not_run"}
 }

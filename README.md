@@ -24,11 +24,15 @@ With optional neural training:
 python -m pip install -e '.[torch]'
 ```
 
+For real ImageNet-style extraction provide a licensed local ImageFolder tree of synset directories, install the `vision` extra, and run `lmoment-extract --image-root /path/to/train --output-dir /path/to/cache --model facebook/dinov2-base --revision <pinned_commit>`. This requires access to checkpoint files and dependencies, and has not been executed in this environment. The output `features.npy` is memory mapped with evaluator-only `labels.npy` and a metadata JSON file. The smoke CLI currently consumes NPZ; convert small subsets to NPZ or use the separate memory-map loader for large studies.
+
 For cached ImageNet/visual features supply an NPZ containing `features[N,D]`, `labels[N]` for evaluator-only scoring, and optional `ids[N]`. Metadata access is restricted by the protocol; the dataset source/pretraining provenance must be recorded separately.
 
 ```bash
 lmoment-study --study E02 --features-npz /path/to/features.npz --seed 0 --output results/runs/e02_smoke.json
 ```
+
+To enumerate immutable paired-seed smoke jobs, use `lmoment-sweep --studies E01 E02 --seeds 0 1 --dry-run`; omit `--dry-run` to save distinct artifacts under `results/runs/`.
 
 **Caution:** This currently runs feature-space smoke tests. It does *not* download ImageNet, train DINOv2, reproduce the published GCD training loop, or compute published benchmark scores. The full benchmark runners and ImageNet data manifests are planned and remain tracked as incomplete.
 
@@ -45,6 +49,8 @@ lmoment-study --study E02 --features-npz /path/to/features.npz --seed 0 --output
 - `protocols.py`: training/evaluation information separation, immutable stream order, prequential access.
 - `metrics.py`: clustering and forgetting metrics.
 - `cli.py`: executable synthetic/NPZ smoke runs for all nine tracks.
+- `features.py`: optional DINOv2/Transformers image-folder extraction to float32 memmapped features with a checkpoint/dataset manifest.
+- `sweeps.py`: paired-seed deterministic experiment manifests, SHA256 input tracking, non-overwriting JSON run artifacts.
 
 ## Research standard
 
