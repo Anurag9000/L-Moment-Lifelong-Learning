@@ -1,0 +1,15 @@
+{
+  "scope": "Only methods where L-moments modify predictions, losses or decisions",
+  "studies": {
+    "E01": {"title": "Statistical estimation and distribution diagnostics", "status": "functional_core_smoke", "main_metric": "distribution_discrimination"},
+    "E02": {"title": "Fully unsupervised cluster memory", "status": "prototype_smoke", "main_metric": "online_clustering_ari"},
+    "E03": {"title": "NCD/GCD pseudo-class verification", "status": "feature_space_prototype", "main_metric": "novel_class_accuracy"},
+    "E04": {"title": "Continual GCD historical matching", "status": "feature_space_prototype", "main_metric": "all_old_new_accuracy"},
+    "E05": {"title": "On-the-fly class discovery", "status": "prototype_smoke", "main_metric": "false_birth_at_fixed_recall"},
+    "E06": {"title": "Versioned statistical engrams", "status": "structural_prototype", "main_metric": "split_merge_correctness"},
+    "E07": {"title": "Robust semantic/appearance change", "status": "heuristic_prototype", "main_metric": "false_semantic_births"},
+    "E11": {"title": "Task-free statistical adaptation", "status": "monitor_and_router_prototype", "main_metric": "online_accuracy_per_compute"},
+    "E12": {"title": "Neural growth and Bayesian uncertainty statistics", "status": "expandable_mlp_and_uncertainty_monitor", "main_metric": "accuracy_per_parameter"}
+  },
+  "execution_evidence": {"synthetic_smoke": "local_only_until_verified", "imagenet": "not_run", "gpu_training": "not_run"}
+}

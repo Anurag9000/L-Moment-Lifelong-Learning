@@ -1,0 +1,29 @@
+research_scope: l_moment_mechanisms_only
+allowed_studies: [E01, E02, E03, E04, E05, E06, E07, E11, E12]
+reproducibility:
+  seeds: [0, 1, 2, 3, 4]
+  immutable_stream_manifests: true
+  predict_before_update_for_online: true
+  evaluation_labels_hidden_from_learner: true
+statistics:
+  signature: [l_location, log_l_scale, l_skewness, l_kurtosis]
+  projection_count: 32
+  projection_seed: 0
+  support_floor: 16
+  reservoirs_per_assembly: 128
+  numerical_precision: float32
+  reference_precision: float64
+memory:
+  provisional_support: 16
+  revision_history: true
+  rollback: true
+  max_memories: 1000
+backbones:
+  frozen_default: dinov2_vitb14
+  representation_dimension: 768
+  provenance_required: true
+execution:
+  use_gpu_if_available: true
+  require_matched_backbone: true
+  require_matched_compute: true
+  include_rejected_growth_costs: true
