@@ -71,7 +71,7 @@
 
 - Start with function-preserving additive width blocks on frozen DINOv2 features. Freeze old blocks and test optimizer integrity. Candidate growth is compared with same-step no-growth adaptation; count rejected candidate compute.
 - Controllers: loss-only, L-moment-only, joint statistical/error/capacity evidence, historical-module reuse, L-moment uncertainty distribution from posterior-predictive samples. Later adapter/FFN growth without attention changes.
-- Do not claim that standardized high-order L-moments of Gaussian BGD weight marginals add information; evaluate predictive entropy across inputs instead. Reproduction of original BGD optimizer is a separate required implementation task before BGD comparisons.
+- Do not claim that standardized high-order L-moments of Gaussian BGD weight marginals add information; evaluate predictive entropy across inputs instead. An independent original-formula BGD optimizer with Monte Carlo gradient accumulation is implemented, but reference-code regression and benchmark reproduction remain mandatory before BGD comparisons.
 - Evaluate accuracy, forgetting, old function preservation, accepted/rejected growth, parameter/FLOPs/bytes, recurrence reuse and calibration. **Gate:** better Pareto frontier versus matched fixed-width/loss-driven/covariance/ODDL and BGD baselines.
 
 ## Execution waves and evidence
@@ -89,3 +89,7 @@ For each experiment record: hypothesis, source baseline/commit, dataset rights a
 ## Runnable experiment entrypoints and remaining wiring
 
 `lmoment-study --study E01` through `E12` (the nine allowed study IDs) currently execute statistical/feature-space diagnostic flows on generated or NPZ feature vectors, with no false claim of published reproduction. `lmoment-extract` optionally extracts from a licensed local image folder via an explicitly named Transformers checkpoint, storing memmapped feature arrays and manifest SHA256. `lmoment-sweep` prepares paired seeds and immutable JSON run outputs. The next layer must wire these components into full trainable published method reproductions, and is **not implemented yet**.
+
+### Original BGD method source
+
+C. Zeno et al., *Task Agnostic Continual Learning Using Online Variational Bayes* (2018), Algorithm 1, https://bayesiandeeplearning.org/2018/papers/58.pdf. The independent implementation uses the stated closed-form mean and standard-deviation updates. Reference authors' code: https://github.com/igolan/bgd. This is a comparison target, not an already completed reproduction.

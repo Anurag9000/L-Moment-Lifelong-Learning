@@ -13,14 +13,14 @@ This is a **truthful capability ledger**. A module's existence does not imply it
 | E06 structural engrams | Prototype tested | Transactional birth/merge/split/reconsolidate/rollback, memory history | Correct held-out statistical split/merge selection, hierarchical semantic identity, bounded history, full resource measurement |
 | E07 robust discovery | Heuristic prototype | Proper trimmed L-moments, semantic/appearance decision rule | Class/domain shift datasets and continual domain-mode adaptation |
 | E11 task-free CL | Prototype tested | L-moment rolling monitor, per-comparison null threshold, historical router and deterministic policy | Sequential lifetime false alarm calibration, neural adaptation loop and ODDL/MMD/ADWIN comparison |
-| E12 neural growth | Prototype tested | Torch function-preserving additive width, matched-step validation, predictive-entropy L-moments | Full CL stream trainer, ADP variants, original BGD implementation, adapter/FFN expansion |
+| E12 neural growth | Prototype tested | Torch function-preserving additive width, matched-step validation, predictive-entropy L-moments | Full CL stream trainer, ADP variants, official BGD reference regression, adapter/FFN expansion |
 | ImageNet-100/1K empirical runs | NOT RUN | NPZ import, image-folder extraction with optional Transformers model, NPY memmap provenance | Dataset and checkpoint access, real manifests, GPU execution and performance validation |
 | Published baseline reproductions | NOT DONE | Baseline interfaces and simple sklearn controls | Implement/pin original paper code and verify protocol |
 | GPU-scale training | NOT RUN | Optional torch and CUDA auto-device for feature-head training; synthetic sweep generator and immutable JSON results | Hardware-equipped execution, full multi-stage trainers, runtime evidence |
 
 ## Local validation
 
-22 local tests (including multivariate L-comoments, sketch approximation, differentiable L-moment gradients, manifest generation and deterministic sweeps) and `python -m lmoment_lifelong.cli --study all` were executed with `PYTHONPATH=src`. Results from these synthetic smoke tests only demonstrate that code paths execute; no ImageNet findings or superiority claims are supported.
+24 local tests (including multivariate L-comoments, sketch approximation, differentiable L-moment gradients, manifest generation and deterministic sweeps) and `python -m lmoment_lifelong.cli --study all` were executed with `PYTHONPATH=src`. Results from these synthetic smoke tests only demonstrate that code paths execute; no ImageNet findings or superiority claims are supported.
 
 ## Known scientific limitations
 
@@ -31,7 +31,7 @@ This is a **truthful capability ledger**. A module's existence does not imply it
 - For encoder drift, historical signatures in old embedding coordinates are not directly comparable without a frozen observer or alignment.
 - Memory split from a reservoir cannot reconstruct statistics for unseen historical samples; retain provenance and report approximations.
 - Exact memory accounting requires counting Python objects, history, optimizer/model tensors and storage metadata, beyond the array-only estimator.
-- Existing Bayesian Gradient Descent is not currently implemented in this repo. Calculating L-moments of MC predictive entropy is not itself BGD.
+- An independent implementation of original-paper mean-field BGD updates is included and unit tested; it has not yet been regression-matched with the authors' official optimizer or evaluated as a CL benchmark. Calculating L-moments of MC predictive entropy is a separate proposed extension, not BGD itself.
 - Synthetic prototypes are not strong enough to support publication claims.
 
 ## Next implementation jobs

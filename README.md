@@ -6,7 +6,7 @@ An experiment-first, **L-moment-centered** research monorepo for fully unsupervi
 
 ## Status (read before relying on a result)
 
-This initial implementation is an **executable research foundation**, not completed ImageNet-1K research or a verified reproduction of STAM/SimGCD/DYDM/ODDL/BGD. It contains exact L-moment estimators, trimmed L-moments, projected L-comoments, differentiable L-moment objectives, compact quantile-sketch approximations, projection, comparisons, sample/feature memory, reversible structural operations, discovery and monitoring prototypes, a PyTorch expandable MLP, CPU/synthetic experiments and regression tests. Core interfaces exist across all nine tracks; many publication-scale algorithms and empirical runs remain pending. See [implementation status](docs/IMPLEMENTATION_STATUS.md).
+This initial implementation is an **executable research foundation**, not completed ImageNet-1K research or a verified reproduction of STAM/SimGCD/DYDM/ODDL/BGD. It contains exact L-moment estimators, trimmed L-moments, projected L-comoments, differentiable L-moment objectives, compact quantile-sketch approximations, projection, comparisons, sample/feature memory, reversible structural operations, discovery and monitoring prototypes, a PyTorch expandable MLP, an independent implementation of the original BGD closed-form Gaussian-posterior update, CPU/synthetic experiments and regression tests. Core interfaces exist across all nine tracks; many publication-scale algorithms and empirical runs remain pending. See [implementation status](docs/IMPLEMENTATION_STATUS.md).
 
 No numerical results from this repo should be described as ImageNet or publication-level results unless the experiment manifest and executed evidence actually establish that.
 
@@ -45,7 +45,8 @@ To enumerate immutable paired-seed smoke jobs, use `lmoment-sweep --studies E01 
 - `discovery.py`: online unsupervised discovery, pseudo-label reliability, group matching.
 - `neural.py`: optional confidence/L-moment-weighted trainable feature head.
 - `taskfree.py`: L-moment stream monitor, null calibration, regime matching, conservative adaptation actions, semantic-versus-appearance decision rules.
-- `growth.py`: optional function-preserving expandable MLP, matched-step trial and predictive uncertainty L-moments (not a BGD implementation).
+- `growth.py`: optional function-preserving expandable MLP, matched-step trial and predictive uncertainty L-moments.
+- `bgd.py`: original-paper mean-field Bayesian Gradient Descent update, MC gradient accumulation and MC predictive probabilities; independent implementation pending reference-reproduction comparison.
 - `protocols.py`: training/evaluation information separation, immutable stream order, prequential access.
 - `metrics.py`: clustering and forgetting metrics.
 - `cli.py`: executable synthetic/NPZ smoke runs for all nine tracks.

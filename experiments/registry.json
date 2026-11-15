@@ -9,7 +9,7 @@
     "E06": {"title": "Versioned statistical engrams", "status": "structural_prototype", "main_metric": "split_merge_correctness"},
     "E07": {"title": "Robust semantic/appearance change", "status": "heuristic_prototype", "main_metric": "false_semantic_births"},
     "E11": {"title": "Task-free statistical adaptation", "status": "monitor_and_router_prototype", "main_metric": "online_accuracy_per_compute"},
-    "E12": {"title": "Neural growth and Bayesian uncertainty statistics", "status": "expandable_mlp_and_uncertainty_monitor", "main_metric": "accuracy_per_parameter"}
+    "E12": {"title": "Neural growth and Bayesian uncertainty statistics", "status": "expandable_mlp_and_bgd_formula_optimizer_prototypes", "main_metric": "accuracy_per_parameter"}
   },
-  "execution_evidence": {"synthetic_smoke": "22_local_tests_passed_and_cli_verified", "imagenet": "not_run", "gpu_training": "not_run"}
+  "execution_evidence": {"synthetic_smoke": "24_local_tests_passed_and_cli_verified", "imagenet": "not_run", "gpu_training": "not_run"}
 }
