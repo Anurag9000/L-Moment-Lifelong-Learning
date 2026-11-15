@@ -4,8 +4,8 @@ This is a **truthful capability ledger**. A module's existence does not imply it
 
 | Capability | State | What works | Still required |
 |---|---|---|---|
-| E01 exact L-moments | Implemented/tested locally | Unbiased PWM estimators, genuine symmetric trimmed estimates, projections, group differences, permutation test | Analytical reference suite expansion, L-comoment tensor, fitting families, quantile sketches, calibrated sequential inference |
-| E01 streaming | Prototype tested | Bounded deterministic reservoir, restored RNG state | Sketch compression, uncertainty propagation, throughput benchmark |
+| E01 exact L-moments | Implemented/tested locally | Unbiased PWM estimators, genuine symmetric trimmed estimates, projections, group differences, permutation test | Analytical reference suite expansion, fitting families, calibrated sequential inference; rank-conditioned L-comoment tensor and experimental compactor now available |
+| E01 streaming | Prototype tested | Bounded deterministic reservoir, restored RNG state | Quantile compactor approximation added; still requires error characterization, uncertainty propagation and throughput benchmarks |
 | E02 fully unsupervised | Prototype tested | Online sample assignment/provisional engrams; synthetic stream evaluation | Better unknown-K clustering, independent validation, ImageNet baseline reproduction |
 | E03 NCD/GCD | Prototype tested | Group refinement proposals, L-moment pseudo-label weights, optional feature-head training | Official GCD/NCD method reproduction, full mixed labeled/unlabeled training loop, representation objectives |
 | E04 continual GCD | Prototype tested | L-moment candidate-to-historical class group comparison | Multi-stage C-GCD trainable loop, old/new retention, published baselines |
@@ -20,7 +20,7 @@ This is a **truthful capability ledger**. A module's existence does not imply it
 
 ## Local validation
 
-Core tests and `python -m lmoment_lifelong.cli --study all` were executed with `PYTHONPATH=src`. Results from these synthetic smoke tests only demonstrate that code paths execute; no ImageNet findings or superiority claims are supported.
+19 local tests (including multivariate L-comoments, sketch approximation and differentiable L-moment gradients) and `python -m lmoment_lifelong.cli --study all` were executed with `PYTHONPATH=src`. Results from these synthetic smoke tests only demonstrate that code paths execute; no ImageNet findings or superiority claims are supported.
 
 ## Known scientific limitations
 

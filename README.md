@@ -6,7 +6,7 @@ An experiment-first, **L-moment-centered** research monorepo for fully unsupervi
 
 ## Status (read before relying on a result)
 
-This initial implementation is an **executable research foundation**, not completed ImageNet-1K research or a verified reproduction of STAM/SimGCD/DYDM/ODDL/BGD. It contains exact L-moment estimators, trimmed L-moments, projection, comparisons, sample/feature memory, reversible structural operations, discovery and monitoring prototypes, a PyTorch expandable MLP, CPU/synthetic experiments and regression tests. Core interfaces exist across all nine tracks; many publication-scale algorithms and empirical runs remain pending. See [implementation status](docs/IMPLEMENTATION_STATUS.md).
+This initial implementation is an **executable research foundation**, not completed ImageNet-1K research or a verified reproduction of STAM/SimGCD/DYDM/ODDL/BGD. It contains exact L-moment estimators, trimmed L-moments, projected L-comoments, differentiable L-moment objectives, compact quantile-sketch approximations, projection, comparisons, sample/feature memory, reversible structural operations, discovery and monitoring prototypes, a PyTorch expandable MLP, CPU/synthetic experiments and regression tests. Core interfaces exist across all nine tracks; many publication-scale algorithms and empirical runs remain pending. See [implementation status](docs/IMPLEMENTATION_STATUS.md).
 
 No numerical results from this repo should be described as ImageNet or publication-level results unless the experiment manifest and executed evidence actually establish that.
 
@@ -36,6 +36,7 @@ lmoment-study --study E02 --features-npz /path/to/features.npz --seed 0 --output
 
 - `statistics.py`: exact unbiased sample L-moments, genuinely trimmed L-moments, projection matrices, group discrepancy, permutation comparison.
 - `streaming.py`: bounded reservoir and reproducible checkpoint/restore.
+- `advanced_statistics.py`: rank-conditioned L-comoments, torch-autograd L-moments and group losses, bounded multilevel quantile compactor (experimental, not a formal KLL implementation).
 - `memory.py`: provisional/mature/dormant engrams, geometric retrieval, L-moment shape evidence, split/merge proposals, commit and rollback.
 - `discovery.py`: online unsupervised discovery, pseudo-label reliability, group matching.
 - `neural.py`: optional confidence/L-moment-weighted trainable feature head.
