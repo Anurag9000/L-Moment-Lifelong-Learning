@@ -1633,8 +1633,9 @@ def run(cfg: Config):
             metrics = run_study(cfg.track, variant, tx, ty, vx, vy, cfg,
                                 validation=(val_x, val_y), shifted=corrupted)
             state = metrics.pop("_checkpoint", None)
-            validation_metrics = validation_for_checkpoint(cfg.track, state, tx, ty,
-                val_x, val_y, vx, vy, variant) if state is not None else None
+            validation_metrics = (validation_for_checkpoint(cfg.track, state, tx, ty,
+                val_x, val_y, vx, vy, variant)
+                if state is not None and cfg.track != "E14" else None)
             if validation_metrics is not None:
                 metrics["independent_validation"] = validation_metrics
             if state is not None:
