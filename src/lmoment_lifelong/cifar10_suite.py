@@ -1558,7 +1558,8 @@ def run(cfg: Config):
                 stage_metrics = []
                 final_probe = None
                 for stage_record in stage_states:
-                    stage_adapter = nn.Linear(cfg.feature_dim, cfg.feature_dim, bias=False).to(device)
+                    stage_adapter = torch.nn.Linear(cfg.feature_dim, cfg.feature_dim,
+                                                    bias=False).to(device)
                     stage_adapter.load_state_dict(stage_record["adapter"])
                     stage_adapter.eval()
                     def transform_stage(values):
