@@ -325,7 +325,7 @@ def predict_head(head, x, allowed_classes=None):
             mask = torch.ones(logits.shape[1], dtype=torch.bool, device=device)
             mask[list(allowed_classes)] = False
             logits[:, mask] = -torch.inf
-        return logits.argmax(1).numpy()
+        return logits.argmax(1).cpu().numpy()
 
 
 def build_memory(x, use_lmoment, threshold=.6, seed=0, max_memories=50,
