@@ -387,7 +387,10 @@ def study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=False):
         predicted = predict_head(classifier, vx[shown])
         stage_metrics.append({"session": stage_num + 1, "seen_classes": int(class_cutoff),
                               "accuracy": accuracy(vy[shown], predicted, abstain=-999)})
-    last = stage_metrics[-1]["accuracy"]
+    # Copy the final accuracy mapping: stage_metrics retains its original dict.
+    # Updating that dict in place would insert stage_metrics into itself, causing
+    # a circular JSON reference in E03/E04/E14 result artifacts.
+    last = dict(stage_metrics[-1]["accuracy"])
     last.update({"oracle_global_k": 10, "known_training_labels": known,
                  "continual_sessions": len(stages), "stage_metrics": stage_metrics,
                  "unlabeled_pool_contains_known_classes": True,
