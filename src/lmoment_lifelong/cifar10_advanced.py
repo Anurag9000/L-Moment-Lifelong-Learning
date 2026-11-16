@@ -28,7 +28,7 @@ from .research_algorithms import (
     ValidatedMemoryStructure, fixed_projections, group_discrepancy,
 )
 from .continual_algorithms import (
-    FixedByteReplay, IncrementalFeatureTrainer,
+    FixedByteReplay, IncrementalFeatureTrainer, SequentialDistributionClassifier,
     HierarchicalDistributionMemory, EvidenceGatedAdapterRouter,
 )
 
@@ -131,13 +131,32 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
     """
     seed = cfg.seed
     rng = np.random.default_rng(seed)
-    if track in ("E01", "E09"):
+    if track == "E01":
         model = LMomentNormalClassifier(mode="lmoment" if kind == "lmoment" else "mean_var")
-        model.fit(tx, ty)  # E01 labeled diagnostic; E09 supervised Class-IL statistical classifier.
+        model.fit(tx, ty)  # Labeled class-distribution diagnostic.
         return {"validation_accuracy": float(np.mean(model.predict(valx) == valy)),
                 "test_accuracy": float(np.mean(model.predict(testx) == testy)),
                 "model": "diagonal Normal L1/L2 fitted" if kind == "lmoment" else "mean and population variance",
                 "labels_allowed": True}
+    if track == "E09":
+        # Exactly two sequential class-incremental sessions. After session 1,
+        # the old feature vectors are not supplied again to the classifier.
+        model = SequentialDistributionClassifier(
+            mode="lmoment" if kind == "lmoment" else "mean_var")
+        base = ty < 5
+        model.fit_stage(tx[base], ty[base])
+        old_eval = testy < 5
+        old_before = float(np.mean(model.predict(testx[old_eval]) == testy[old_eval]))
+        model.fit_stage(tx[~base], ty[~base])
+        old_after = float(np.mean(model.predict(testx[old_eval]) == testy[old_eval]))
+        new_after = float(np.mean(model.predict(testx[~old_eval]) == testy[~old_eval]))
+        return {"validation_accuracy": float(np.mean(model.predict(valx) == valy)),
+                "test_accuracy": float(np.mean(model.predict(testx) == testy)),
+                "old_before": old_before, "old_after": old_after,
+                "old_forgetting": old_before-old_after, "new_after": new_after,
+                "stored_bytes": model.stored_bytes, "sessions":len(model.sessions),
+                "no_old_examples_after_stage_1": True,
+                "model": "exemplar-free sequential class-conditional Normal"}
     if track in ("E02", "E05"):
         # Arrival order belongs to evaluation protocol. Labels never enter the learner.
         if track == "E05":

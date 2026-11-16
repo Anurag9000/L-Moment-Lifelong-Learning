@@ -70,3 +70,11 @@ interpret synthetic unit-test accuracy as CIFAR-10 research evidence.
 
 Any claim that *all 141* research experiments have been implemented or
 validated would currently be false.
+
+## Sequential exemplar-free E09 correction
+
+E09 now fits class 0–4 class-conditional distributions in session one,
+retains only per-class mean/scale parameters, and fits class 5–9 in a later
+session without re-supplying old examples. Stage-wise old/new accuracy and
+statistics-memory bytes are recorded. The encoder is frozen for these fits;
+this does not establish full trainable-backbone exemplar-free CIL.

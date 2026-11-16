@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from lmoment_lifelong.continual_algorithms import (
     FixedByteReplay, IncrementalFeatureTrainer, HierarchicalDistributionMemory,
-    EvidenceGatedAdapterRouter,
+    EvidenceGatedAdapterRouter, SequentialDistributionClassifier,
 )
 
 
@@ -58,3 +58,18 @@ def test_incremental_trainer_fits_and_checkpoint():
     trainer.train_stage(x[25:],y[25:],memory=memory, steps=20, replay_ratio=.5)
     assert trainer.evaluate(x,y) >= .5
     assert len(trainer.checkpoint()["stages"]) == 2
+
+
+def test_exemplar_free_incremental_distribution():
+    rng = np.random.default_rng(13)
+    x0 = rng.normal(loc=-2, scale=.2, size=(20, 2))
+    x1 = rng.normal(loc=2, scale=.2, size=(20, 2))
+    for mode in ('lmoment', 'mean_var'):
+        model = SequentialDistributionClassifier(mode=mode)
+        model.fit_stage(x0, np.zeros(len(x0), dtype=int))
+        model.fit_stage(x1, np.ones(len(x1), dtype=int))
+        assert (model.predict(np.vstack([x0,x1])) == [0]*20+[1]*20).mean() > .95
+        assert set(model.params) == {0, 1}
+        assert model.stored_bytes > 0
+        with pytest.raises(ValueError):
+            model.fit_stage(x0, np.zeros(len(x0), dtype=int))

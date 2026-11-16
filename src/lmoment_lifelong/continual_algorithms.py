@@ -319,3 +319,74 @@ class EvidenceGatedAdapterRouter:
         else:
             action = "adapt"
         return DriftAction(action, float(statistic), alarm, reuse)
+
+
+class SequentialDistributionClassifier:
+    """Exemplar-free Class-IL: persist per-class distribution parameters only.
+
+    At each stage, only labels and feature vectors for newly presented classes
+    are accepted. Old fitted class parameters remain unchanged; no old images
+    or feature exemplars are retained. This supports old/new confusion and
+    forgetting evaluation under one shared classifier.
+    """
+    def __init__(self, mode="lmoment", shrinkage=5., min_scale=.02):
+        if mode not in ("lmoment", "mean_var") or shrinkage < 0 or min_scale <= 0:
+            raise ValueError("Invalid sequential classifier")
+        self.mode, self.shrinkage, self.min_scale = mode, shrinkage, min_scale
+        self.params = {}
+        self.global_scale = None
+        self.dim = None
+        self.sessions = []
+
+    def fit_stage(self, x, labels):
+        data = _matrix(x)
+        y = np.asarray(labels)
+        if len(data) != len(y) or not len(data):
+            raise ValueError("Bad class-incremental stage")
+        if self.dim is None:
+            self.dim = data.shape[1]
+            # Fixed observer scale measured during the initial permitted stage.
+            self.global_scale = np.maximum(data.std(0, ddof=0), self.min_scale)
+        if data.shape[1] != self.dim:
+            raise ValueError("Feature space changed; historical statistics require alignment")
+        new_classes = np.unique(y)
+        if any(int(k) in self.params for k in new_classes):
+            raise ValueError("Repeated class requires an explicit incremental update protocol")
+        for k in new_classes:
+            rows = data[y == k]
+            if self.mode == "lmoment" and len(rows) >= 2:
+                l = sample_lmoments(rows, order=2)
+                mean = l[0]
+                scale = np.maximum(l[1] * np.sqrt(np.pi), self.min_scale)
+            else:
+                mean = rows.mean(0)
+                scale = np.maximum(rows.std(0, ddof=0), self.min_scale)
+            n = len(rows)
+            scale = (n * scale + self.shrinkage * self.global_scale) / (n + self.shrinkage)
+            self.params[int(k)] = (mean.copy(), np.maximum(scale, self.min_scale).copy(), n)
+        self.sessions.append([int(k) for k in new_classes])
+        return self
+
+    def predict(self, x):
+        if not self.params:
+            raise RuntimeError("Must fit at least one session")
+        data = _matrix(x, self.dim)
+        keys = np.asarray(sorted(self.params))
+        means = np.stack([self.params[int(k)][0] for k in keys])
+        scales = np.stack([self.params[int(k)][1] for k in keys])
+        z = (data[:, None, :] - means[None]) / scales[None]
+        score = -np.square(z).sum(axis=2) * .5 - np.log(scales[None]).sum(axis=2)
+        return keys[np.argmax(score, axis=1)]
+
+    @property
+    def stored_bytes(self):
+        if self.global_scale is None:
+            return 0
+        return int(self.global_scale.nbytes + sum(
+            mean.nbytes + scale.nbytes + 8 for mean, scale, _ in self.params.values()))
+
+    def state_dict(self):
+        return {"mode":self.mode, "shrinkage":self.shrinkage,
+                "min_scale":self.min_scale, "sessions":copy.deepcopy(self.sessions),
+                "global_scale":None if self.global_scale is None else self.global_scale.copy(),
+                "params":copy.deepcopy(self.params)}
