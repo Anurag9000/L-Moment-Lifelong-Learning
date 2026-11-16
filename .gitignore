@@ -26,3 +26,6 @@ results/cifar10_hypothesis26_smoke/
 results/cifar10_dinov2_cache/
 results/cifar10_hypothesis26_dinov2/
 results/cifar10_hypothesis26_tuned/
+results/stl10_hypothesis26_tuned/
+results/stl10_hypothesis26_dinov2/
+results/stl10_dinov2_cache/
