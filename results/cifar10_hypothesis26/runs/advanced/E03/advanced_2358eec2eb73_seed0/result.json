@@ -1,0 +1,65 @@
+{
+  "status": "trainable_GCD_reference_not_official_paper_reproduction",
+  "dataset": "torchvision CIFAR-10",
+  "source": "real_images",
+  "config": {
+    "track": "E03",
+    "seed": 0,
+    "data_root": "datasets",
+    "output_root": "results/cifar10_hypothesis26/runs/advanced",
+    "samples_per_class": 4500,
+    "val_per_class": 500,
+    "test_per_class": 1000,
+    "ssl_epochs": 10,
+    "batch_size": 512,
+    "feature_dim": 64,
+    "download": true,
+    "device": "cuda",
+    "memory_bytes": 65536,
+    "statistical_projections": 16,
+    "min_support": 8,
+    "gcd_mode": "gcd",
+    "gcd_epochs_base": 10,
+    "gcd_epochs_session": 10,
+    "variant": "lmoment"
+  },
+  "variants": {
+    "lmoment": {
+      "mode": "gcd",
+      "variant": "lmoment",
+      "known_supervised_classes": 5,
+      "oracle_class_count": 10,
+      "novel_labels_in_optimizer": false,
+      "historical_base_labeled_replay": true,
+      "representation_trainable": true,
+      "base_optimizer_updates": 440,
+      "base_final_loss": 0.45754802227020264,
+      "sessions": [
+        {
+          "all_accuracy": 0.458,
+          "old_accuracy": 0.6632,
+          "novel_accuracy": 0.2528,
+          "seen_classes": 10,
+          "evaluation_alignment": "fitted_on_separate_validation_partition",
+          "session": 1,
+          "train_examples": 45000,
+          "oracle_k": 10,
+          "pseudo_groups": 10,
+          "optimizer_updates": 880,
+          "final_training_loss": 1.4729100740108552,
+          "validation": {
+            "all_accuracy": 0.4454,
+            "old_accuracy": 0.662,
+            "novel_accuracy": 0.2288,
+            "seen_classes": 10,
+            "evaluation_alignment": "fitted_on_separate_validation_partition"
+          }
+        }
+      ],
+      "status": "trainable_GCD_reference_not_SimGCD_or_DYDM"
+    }
+  },
+  "elapsed_seconds": 335.0052786450833,
+  "oracle_K": true,
+  "novel_ground_truth_used_for_learning": false
+}

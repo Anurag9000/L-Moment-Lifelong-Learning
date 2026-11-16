@@ -1,0 +1,19 @@
+COMMAND: /home/anurag24092/envs/lmoment-hypothesis26/bin/python -m lmoment_lifelong.cifar10_advanced --track E06 --seed 0 --data-root datasets --output-root results/cifar10_hypothesis26/runs/advanced --samples-per-class 4500 --val-per-class 500 --test-per-class 1000 --ssl-epochs 10 --batch-size 512 --feature-dim 64 --download --device cuda --memory-bytes 65536 --statistical-projections 16 --min-support 8 --gcd-mode gcd --gcd-epochs-base 10 --gcd-epochs-session 10 --variant lmoment
+
+Files already downloaded and verified
+Files already downloaded and verified
+{
+  "artifact": "results/cifar10_hypothesis26/runs/advanced/E06/advanced_eecaeb6cac26_seed0/result.json",
+  "variants": {
+    "lmoment": {
+      "artificial_merge_intervention": true,
+      "candidate_proposed": true,
+      "accepted_heldout": true,
+      "holdout_gain": 0.0562999366317815,
+      "holdout_shape_score": 0.03497557904142378,
+      "rollback_restored": true,
+      "memory_bytes_after_rollback": 4608000,
+      "note": "Shared geometric split; L-moment variant adds held-out shape gate (heuristic, not inferential)"
+    }
+  }
+}

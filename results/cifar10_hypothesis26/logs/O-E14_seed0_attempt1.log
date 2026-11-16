@@ -1,0 +1,61 @@
+COMMAND: /home/anurag24092/envs/lmoment-hypothesis26/bin/python -m lmoment_lifelong.cifar10_suite --track E14 --variant lmoment --data-root datasets --output-root results/cifar10_hypothesis26/runs/original --seed 0 --samples-per-class 4500 --val-per-class 500 --test-per-class 1000 --epochs 10 --ssl-epochs 10 --batch-size 512 --lr 0.001 --feature-dim 64 --device cuda --download --backbone ssl --known-classes 5
+
+Files already downloaded and verified
+Files already downloaded and verified
+{
+  "result_path": "results/cifar10_hypothesis26/runs/original/E14/4e0275aded28_seed0/result.json",
+  "metrics": {
+    "lmoment": {
+      "accuracy": 0.1927,
+      "covered_accuracy": 0.1927,
+      "coverage": 1.0,
+      "ari": 0.04393235678154292,
+      "nmi": 0.08704082975196528,
+      "estimated_k": 10,
+      "oracle_global_k": 10,
+      "known_training_labels": 5,
+      "continual_sessions": 2,
+      "stage_metrics": [
+        {
+          "session": 1,
+          "seen_classes": 7,
+          "accuracy": {
+            "accuracy": 0.267,
+            "covered_accuracy": 0.267,
+            "coverage": 1.0,
+            "ari": 0.0550283888345107,
+            "nmi": 0.08994105595263086,
+            "estimated_k": 7
+          }
+        },
+        {
+          "session": 2,
+          "seen_classes": 10,
+          "accuracy": {
+            "accuracy": 0.1927,
+            "covered_accuracy": 0.1927,
+            "coverage": 1.0,
+            "ari": 0.04393235678154292,
+            "nmi": 0.08704082975196528,
+            "estimated_k": 10
+          }
+        }
+      ],
+      "unlabeled_pool_contains_known_classes": true,
+      "labelled_base_replay": true,
+      "note": "Two-session pseudo-class memory prototype; full E14 controller pending",
+      "independent_validation": {
+        "validation_clustering": {
+          "accuracy": 0.1946,
+          "covered_accuracy": 0.1946,
+          "coverage": 1.0,
+          "ari": 0.0444280248197096,
+          "nmi": 0.08783095991689034,
+          "estimated_k": 10
+        },
+        "test_accuracy_with_fixed_validation_alignment": 0.1852,
+        "validation_mapping_size": 10
+      }
+    }
+  }
+}

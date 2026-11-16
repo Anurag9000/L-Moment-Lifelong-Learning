@@ -1,0 +1,15 @@
+COMMAND: /home/anurag24092/envs/lmoment-hypothesis26/bin/python -m lmoment_lifelong.cifar10_suite --track E07 --variant lmoment --data-root datasets --output-root results/cifar10_hypothesis26/runs/original --seed 0 --samples-per-class 4500 --val-per-class 500 --test-per-class 1000 --epochs 10 --ssl-epochs 10 --batch-size 512 --lr 0.001 --feature-dim 64 --device cuda --download --backbone ssl --known-classes 5
+
+Files already downloaded and verified
+Files already downloaded and verified
+{
+  "result_path": "results/cifar10_hypothesis26/runs/original/E07/9303674108f3_seed0/result.json",
+  "metrics": {
+    "lmoment": {
+      "shifted_classification": 0.2339,
+      "within_class_distance": 0.02327164048626648,
+      "different_class_distance": 0.061821645246121756,
+      "note": "Feature corruption proxy, not a semantic-domain factorization"
+    }
+  }
+}

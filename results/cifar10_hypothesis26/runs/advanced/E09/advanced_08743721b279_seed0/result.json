@@ -1,0 +1,55 @@
+{
+  "status": "extended_reference_not_published_reproduction",
+  "dataset": "torchvision CIFAR-10",
+  "config": {
+    "track": "E09",
+    "seed": 0,
+    "data_root": "datasets",
+    "output_root": "results/cifar10_hypothesis26/runs/advanced",
+    "samples_per_class": 4500,
+    "val_per_class": 500,
+    "test_per_class": 1000,
+    "ssl_epochs": 10,
+    "batch_size": 512,
+    "feature_dim": 64,
+    "download": true,
+    "device": "cuda",
+    "memory_bytes": 65536,
+    "statistical_projections": 16,
+    "min_support": 8,
+    "gcd_mode": "gcd",
+    "gcd_epochs_base": 10,
+    "gcd_epochs_session": 10,
+    "variant": "lmoment"
+  },
+  "source": "real_images",
+  "supervision": "per-track see code",
+  "variants": {
+    "lmoment": {
+      "validation_accuracy": 0.2414,
+      "test_accuracy": 0.2461,
+      "old_before": 0.4064,
+      "old_after": 0.2218,
+      "old_forgetting": 0.1846,
+      "new_after": 0.2704,
+      "stored_bytes": 10832,
+      "sessions": 2,
+      "no_old_examples_after_stage_1": true,
+      "model": "exemplar-free sequential class-conditional Normal"
+    }
+  },
+  "pretrain_loss": [
+    2.510598653729757,
+    0.8091177439901563,
+    0.6883491232236226,
+    0.6380653334511651,
+    0.618628750207689,
+    0.6049088791953193,
+    0.5864186172909207,
+    0.5764778056462606,
+    0.5460687126371596,
+    0.49916063356399537
+  ],
+  "elapsed_seconds": 142.68543475307524,
+  "evidence_warning": "No publication claim; stronger baseline reproductions and seeds remain"
+}

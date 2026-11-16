@@ -1,0 +1,85 @@
+{
+  "status": "trainable_GCD_reference_not_official_paper_reproduction",
+  "dataset": "torchvision CIFAR-10",
+  "source": "real_images",
+  "config": {
+    "track": "E04",
+    "seed": 0,
+    "data_root": "datasets",
+    "output_root": "results/cifar10_hypothesis26/runs/advanced",
+    "samples_per_class": 4500,
+    "val_per_class": 500,
+    "test_per_class": 1000,
+    "ssl_epochs": 10,
+    "batch_size": 512,
+    "feature_dim": 64,
+    "download": true,
+    "device": "cuda",
+    "memory_bytes": 65536,
+    "statistical_projections": 16,
+    "min_support": 8,
+    "gcd_mode": "gcd",
+    "gcd_epochs_base": 10,
+    "gcd_epochs_session": 10,
+    "variant": "lmoment"
+  },
+  "variants": {
+    "lmoment": {
+      "mode": "continual_gcd",
+      "variant": "lmoment",
+      "known_supervised_classes": 5,
+      "oracle_class_count": 10,
+      "novel_labels_in_optimizer": false,
+      "historical_base_labeled_replay": true,
+      "representation_trainable": true,
+      "base_optimizer_updates": 440,
+      "base_final_loss": 0.4603250026702881,
+      "sessions": [
+        {
+          "all_accuracy": 0.5308571428571428,
+          "old_accuracy": 0.724,
+          "novel_accuracy": 0.048,
+          "seen_classes": 7,
+          "evaluation_alignment": "fitted_on_separate_validation_partition",
+          "session": 1,
+          "train_examples": 31500,
+          "oracle_k": 7,
+          "pseudo_groups": 7,
+          "optimizer_updates": 620,
+          "final_training_loss": 1.1506810877800593,
+          "validation": {
+            "all_accuracy": 0.5257142857142857,
+            "old_accuracy": 0.7188,
+            "novel_accuracy": 0.043,
+            "seen_classes": 7,
+            "evaluation_alignment": "fitted_on_separate_validation_partition"
+          }
+        },
+        {
+          "all_accuracy": 0.4022,
+          "old_accuracy": 0.6468,
+          "novel_accuracy": 0.1576,
+          "seen_classes": 10,
+          "evaluation_alignment": "fitted_on_separate_validation_partition",
+          "session": 2,
+          "train_examples": 45000,
+          "oracle_k": 10,
+          "pseudo_groups": 10,
+          "optimizer_updates": 880,
+          "final_training_loss": 1.3851732594263244,
+          "validation": {
+            "all_accuracy": 0.3944,
+            "old_accuracy": 0.6356,
+            "novel_accuracy": 0.1532,
+            "seen_classes": 10,
+            "evaluation_alignment": "fitted_on_separate_validation_partition"
+          }
+        }
+      ],
+      "status": "trainable_GCD_reference_not_SimGCD_or_DYDM"
+    }
+  },
+  "elapsed_seconds": 535.9409155915491,
+  "oracle_K": true,
+  "novel_ground_truth_used_for_learning": false
+}

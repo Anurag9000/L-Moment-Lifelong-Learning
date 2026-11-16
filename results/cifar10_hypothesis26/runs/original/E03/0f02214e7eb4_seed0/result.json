@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "config": {
+    "track": "E03",
+    "variant": "lmoment",
+    "data_root": "datasets",
+    "output_root": "results/cifar10_hypothesis26/runs/original",
+    "seed": 0,
+    "samples_per_class": 4500,
+    "val_per_class": 500,
+    "test_per_class": 1000,
+    "epochs": 10,
+    "ssl_epochs": 10,
+    "batch_size": 512,
+    "lr": 0.001,
+    "feature_dim": 64,
+    "memory_limit": 32,
+    "device": "cuda",
+    "download": true,
+    "backbone": "ssl",
+    "known_classes": 5,
+    "save_features": false
+  },
+  "variants": {
+    "lmoment": {
+      "accuracy": 0.1937,
+      "covered_accuracy": 0.1937,
+      "coverage": 1.0,
+      "ari": 0.04019412988865099,
+      "nmi": 0.08692683752323752,
+      "estimated_k": 10,
+      "oracle_global_k": 10,
+      "known_training_labels": 5,
+      "continual_sessions": 1,
+      "stage_metrics": [
+        {
+          "session": 1,
+          "seen_classes": 10,
+          "accuracy": {
+            "accuracy": 0.1937,
+            "covered_accuracy": 0.1937,
+            "coverage": 1.0,
+            "ari": 0.04019412988865099,
+            "nmi": 0.08692683752323752,
+            "estimated_k": 10
+          }
+        }
+      ],
+      "unlabeled_pool_contains_known_classes": true,
+      "labelled_base_replay": true,
+      "independent_validation": {
+        "validation_clustering": {
+          "accuracy": 0.1898,
+          "covered_accuracy": 0.1898,
+          "coverage": 1.0,
+          "ari": 0.037212078408294456,
+          "nmi": 0.08517162821381412,
+          "estimated_k": 10
+        },
+        "test_accuracy_with_fixed_validation_alignment": 0.1901,
+        "validation_mapping_size": 10
+      }
+    }
+  },
+  "encoder_loss_trace": [
+    2.5105985911051434,
+    0.8091199814054701,
+    0.6888828003671434,
+    0.6284913805007935,
+    0.6162922157711452,
+    0.602567867173089,
+    0.5881711592992147,
+    0.5703980228000217,
+    0.5462221046129863,
+    0.49596825533972844
+  ],
+  "elapsed_seconds": 150.77736902236938,
+  "dataset": "torchvision.CIFAR10",
+  "source": "actual_images",
+  "feature_backbone": "ssl",
+  "transductive_unlabeled_pretraining": true,
+  "strict_online_encoder_training": false,
+  "result_status": "reference_implementation_not_publication_reproduction",
+  "device": "cuda"
+}

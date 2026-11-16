@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "config": {
+    "track": "E11",
+    "variant": "lmoment",
+    "data_root": "datasets",
+    "output_root": "results/cifar10_hypothesis26/runs/original",
+    "seed": 0,
+    "samples_per_class": 4500,
+    "val_per_class": 500,
+    "test_per_class": 1000,
+    "epochs": 10,
+    "ssl_epochs": 10,
+    "batch_size": 512,
+    "lr": 0.001,
+    "feature_dim": 64,
+    "memory_limit": 32,
+    "device": "cuda",
+    "download": true,
+    "backbone": "ssl",
+    "known_classes": 5,
+    "save_features": false
+  },
+  "variants": {
+    "lmoment": {
+      "test_accuracy": 0.1,
+      "updates": 706,
+      "alarms": 0,
+      "processed": 45000,
+      "note": "L-moment gated online linear adaptation; not calibrated full task-free CL",
+      "independent_validation": {
+        "validation_accuracy": 0.1,
+        "test_accuracy": 0.1
+      }
+    }
+  },
+  "encoder_loss_trace": [
+    2.5105984219339157,
+    0.8091191866556804,
+    0.6866349349975586,
+    0.6344767882029215,
+    0.6185226074854533,
+    0.6077787185562982,
+    0.5894445112652249,
+    0.5762167314741347,
+    0.5461159948560926,
+    0.49757949578497146
+  ],
+  "elapsed_seconds": 135.49045085906982,
+  "dataset": "torchvision.CIFAR10",
+  "source": "actual_images",
+  "feature_backbone": "ssl",
+  "transductive_unlabeled_pretraining": true,
+  "strict_online_encoder_training": false,
+  "result_status": "reference_implementation_not_publication_reproduction",
+  "device": "cuda"
+}

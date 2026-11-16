@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "config": {
+    "track": "E12",
+    "variant": "lmoment",
+    "data_root": "datasets",
+    "output_root": "results/cifar10_hypothesis26/runs/original",
+    "seed": 0,
+    "samples_per_class": 4500,
+    "val_per_class": 500,
+    "test_per_class": 1000,
+    "epochs": 10,
+    "ssl_epochs": 10,
+    "batch_size": 512,
+    "lr": 0.001,
+    "feature_dim": 64,
+    "memory_limit": 32,
+    "device": "cuda",
+    "download": true,
+    "backbone": "ssl",
+    "known_classes": 5,
+    "save_features": false
+  },
+  "variants": {
+    "lmoment": {
+      "accuracy": 0.1801,
+      "old_accuracy": 0.3602,
+      "new_accuracy": 0.0,
+      "parameters_added": 0,
+      "statistical_change_score": 0.0007602825976810076,
+      "growth_accepted": false,
+      "note": "Expandable MLP capacity-trial prototype; not the full ADP family",
+      "independent_validation": {
+        "validation_accuracy": 0.179,
+        "test_accuracy": 0.1801
+      }
+    }
+  },
+  "encoder_loss_trace": [
+    2.5119920281834074,
+    0.8089446523666382,
+    0.6937975234349568,
+    0.6241813042322795,
+    0.6148638314670987,
+    0.6121494076410929,
+    0.5886327726999918,
+    0.5795412333806356,
+    0.55115257619222,
+    0.5023467687818739
+  ],
+  "elapsed_seconds": 152.2740833759308,
+  "dataset": "torchvision.CIFAR10",
+  "source": "actual_images",
+  "feature_backbone": "ssl",
+  "transductive_unlabeled_pretraining": true,
+  "strict_online_encoder_training": false,
+  "result_status": "reference_implementation_not_publication_reproduction",
+  "device": "cuda"
+}

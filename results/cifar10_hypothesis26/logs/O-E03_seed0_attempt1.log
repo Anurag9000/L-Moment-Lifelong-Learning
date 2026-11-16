@@ -1,0 +1,48 @@
+COMMAND: /home/anurag24092/envs/lmoment-hypothesis26/bin/python -m lmoment_lifelong.cifar10_suite --track E03 --variant lmoment --data-root datasets --output-root results/cifar10_hypothesis26/runs/original --seed 0 --samples-per-class 4500 --val-per-class 500 --test-per-class 1000 --epochs 10 --ssl-epochs 10 --batch-size 512 --lr 0.001 --feature-dim 64 --device cuda --download --backbone ssl --known-classes 5
+
+Files already downloaded and verified
+Files already downloaded and verified
+{
+  "result_path": "results/cifar10_hypothesis26/runs/original/E03/0f02214e7eb4_seed0/result.json",
+  "metrics": {
+    "lmoment": {
+      "accuracy": 0.1937,
+      "covered_accuracy": 0.1937,
+      "coverage": 1.0,
+      "ari": 0.04019412988865099,
+      "nmi": 0.08692683752323752,
+      "estimated_k": 10,
+      "oracle_global_k": 10,
+      "known_training_labels": 5,
+      "continual_sessions": 1,
+      "stage_metrics": [
+        {
+          "session": 1,
+          "seen_classes": 10,
+          "accuracy": {
+            "accuracy": 0.1937,
+            "covered_accuracy": 0.1937,
+            "coverage": 1.0,
+            "ari": 0.04019412988865099,
+            "nmi": 0.08692683752323752,
+            "estimated_k": 10
+          }
+        }
+      ],
+      "unlabeled_pool_contains_known_classes": true,
+      "labelled_base_replay": true,
+      "independent_validation": {
+        "validation_clustering": {
+          "accuracy": 0.1898,
+          "covered_accuracy": 0.1898,
+          "coverage": 1.0,
+          "ari": 0.037212078408294456,
+          "nmi": 0.08517162821381412,
+          "estimated_k": 10
+        },
+        "test_accuracy_with_fixed_validation_alignment": 0.1901,
+        "validation_mapping_size": 10
+      }
+    }
+  }
+}

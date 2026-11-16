@@ -1,0 +1,20 @@
+COMMAND: /home/anurag24092/envs/lmoment-hypothesis26/bin/python -m lmoment_lifelong.cifar10_suite --track E11 --variant lmoment --data-root datasets --output-root results/cifar10_hypothesis26/runs/original --seed 0 --samples-per-class 4500 --val-per-class 500 --test-per-class 1000 --epochs 10 --ssl-epochs 10 --batch-size 512 --lr 0.001 --feature-dim 64 --device cuda --download --backbone ssl --known-classes 5
+
+Files already downloaded and verified
+Files already downloaded and verified
+{
+  "result_path": "results/cifar10_hypothesis26/runs/original/E11/a018df6294c3_seed0/result.json",
+  "metrics": {
+    "lmoment": {
+      "test_accuracy": 0.1,
+      "updates": 706,
+      "alarms": 0,
+      "processed": 45000,
+      "note": "L-moment gated online linear adaptation; not calibrated full task-free CL",
+      "independent_validation": {
+        "validation_accuracy": 0.1,
+        "test_accuracy": 0.1
+      }
+    }
+  }
+}

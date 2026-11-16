@@ -1,0 +1,29 @@
+COMMAND: /home/anurag24092/envs/lmoment-hypothesis26/bin/python -m lmoment_lifelong.cifar10_suite --track E05 --variant lmoment --data-root datasets --output-root results/cifar10_hypothesis26/runs/original --seed 0 --samples-per-class 4500 --val-per-class 500 --test-per-class 1000 --epochs 10 --ssl-epochs 10 --batch-size 512 --lr 0.001 --feature-dim 64 --device cuda --download --backbone ssl --known-classes 5
+
+Files already downloaded and verified
+Files already downloaded and verified
+{
+  "result_path": "results/cifar10_hypothesis26/runs/original/E05/f7d3532aa569_seed0/result.json",
+  "metrics": {
+    "lmoment": {
+      "accuracy": 0.16377777777777777,
+      "covered_accuracy": 0.16491016088250432,
+      "coverage": 0.9931333333333333,
+      "ari": 0.035704982023755175,
+      "nmi": 0.1641343433634333,
+      "estimated_k": 309,
+      "final_memory_count": 17,
+      "memory_bytes_estimate": 65435136,
+      "mean_memory_count": 17.72971111111111,
+      "online_predictions": 45000,
+      "validation_memory": {
+        "accuracy": 0.16,
+        "covered_accuracy": 0.16158351848111493,
+        "coverage": 0.9902,
+        "ari": 0.030026800612479695,
+        "nmi": 0.08419239677430149,
+        "estimated_k": 17
+      }
+    }
+  }
+}

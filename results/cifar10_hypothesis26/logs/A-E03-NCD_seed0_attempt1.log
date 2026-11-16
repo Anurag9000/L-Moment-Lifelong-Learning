@@ -1,0 +1,43 @@
+COMMAND: /home/anurag24092/envs/lmoment-hypothesis26/bin/python -m lmoment_lifelong.cifar10_advanced --track E03 --seed 0 --data-root datasets --output-root results/cifar10_hypothesis26/runs/advanced_ncd --samples-per-class 4500 --val-per-class 500 --test-per-class 1000 --ssl-epochs 10 --batch-size 512 --feature-dim 64 --download --device cuda --memory-bytes 65536 --statistical-projections 16 --min-support 8 --gcd-mode ncd --gcd-epochs-base 10 --gcd-epochs-session 10 --variant lmoment
+
+Files already downloaded and verified
+Files already downloaded and verified
+{
+  "artifact": "results/cifar10_hypothesis26/runs/advanced_ncd/E03/advanced_e3ddc68812a8_seed0/result.json",
+  "variants": {
+    "lmoment": {
+      "mode": "ncd",
+      "variant": "lmoment",
+      "known_supervised_classes": 5,
+      "oracle_class_count": 10,
+      "novel_labels_in_optimizer": false,
+      "historical_base_labeled_replay": true,
+      "representation_trainable": true,
+      "base_optimizer_updates": 440,
+      "base_final_loss": 0.4623734951019287,
+      "sessions": [
+        {
+          "all_accuracy": 0.4089,
+          "old_accuracy": 0.349,
+          "novel_accuracy": 0.4688,
+          "seen_classes": 10,
+          "evaluation_alignment": "fitted_on_separate_validation_partition",
+          "session": 1,
+          "train_examples": 22500,
+          "oracle_k": 10,
+          "pseudo_groups": 5,
+          "optimizer_updates": 440,
+          "final_training_loss": 1.6685475535670635,
+          "validation": {
+            "all_accuracy": 0.4194,
+            "old_accuracy": 0.3652,
+            "novel_accuracy": 0.4736,
+            "seen_classes": 10,
+            "evaluation_alignment": "fitted_on_separate_validation_partition"
+          }
+        }
+      ],
+      "status": "trainable_GCD_reference_not_SimGCD_or_DYDM"
+    }
+  }
+}

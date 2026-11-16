@@ -1,0 +1,67 @@
+{
+  "status": "extended_reference_not_published_reproduction",
+  "dataset": "torchvision CIFAR-10",
+  "config": {
+    "track": "E08",
+    "seed": 0,
+    "data_root": "datasets",
+    "output_root": "results/cifar10_hypothesis26/runs/advanced",
+    "samples_per_class": 4500,
+    "val_per_class": 500,
+    "test_per_class": 1000,
+    "ssl_epochs": 10,
+    "batch_size": 512,
+    "feature_dim": 64,
+    "download": true,
+    "device": "cuda",
+    "memory_bytes": 65536,
+    "statistical_projections": 16,
+    "min_support": 8,
+    "gcd_mode": "gcd",
+    "gcd_epochs_base": 10,
+    "gcd_epochs_session": 10,
+    "variant": "lmoment"
+  },
+  "source": "real_images",
+  "supervision": "per-track see code",
+  "variants": {
+    "lmoment": {
+      "oracle_child_k": 10,
+      "parent_k": 3,
+      "validation": {
+        "fixed_mapping_accuracy": 0.1902,
+        "coverage": 1.0,
+        "discovered_clusters": 10,
+        "ari_covered": 0.04068695660327343,
+        "nmi_covered": 0.08534336945133365
+      },
+      "test": {
+        "fixed_mapping_accuracy": 0.1823,
+        "coverage": 1.0,
+        "discovered_clusters": 10,
+        "ari_covered": 0.041216495458930746,
+        "nmi_covered": 0.08484849907994443
+      },
+      "parent_distribution": {
+        "0": 5392,
+        "1": 2862,
+        "2": 1746
+      },
+      "note": "Unsupervised visual hierarchy; CIFAR-10 has no semantic taxonomy oracle"
+    }
+  },
+  "pretrain_loss": [
+    2.511991345755259,
+    0.8061331768565708,
+    0.6810623742209541,
+    0.6333953212844001,
+    0.6144123396555583,
+    0.6071079669952393,
+    0.5863396644804213,
+    0.5763465381304423,
+    0.5421217558754815,
+    0.4958647604253557
+  ],
+  "elapsed_seconds": 154.25068470975384,
+  "evidence_warning": "No publication claim; stronger baseline reproductions and seeds remain"
+}

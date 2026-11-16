@@ -1,0 +1,15 @@
+COMMAND: /home/anurag24092/envs/lmoment-hypothesis26/bin/python -m lmoment_lifelong.cifar10_advanced --track E01 --seed 0 --data-root datasets --output-root results/cifar10_hypothesis26/runs/advanced --samples-per-class 4500 --val-per-class 500 --test-per-class 1000 --ssl-epochs 10 --batch-size 512 --feature-dim 64 --download --device cuda --memory-bytes 65536 --statistical-projections 16 --min-support 8 --gcd-mode gcd --gcd-epochs-base 10 --gcd-epochs-session 10 --variant lmoment
+
+Files already downloaded and verified
+Files already downloaded and verified
+{
+  "artifact": "results/cifar10_hypothesis26/runs/advanced/E01/advanced_b7f95dae374b_seed0/result.json",
+  "variants": {
+    "lmoment": {
+      "validation_accuracy": 0.2434,
+      "test_accuracy": 0.245,
+      "model": "diagonal Normal L1/L2 fitted",
+      "labels_allowed": true
+    }
+  }
+}

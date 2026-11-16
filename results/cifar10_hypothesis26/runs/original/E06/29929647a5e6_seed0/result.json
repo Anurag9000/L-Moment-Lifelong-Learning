@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "config": {
+    "track": "E06",
+    "variant": "lmoment",
+    "data_root": "datasets",
+    "output_root": "results/cifar10_hypothesis26/runs/original",
+    "seed": 0,
+    "samples_per_class": 4500,
+    "val_per_class": 500,
+    "test_per_class": 1000,
+    "epochs": 10,
+    "ssl_epochs": 10,
+    "batch_size": 512,
+    "lr": 0.001,
+    "feature_dim": 64,
+    "memory_limit": 32,
+    "device": "cuda",
+    "download": true,
+    "backbone": "ssl",
+    "known_classes": 5,
+    "save_features": false
+  },
+  "variants": {
+    "lmoment": {
+      "proposed": true,
+      "accepted": false,
+      "rollback_restored": true,
+      "proposal_score": 1.60762629279474
+    }
+  },
+  "encoder_loss_trace": [
+    2.5105976758956907,
+    0.809114840719435,
+    0.6902060993724399,
+    0.6314849382400513,
+    0.6191467889361911,
+    0.608539127392239,
+    0.5854896886295743,
+    0.5732620765156216,
+    0.5394233445697361,
+    0.4936507825639513
+  ],
+  "elapsed_seconds": 152.16824197769165,
+  "dataset": "torchvision.CIFAR10",
+  "source": "actual_images",
+  "feature_backbone": "ssl",
+  "transductive_unlabeled_pretraining": true,
+  "strict_online_encoder_training": false,
+  "result_status": "reference_implementation_not_publication_reproduction",
+  "device": "cuda"
+}

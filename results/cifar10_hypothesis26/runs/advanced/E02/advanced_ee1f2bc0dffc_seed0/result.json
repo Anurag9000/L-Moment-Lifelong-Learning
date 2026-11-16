@@ -1,0 +1,71 @@
+{
+  "status": "extended_reference_not_published_reproduction",
+  "dataset": "torchvision CIFAR-10",
+  "config": {
+    "track": "E02",
+    "seed": 0,
+    "data_root": "datasets",
+    "output_root": "results/cifar10_hypothesis26/runs/advanced",
+    "samples_per_class": 4500,
+    "val_per_class": 500,
+    "test_per_class": 1000,
+    "ssl_epochs": 10,
+    "batch_size": 512,
+    "feature_dim": 64,
+    "download": true,
+    "device": "cuda",
+    "memory_bytes": 65536,
+    "statistical_projections": 16,
+    "min_support": 8,
+    "gcd_mode": "gcd",
+    "gcd_epochs_base": 10,
+    "gcd_epochs_session": 10,
+    "variant": "lmoment"
+  },
+  "source": "real_images",
+  "supervision": "per-track see code",
+  "variants": {
+    "lmoment": {
+      "stream_type": "label-hidden_iid",
+      "calibration_warning": "selected-cluster threshold is heuristic, not valid type-I control",
+      "initial_prediction_abstention": true,
+      "prequential_coverage": 0.2793555555555556,
+      "validation": {
+        "fixed_mapping_accuracy": 0.0208,
+        "coverage": 0.3178,
+        "discovered_clusters": 138,
+        "ari_covered": 0.01828524487877165,
+        "nmi_covered": 0.20858106660478737
+      },
+      "test": {
+        "fixed_mapping_accuracy": 0.0156,
+        "coverage": 0.3183,
+        "discovered_clusters": 144,
+        "ari_covered": 0.02064677606360498,
+        "nmi_covered": 0.17742994411936422
+      },
+      "mature_classes": 146,
+      "total_assemblies": 200,
+      "estimated_memory_bytes": 3686912,
+      "events": {
+        "confirm_birth": 146,
+        "capacity_defer": 31102,
+        "provisional": 200
+      }
+    }
+  },
+  "pretrain_loss": [
+    2.5112581279118857,
+    0.8088076391008165,
+    0.6981535949177212,
+    0.6302947835922241,
+    0.6145128315289815,
+    0.6031278353585138,
+    0.5827420813454522,
+    0.5704287953270806,
+    0.5380463047451444,
+    0.4945732999748654
+  ],
+  "elapsed_seconds": 209.9205369791016,
+  "evidence_warning": "No publication claim; stronger baseline reproductions and seeds remain"
+}

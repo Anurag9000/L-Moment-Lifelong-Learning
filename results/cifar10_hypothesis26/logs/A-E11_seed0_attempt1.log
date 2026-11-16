@@ -1,0 +1,17 @@
+COMMAND: /home/anurag24092/envs/lmoment-hypothesis26/bin/python -m lmoment_lifelong.cifar10_advanced --track E11 --seed 0 --data-root datasets --output-root results/cifar10_hypothesis26/runs/advanced --samples-per-class 4500 --val-per-class 500 --test-per-class 1000 --ssl-epochs 10 --batch-size 512 --feature-dim 64 --download --device cuda --memory-bytes 65536 --statistical-projections 16 --min-support 8 --gcd-mode gcd --gcd-epochs-base 10 --gcd-epochs-session 10 --variant lmoment
+
+Files already downloaded and verified
+Files already downloaded and verified
+{
+  "artifact": "results/cifar10_hypothesis26/runs/advanced/E11/advanced_a43fc909301d_seed0/result.json",
+  "variants": {
+    "lmoment": {
+      "calibration_unit": "whole_null_stream",
+      "calibration_streams": 24,
+      "null_noop": true,
+      "shift_alarm": true,
+      "shift_action": "propose_growth",
+      "action_warning": "Controller receives experimental performance-degraded flag, not online estimated loss"
+    }
+  }
+}

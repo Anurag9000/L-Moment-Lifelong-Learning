@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "config": {
+    "track": "E04",
+    "variant": "lmoment",
+    "data_root": "datasets",
+    "output_root": "results/cifar10_hypothesis26/runs/original",
+    "seed": 0,
+    "samples_per_class": 4500,
+    "val_per_class": 500,
+    "test_per_class": 1000,
+    "epochs": 10,
+    "ssl_epochs": 10,
+    "batch_size": 512,
+    "lr": 0.001,
+    "feature_dim": 64,
+    "memory_limit": 32,
+    "device": "cuda",
+    "download": true,
+    "backbone": "ssl",
+    "known_classes": 5,
+    "save_features": false
+  },
+  "variants": {
+    "lmoment": {
+      "accuracy": 0.1971,
+      "covered_accuracy": 0.1971,
+      "coverage": 1.0,
+      "ari": 0.04527798433708633,
+      "nmi": 0.08795826564275544,
+      "estimated_k": 8,
+      "oracle_global_k": 10,
+      "known_training_labels": 5,
+      "continual_sessions": 2,
+      "stage_metrics": [
+        {
+          "session": 1,
+          "seen_classes": 7,
+          "accuracy": {
+            "accuracy": 0.26357142857142857,
+            "covered_accuracy": 0.26357142857142857,
+            "coverage": 1.0,
+            "ari": 0.05556924238940756,
+            "nmi": 0.08771208698010528,
+            "estimated_k": 7
+          }
+        },
+        {
+          "session": 2,
+          "seen_classes": 10,
+          "accuracy": {
+            "accuracy": 0.1971,
+            "covered_accuracy": 0.1971,
+            "coverage": 1.0,
+            "ari": 0.04527798433708633,
+            "nmi": 0.08795826564275544,
+            "estimated_k": 8
+          }
+        }
+      ],
+      "unlabeled_pool_contains_known_classes": true,
+      "labelled_base_replay": true,
+      "independent_validation": {
+        "validation_clustering": {
+          "accuracy": 0.1968,
+          "covered_accuracy": 0.1968,
+          "coverage": 1.0,
+          "ari": 0.04572744903097652,
+          "nmi": 0.08728668440646907,
+          "estimated_k": 8
+        },
+        "test_accuracy_with_fixed_validation_alignment": 0.1971,
+        "validation_mapping_size": 8
+      }
+    }
+  },
+  "encoder_loss_trace": [
+    2.5097848432964747,
+    0.8075506199518839,
+    0.6930298070483738,
+    0.6299779494709439,
+    0.6140089754316542,
+    0.5980871714274089,
+    0.5768644067234463,
+    0.5726771614604526,
+    0.5233169443766276,
+    0.47948044933742945
+  ],
+  "elapsed_seconds": 158.07255053520203,
+  "dataset": "torchvision.CIFAR10",
+  "source": "actual_images",
+  "feature_backbone": "ssl",
+  "transductive_unlabeled_pretraining": true,
+  "strict_online_encoder_training": false,
+  "result_status": "reference_implementation_not_publication_reproduction",
+  "device": "cuda"
+}

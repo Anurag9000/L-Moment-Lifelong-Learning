@@ -1,0 +1,37 @@
+COMMAND: /home/anurag24092/envs/lmoment-hypothesis26/bin/python -m lmoment_lifelong.cifar10_advanced --track E02 --seed 0 --data-root datasets --output-root results/cifar10_hypothesis26/runs/advanced --samples-per-class 4500 --val-per-class 500 --test-per-class 1000 --ssl-epochs 10 --batch-size 512 --feature-dim 64 --download --device cuda --memory-bytes 65536 --statistical-projections 16 --min-support 8 --gcd-mode gcd --gcd-epochs-base 10 --gcd-epochs-session 10 --variant lmoment
+
+Files already downloaded and verified
+Files already downloaded and verified
+{
+  "artifact": "results/cifar10_hypothesis26/runs/advanced/E02/advanced_ee1f2bc0dffc_seed0/result.json",
+  "variants": {
+    "lmoment": {
+      "stream_type": "label-hidden_iid",
+      "calibration_warning": "selected-cluster threshold is heuristic, not valid type-I control",
+      "initial_prediction_abstention": true,
+      "prequential_coverage": 0.2793555555555556,
+      "validation": {
+        "fixed_mapping_accuracy": 0.0208,
+        "coverage": 0.3178,
+        "discovered_clusters": 138,
+        "ari_covered": 0.01828524487877165,
+        "nmi_covered": 0.20858106660478737
+      },
+      "test": {
+        "fixed_mapping_accuracy": 0.0156,
+        "coverage": 0.3183,
+        "discovered_clusters": 144,
+        "ari_covered": 0.02064677606360498,
+        "nmi_covered": 0.17742994411936422
+      },
+      "mature_classes": 146,
+      "total_assemblies": 200,
+      "estimated_memory_bytes": 3686912,
+      "events": {
+        "confirm_birth": 146,
+        "capacity_defer": 31102,
+        "provisional": 200
+      }
+    }
+  }
+}

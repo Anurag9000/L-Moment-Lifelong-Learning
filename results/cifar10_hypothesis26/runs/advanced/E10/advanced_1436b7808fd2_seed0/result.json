@@ -1,0 +1,66 @@
+{
+  "status": "extended_reference_not_published_reproduction",
+  "dataset": "torchvision CIFAR-10",
+  "config": {
+    "track": "E10",
+    "seed": 0,
+    "data_root": "datasets",
+    "output_root": "results/cifar10_hypothesis26/runs/advanced",
+    "samples_per_class": 4500,
+    "val_per_class": 500,
+    "test_per_class": 1000,
+    "ssl_epochs": 10,
+    "batch_size": 512,
+    "feature_dim": 64,
+    "download": true,
+    "device": "cuda",
+    "memory_bytes": 65536,
+    "statistical_projections": 16,
+    "min_support": 8,
+    "gcd_mode": "gcd",
+    "gcd_epochs_base": 10,
+    "gcd_epochs_session": 10,
+    "variant": "lmoment"
+  },
+  "source": "real_images",
+  "supervision": "per-track see code",
+  "variants": {
+    "lmoment": {
+      "old_before": 0.4526,
+      "old_after": 0.2084,
+      "old_forgetting": 0.2442,
+      "new_accuracy": 0.2658,
+      "full_test_accuracy": 0.2371,
+      "retained_features": 248,
+      "retained_bytes": 65472,
+      "fixed_budget_bytes": 65536,
+      "policy": "lmoment",
+      "stage_training": [
+        {
+          "updates": 50,
+          "final_loss": 1.3200628757476807,
+          "train_examples_with_replay": 22500
+        },
+        {
+          "updates": 50,
+          "final_loss": 2.074373960494995,
+          "train_examples_with_replay": 45000
+        }
+      ]
+    }
+  },
+  "pretrain_loss": [
+    2.510599221165975,
+    0.8091214467366536,
+    0.6914308383411831,
+    0.631878976949056,
+    0.6190338942633735,
+    0.6076555219862196,
+    0.586325633790758,
+    0.5733638287332323,
+    0.5437496352725559,
+    0.49750129412545097
+  ],
+  "elapsed_seconds": 157.05535875586793,
+  "evidence_warning": "No publication claim; stronger baseline reproductions and seeds remain"
+}
