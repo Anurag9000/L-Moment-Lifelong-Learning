@@ -271,7 +271,7 @@ def build_memory(x, use_lmoment, threshold=.6, seed=0, max_memories=50):
     return mem
 
 
-def streaming_discovery(x, y, variant, seed, blocked=False, threshold=.6):
+def streaming_discovery(x, y, variant, seed, blocked=False, threshold=.6, holdout=None):
     rng = np.random.default_rng(seed)
     if blocked:
         order = np.concatenate([rng.permutation(np.flatnonzero(y == c))
@@ -304,6 +304,12 @@ def streaming_discovery(x, y, variant, seed, blocked=False, threshold=.6):
     result = accuracy(y[order], np.asarray(predictions))
     result.update({"final_memory_count": len(mem.nodes), "memory_bytes_estimate": mem.memory_bytes(),
                    "mean_memory_count": float(np.mean(events)), "online_predictions": len(order)})
+    if holdout is not None:
+        hold_x, hold_y = holdout
+        predictions = np.asarray([-1 if (v := mem.predict(z)) is None else v
+                                  for z in hold_x])
+        result["validation_memory"] = accuracy(hold_y, predictions)
+    result["_checkpoint"] = mem
     return result
 
 
@@ -619,10 +625,62 @@ def continual_ssl(train, cfg, device, variant, initial):
     return model, trace
 
 
-def run_study(track, variant, tx, ty, vx, vy, cfg):
+def _alignment_from_validation(true_validation, predicted_validation):
+    """Fit a pseudo-ID to semantic-ID map only on independent validation labels.
+
+    This mapping is evaluator-only and is never supplied to the learner.
+    Test accuracy under that fixed mapping is more conservative than an
+    independently re-fitted Hungarian permutation on the test set.
+    """
+    truth = np.asarray(true_validation, dtype=int)
+    pred = np.asarray(predicted_validation, dtype=int)
+    pids, invp = np.unique(pred, return_inverse=True)
+    yids, invy = np.unique(truth, return_inverse=True)
+    contingency = np.zeros((len(pids), len(yids)), dtype=int)
+    np.add.at(contingency, (invp, invy), 1)
+    rows, cols = linear_sum_assignment(contingency.max() - contingency)
+    return {int(pids[i]): int(yids[j]) for i, j in zip(rows, cols)}
+
+
+def validation_for_checkpoint(track, state, tx, ty, valx, valy, testx, testy, variant):
+    """Validate one fitted model, then reuse the SAME mapping on test."""
+    if track == "E09":
+        predval = centroid_classify(tx, ty, valx, "lmoment" if variant == "lmoment" else "mean")
+        predtest = centroid_classify(tx, ty, testx, "lmoment" if variant == "lmoment" else "mean")
+        return {"validation_accuracy": float(np.mean(predval == valy)),
+                "test_accuracy": float(np.mean(predtest == testy))}
+    if state is None or track not in ("E03", "E04", "E10", "E11", "E12", "E14"):
+        return None
+    torch, nn, _, _ = _torch()
+    if track == "E12":
+        from .growth import ExpandableMLP
+        model = ExpandableMLP(tx.shape[1], 32, 10)
+        indexes = sorted({int(name.split('.')[1]) for name in state
+                          if name.startswith('blocks.') and name.endswith('.0.weight')})
+        for i in indexes:
+            model.grow(int(state[f'blocks.{i}.0.weight'].shape[0]))
+        model.load_state_dict(state)
+    else:
+        model = nn.Linear(tx.shape[1], 10)
+        model.load_state_dict(state)
+    model.eval()
+    predval = predict_head(model, valx)
+    predtest = predict_head(model, testx)
+    if track in ("E03", "E04", "E14"):
+        alignment = _alignment_from_validation(valy, predval)
+        mapped = np.asarray([alignment.get(int(p), -1) for p in predtest])
+        return {"validation_clustering": accuracy(valy, predval, abstain=-999),
+                "test_accuracy_with_fixed_validation_alignment": float(np.mean(mapped == testy)),
+                "validation_mapping_size": len(alignment)}
+    return {"validation_accuracy": float(np.mean(predval == valy)),
+            "test_accuracy": float(np.mean(predtest == testy))}
+
+
+def run_study(track, variant, tx, ty, vx, vy, cfg, validation=None):
     if track == "E01": return study_statistical(tx, ty, vx, vy, variant, cfg.seed)
     if track in ("E02", "E05"):
-        return streaming_discovery(tx, ty, variant, cfg.seed, blocked=track == "E05")
+        return streaming_discovery(tx, ty, variant, cfg.seed, blocked=track == "E05",
+                                   holdout=validation)
     if track in ("E03", "E04"):
         return study_gcd(tx, ty, vx, vy, variant, cfg.seed, cfg.known_classes, track == "E04")
     if track == "E06": return study_structure(tx, ty, variant, cfg.seed)
@@ -653,6 +711,8 @@ def run(cfg: Config):
         raise ValueError("known_classes must be 1..9")
     if min(cfg.samples_per_class, cfg.val_per_class, cfg.test_per_class) < 8:
         raise ValueError("Need at least 8 examples per class for statistical estimation")
+    if cfg.backbone == "base_supervised" and cfg.track in ("E02", "E05", "E06", "E08"):
+        raise ValueError("This unsupervised track forbids CIFAR-10 label-supervised encoder pretraining")
     torch = setup(cfg.seed)
     device = _device(cfg.device)
     train, val, test = make_data(cfg)
@@ -669,11 +729,14 @@ def run(cfg: Config):
         for variant in variants:
             trained, trace = continual_ssl(train, cfg, device, variant, encoder)
             tx, ty = extract(trained, train, cfg, device)
+            valx, valy = extract(trained, val, cfg, device)
             vx, vy = extract(trained, test, cfg, device)
             # Linear probe is evaluator-only; its labels are not seen by SSL.
             probe = train_head(tx, ty, cfg.seed, steps=70, classes=10)
             pred = predict_head(probe, vx)
+            val_pred = predict_head(probe, valx)
             results[variant] = {"linear_probe_accuracy": float(np.mean(pred == vy)),
+                                "validation_linear_probe_accuracy": float(np.mean(val_pred == valy)),
                                 "updates": len(trace), "loss_trace": trace,
                                 "learner_labels_used": False, "anchor_images": 128,
                                 "continual_ssl_training": True}
@@ -687,8 +750,13 @@ def run(cfg: Config):
         vx, vy = extract(encoder, test, cfg, device)
         for variant in variants:
             # Same frozen features/seed for paired comparison; no test-label tuning.
-            metrics = run_study(cfg.track, variant, tx, ty, vx, vy, cfg)
+            metrics = run_study(cfg.track, variant, tx, ty, vx, vy, cfg,
+                                validation=(valx, valy))
             state = metrics.pop("_checkpoint", None)
+            validation = validation_for_checkpoint(cfg.track, state, tx, ty,
+                                                    valx, valy, vx, vy, variant)
+            if validation is not None:
+                metrics["independent_validation"] = validation
             if state is not None:
                 torch.save(state, outdir / f"{variant}_model.pt")
             results[variant] = metrics

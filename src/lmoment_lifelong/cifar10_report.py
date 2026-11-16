@@ -1,4 +1,4 @@
-"""Aggregate completed CIFAR-10 reference experiments without inventing results."""
+"""Aggregate actual CIFAR-10 runs and paired baseline/L-moment differences."""
 from __future__ import annotations
 import argparse
 import csv
@@ -8,14 +8,29 @@ from pathlib import Path
 import numpy as np
 
 
+def numeric_metrics(obj, prefix=""):
+    for name, value in obj.items():
+        key = f"{prefix}.{name}" if prefix else name
+        if isinstance(value, dict):
+            yield from numeric_metrics(value, key)
+        elif type(value) in (int, float) and np.isfinite(value):
+            yield key, float(value)
+
+
 def summarize(root):
     groups = defaultdict(list)
     for path in Path(root).glob("E*/**/result.json"):
         obj = json.loads(path.read_text())
-        for variant, metrics in obj["variants"].items():
+        track = obj["config"]["track"]
+        byvariant = {name: dict(numeric_metrics(metrics))
+                     for name, metrics in obj["variants"].items()}
+        for variant, metrics in byvariant.items():
             for name, value in metrics.items():
-                if type(value) in (int, float) and np.isfinite(value):
-                    groups[(obj["config"]["track"], variant, name)].append(float(value))
+                groups[(track, variant, name)].append(value)
+        if "baseline" in byvariant and "lmoment" in byvariant:
+            for metric in byvariant["baseline"].keys() & byvariant["lmoment"].keys():
+                groups[(track, "paired_delta_lmoment_minus_baseline", metric)].append(
+                    byvariant["lmoment"][metric] - byvariant["baseline"][metric])
     rows = []
     for (track, variant, metric), values in sorted(groups.items()):
         rows.append({"track": track, "variant": variant, "metric": metric,

@@ -22,6 +22,7 @@ lmoment-extract = "lmoment_lifelong.features:main"
 lmoment-sweep = "lmoment_lifelong.sweeps:main"
 lmoment-cifar10 = "lmoment_lifelong.cifar10_suite:main"
 lmoment-cifar10-report = "lmoment_lifelong.cifar10_report:main"
+lmoment-cifar10-sweep = "lmoment_lifelong.cifar10_sweep:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

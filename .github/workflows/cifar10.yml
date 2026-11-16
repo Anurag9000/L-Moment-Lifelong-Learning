@@ -14,4 +14,4 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
       - run: pip install -e '.[cifar10,dev]'
-      - run: OMP_NUM_THREADS=2 python -m pytest -q tests/test_cifar10_suite.py
+      - run: OMP_NUM_THREADS=2 python -m pytest -q tests/test_cifar10_suite.py tests/test_cifar10_reporting.py

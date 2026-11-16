@@ -89,6 +89,30 @@ performance claims may be made without measured GPU runs. More work is needed
 for published baselines, full test-only confirmation and the remaining family-
 level algorithms documented in `docs/RESEARCH_PLAN.md`.
 
-## Actual-image smoke workflow
+## Independent validation
 
-The workflow [.github/workflows/cifar10_integration.yml](../.github/workflows/cifar10_integration.yml) attempts **each reference track E01--E14** with 16 training samples per class and independently held-out validation/test subsets, captures failed runs, and uploads measured results as a GitHub Actions artifact. This is a low-data integration test, **not** a scientific benchmark. It does not establish the planned 141 experiment-family algorithms or their results.
+The runner now records the classifier's **independent validation-set** scores
+for fitted E03/E04/E09/E10/E11/E12/E14 models. For pseudo-class classifiers,
+it additionally learns an evaluator-only pseudo-ID-to-class mapping on the
+validation partition and applies that fixed mapping to test predictions.
+This is distinct from test-set Hungarian clustering accuracy, which can be
+optimistically aligned separately. The validation mapping is not passed into
+model training or online inference. E02/E05 report post-stream held-out
+memory predictions and coverage; E13 reports an evaluator-only linear probe on
+both validation and test. Tracks lacking a fully trained predictive classifier
+are marked as diagnostic proxies and do not claim full validation closure.
+
+## Multi-seed execution and reports
+
+```
+lmoment-cifar10-sweep --tracks E01 E02 E03 E04 E05 E06 E07 E08 E09 E10 E11 E12 E13 E14 \
+  --seeds 0 1 2 3 4 --download --samples-per-class 200 --dry-run
+lmoment-cifar10-sweep --tracks E01 E02 E05 E06 --seeds 0 1 2 3 4 --download
+lmoment-cifar10-report --root results/cifar10 --output results/cifar10/summary.csv
+```
+
+The sweep writes immutable configuration-derived logs and a sweep-status
+manifest, skips completed jobs, and preserves failures. The report recursively
+aggregates scalar metrics including validation measures and paired L-moment
+minus baseline differences. A new configuration or an independently selected
+output directory must be used to avoid overwriting old experimental evidence.

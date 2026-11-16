@@ -73,3 +73,18 @@ def test_ssl_causally_uses_only_images():
     trained, trace = continual_ssl(dataset, cfg, "cpu", "lmoment", model)
     assert len(trace) == 5
     assert np.isfinite(trace).all()
+
+
+def test_validation_alignment_never_uses_test_labels():
+    from lmoment_lifelong.cifar10_suite import _alignment_from_validation
+    mapping = _alignment_from_validation(np.array([0,0,1,1]), np.array([6,6,7,7]))
+    assert mapping == {6:0, 7:1}
+
+def test_independent_linear_checkpoint_validation():
+    torch = pytest.importorskip('torch')
+    from lmoment_lifelong.cifar10_suite import train_head, validation_for_checkpoint
+    x,y = fake_vectors(n=8)
+    head = train_head(x,y,7,steps=5,classes=10)
+    v = validation_for_checkpoint('E10', head.state_dict(), x,y,x,y,x,y,'baseline')
+    assert v['validation_accuracy'] >= 0.
+    assert v['test_accuracy'] >= 0.

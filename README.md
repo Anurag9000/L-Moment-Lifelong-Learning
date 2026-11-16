@@ -69,3 +69,5 @@ See [research plan](docs/RESEARCH_PLAN.md) for mechanism-by-mechanism completion
 ## CIFAR-10 reference-experiment runners (E01--E14)
 
 The optional trainable CIFAR-10 reference suite adds `lmoment-cifar10` and `lmoment-cifar10-report`. See [CIFAR-10 execution and caveats](docs/CIFAR10_EXECUTION.md) and [remaining research closure](docs/CIFAR10_REMAINING.md). The fourteen experiment IDs are *reference/diagnostic* variants; they do not indicate that the 141 planned families or original published baselines are complete. No CIFAR-10 dataset or GPU result is bundled.
+
+For multiple paired seeds, use `lmoment-cifar10-sweep --tracks E01 E02 E05 E06 --seeds 0 1 2 3 4 --download`, then `lmoment-cifar10-report`. See the protocol notes for validation alignment and track limitations.\n
