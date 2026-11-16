@@ -376,7 +376,7 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
                 "policy": policy,
                 "stage_training": trainer.stages}
     if track == "E11":
-        torch, _, _, _ = _torch()
+        import torch
         # Null development streams preserve class-mixture distribution. Use
         # independent samples; no test labels in calibration/action decisions.
         window = max(8, min(cfg.drift_window, len(valx)//60))

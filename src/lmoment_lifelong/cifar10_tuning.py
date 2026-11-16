@@ -275,6 +275,15 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
         track_record = manifest["tracks"].setdefault(spec.id, {"candidates": {}, "rounds": []})
         if (key in track_record["candidates"]
                 and track_record["candidates"][key].get("status") == "completed"):
+            prior_record = track_record["candidates"][key]
+            candidate_manifest = root / "candidates" / spec.id / key / "manifest.json"
+            prior_rows = (json.loads(candidate_manifest.read_text()).get("rows", [])
+                          if candidate_manifest.exists() else [])
+            prior_commit = prior_rows[0].get("source_commit") if prior_rows else None
+            compatible_commits = set(manifest.get("compatible_result_source_commits", []))
+            incompatible_tracks = set(manifest.get("compatible_result_exclusions", []))
+            if prior_commit in compatible_commits and spec.id not in incompatible_tracks:
+                return prior_record
             candidate_options = replace(base, train_per_class=base.screen_train_per_class,
                 **values, validation_only=True,
                 output_root=str(root / "candidates" / spec.id / key))
