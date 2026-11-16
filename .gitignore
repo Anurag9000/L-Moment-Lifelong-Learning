@@ -28,5 +28,6 @@ results/cifar10_hypothesis26_dinov2/
 results/cifar10_hypothesis26_tuned/
 results/stl10_hypothesis26_tuned/
 results/stl10_hypothesis26_multifidelity/
+results/stl10_hypothesis26_multifidelity_v2/
 results/stl10_hypothesis26_dinov2/
 results/stl10_dinov2_cache/
