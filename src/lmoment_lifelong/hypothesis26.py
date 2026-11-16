@@ -225,6 +225,11 @@ def build_job(spec: RunSpec, opt: Options) -> dict[str, Any]:
         if field == "memory_limit":
             # Original module carries this internal parameter, but its CLI does not expose it.
             continue
+        if field == "l2_normalize":
+            # Both suite CLIs default to normalization and expose only its negation.
+            if not value:
+                argv.append("--no-l2-normalize")
+            continue
         option = "--" + field.replace("_", "-")
         if isinstance(value, bool):
             if value:
