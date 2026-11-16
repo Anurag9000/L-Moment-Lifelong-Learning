@@ -1,7 +1,8 @@
-"""One-seed, L-moment-only execution of 26 CIFAR-10 reference configurations.
+"""Paired baseline/L-moment execution of 26 CIFAR-10 reference configurations.
 
-No baseline is trained by this launcher. This is an empirical screening protocol
-for existing methods, not a claim of complete research-family implementations.
+Each job trains the proposed L-moment method and its matched ordinary-statistics
+or geometry control. This remains a screening protocol, not a claim of complete
+research-family implementations.
 Every command is recorded verbatim; files are never overwritten in place.
 """
 from __future__ import annotations
@@ -93,7 +94,11 @@ class Options:
     statistical_projections: int = 16
     min_support: int = 8
     discovery_radius: float = 0.6
+    candidate_radius_factor: float = 2.0
     drift_window: int = 16
+    loss_quantile: float = 0.95
+    split_penalty: float = 0.05
+    split_shape_floor: float = 1e-6
     growth_width: int = 16
     growth_trial_steps: int = 25
     growth_parameter_penalty: float = 0.0
@@ -104,6 +109,8 @@ class Options:
     training_steps: int = 50
     replay_ratio: float = 0.5
     hierarchy_parents: int = 3
+    feature_ssl_anchor_weight: float = 0.5
+    feature_ssl_shape_weight: float = 0.1
     device: str = "auto"
     download: bool = False
     save_features: bool = False
@@ -129,7 +136,7 @@ _PREPARED_CACHES: set[tuple] = set()
 def _config(spec: RunSpec, opt: Options):
     if spec.suite == "original":
         from .cifar10_suite import Config
-        return Config(track=spec.track, variant="lmoment", seed=opt.seed,
+        return Config(track=spec.track, variant="both", seed=opt.seed,
                       data_root=opt.data_root,
                       output_root=str(Path(opt.output_root) / "runs" / "original"),
                       samples_per_class=opt.train_per_class,
@@ -144,17 +151,27 @@ def _config(spec: RunSpec, opt: Options):
                       validation_only=opt.validation_only,
                       statistical_projections=opt.statistical_projections,
                       min_support=opt.min_support, memory_bytes=opt.memory_bytes,
-                      discovery_radius=opt.discovery_radius, drift_window=opt.drift_window,
+                      discovery_radius=opt.discovery_radius,
+                      candidate_radius_factor=opt.candidate_radius_factor,
+                      max_discovered_classes=opt.max_discovered_classes,
+                      drift_window=opt.drift_window,
+                      loss_quantile=opt.loss_quantile,
                       growth_width=opt.growth_width,
                       growth_trial_steps=opt.growth_trial_steps,
                       growth_parameter_penalty=opt.growth_parameter_penalty,
+                      split_penalty=opt.split_penalty,
+                      split_shape_floor=opt.split_shape_floor,
+                      hierarchy_parents=opt.hierarchy_parents,
+                      feature_ssl_anchor_weight=opt.feature_ssl_anchor_weight,
+                      feature_ssl_shape_weight=opt.feature_ssl_shape_weight,
                       distribution_shrinkage=opt.distribution_shrinkage,
                       distribution_min_scale=opt.distribution_min_scale,
                       training_steps=opt.training_steps,
                       known_classes=5,
+                      replay_ratio=opt.replay_ratio,
                       save_features=opt.save_features)
     from .cifar10_advanced import AdvancedConfig
-    return AdvancedConfig(track=spec.track, variant="lmoment", seed=opt.seed,
+    return AdvancedConfig(track=spec.track, variant="both", seed=opt.seed,
                           data_root=opt.data_root,
                           output_root=str(Path(opt.output_root) / "runs" / (
                               "advanced_ncd" if spec.gcd_mode == "ncd" else "advanced")),
@@ -178,11 +195,15 @@ def _config(spec: RunSpec, opt: Options):
                           distribution_shrinkage=opt.distribution_shrinkage,
                           distribution_min_scale=opt.distribution_min_scale,
                           radius_factor=opt.radius_factor,
+                          candidate_radius_factor=opt.candidate_radius_factor,
                           max_discovered_classes=opt.max_discovered_classes,
                           training_steps=opt.training_steps,
                           replay_ratio=opt.replay_ratio,
                           hierarchy_parents=opt.hierarchy_parents,
                           drift_window=opt.drift_window,
+                          loss_quantile=opt.loss_quantile,
+                          split_penalty=opt.split_penalty,
+                          split_shape_floor=opt.split_shape_floor,
                           device=opt.device, download=opt.download)
 
 
@@ -191,7 +212,7 @@ def build_job(spec: RunSpec, opt: Options) -> dict[str, Any]:
     opt.validate()
     cfg = _config(spec, opt)
     cfgdict = asdict(cfg)
-    assert cfgdict["batch_size"] == 512 and cfgdict["variant"] == "lmoment"
+    assert cfgdict["batch_size"] == 512 and cfgdict["variant"] == "both"
     digest = run_fingerprint(cfgdict)
     if spec.suite == "original":
         module = "lmoment_lifelong.cifar10_suite"
@@ -230,8 +251,8 @@ def _verify(job: dict[str, Any]) -> tuple[bool, str]:
         if cfg != job["config"]:
             return False, "Saved configuration differs from requested job"
         variants = result.get("variants", {})
-        if not isinstance(variants, dict) or set(variants) != {"lmoment"}:
-            return False, "Result must contain exactly the L-moment variant"
+        if not isinstance(variants, dict) or set(variants) != {"baseline", "lmoment"}:
+            return False, "Result must contain paired baseline and L-moment variants"
         if result.get("source") not in ("real_images", "actual_images"):
             return False, "No confirmed actual-CIFAR-10 source marker"
         if not (result_path.parent / "split_manifest.json").is_file():
@@ -240,14 +261,14 @@ def _verify(job: dict[str, Any]) -> tuple[bool, str]:
             if not (result_path.parent / "backbone_provenance.json").is_file():
                 return False, "Missing DINOv2 checkpoint/cache provenance"
         if job["suite"] == "advanced" and job["track"] in ("E03", "E04"):
-            if not (result_path.parent / "lmoment_model.pt").is_file():
-                return False, "Missing trained GCD model checkpoint"
+            missing = [name for name in ("baseline_model.pt", "lmoment_model.pt")
+                       if not (result_path.parent / name).is_file()]
+            if missing:
+                return False, "Missing paired trained GCD model checkpoint(s): " + ", ".join(missing)
         elif job["config"].get("backbone") != "dinov2" and not (
                 result_path.parent / "encoder.pt").is_file() and not (
                 result_path.parent / "lmoment_model.pt").is_file():
             return False, "Missing model/encoder checkpoint"
-        if (result_path.parent / "baseline_model.pt").exists():
-            return False, "Unexpected baseline checkpoint"
         return True, "verified"
     except (ValueError, OSError, TypeError) as exc:
         return False, f"Malformed result artifact: {exc}"
@@ -289,7 +310,15 @@ def _write_summary(rows: list[dict[str, Any]], root: Path) -> None:
         if row.get("status") not in ("completed", "skipped_verified"):
             continue
         source = json.loads(Path(row["result_path"]).read_text())
-        stats = _flatten_metrics(source["variants"]["lmoment"])
+        baseline = _flatten_metrics(source["variants"]["baseline"])
+        lmoment = _flatten_metrics(source["variants"]["lmoment"])
+        stats = {**{f"baseline.{k}": v for k, v in baseline.items()},
+                 **{f"lmoment.{k}": v for k, v in lmoment.items()}}
+        deltas = {f"delta.{key}": float(lmoment[key] - baseline[key])
+                  for key in baseline.keys() & lmoment.keys()
+                  if type(baseline[key]) in (int, float)
+                  and type(lmoment[key]) in (int, float)}
+        stats.update(deltas)
         summary.append({"id": row["id"], "track": row["track"],
                         "suite": row["suite"], "metric": row["primary_metric"],
                         "result_path": row["result_path"], **stats})
@@ -448,7 +477,9 @@ def main(argv=None) -> int:
     parser.add_argument("--statistical-projections", type=int, default=16)
     parser.add_argument("--min-support", type=int, default=8)
     parser.add_argument("--discovery-radius", type=float, default=.6)
+    parser.add_argument("--candidate-radius-factor", type=float, default=2.)
     parser.add_argument("--drift-window", type=int, default=16)
+    parser.add_argument("--loss-quantile", type=float, default=.95)
     parser.add_argument("--growth-width", type=int, default=16)
     parser.add_argument("--growth-trial-steps", type=int, default=25)
     parser.add_argument("--growth-parameter-penalty", type=float, default=0.)
@@ -459,6 +490,8 @@ def main(argv=None) -> int:
     parser.add_argument("--training-steps", type=int, default=50)
     parser.add_argument("--replay-ratio", type=float, default=.5)
     parser.add_argument("--hierarchy-parents", type=int, default=3)
+    parser.add_argument("--feature-ssl-anchor-weight", type=float, default=.5)
+    parser.add_argument("--feature-ssl-shape-weight", type=float, default=.1)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--download", action="store_true")
     parser.add_argument("--save-features", action="store_true")

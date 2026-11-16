@@ -1,8 +1,8 @@
-# CIFAR-10: exactly 26 **L-moment-only** research-screening runs (seed 0)
+# CIFAR-10: 26 paired, pretrained-feature tuning tracks (seed 0)
 
 **Status and scientific interpretation.** This file specifies **the actual existing algorithms** in the `cifar10_suite.py` and `cifar10_advanced.py` runners. It is **not** a claim that all the originally planned paper methodologies, the 141 registry families, or published baseline reproductions are finished. A passing launcher/test means that an implementation can execute and save evidence; it does not prove that its scientific hypothesis works.
 
-**The request implemented here:** run all 26 distinct existing CIFAR-10 configurations, **one seed**, **one proposed (`lmoment`) variant each**, **no baseline training**, **batch size fixed to 512**. There are 14 original configurations, 11 advanced configurations with E03 in GCD mode, and one additional advanced E03 in NCD mode. There are still only 14 named tracks (and a smaller set of underlying scientific themes); overlapping configurations are not independent hypotheses.
+**The request implemented here:** tune all 26 CIFAR-10 tracks with a shared frozen DINOv2 ViT-B/14 feature cache, and run each selected configuration with a paired ordinary-statistics/geometry control and L-moment variant. The downstream optimizer batch size is fixed at **512**; DINOv2 extraction uses an independent, smaller microbatch. There are 14 original configurations, 11 advanced configurations with E03 in GCD mode, and one additional advanced E03 in NCD mode. This remains one seed and does not establish statistical robustness.
 
 ## 1. Exact experiment protocol
 
@@ -14,31 +14,31 @@
 | Validation per class | 500 = **5,000 validation images** | Strictly disjoint from the 45,000 training images |
 | Test per class | 1,000 = **10,000 test images** | Original, held-out CIFAR-10 test partition |
 | Seed | **0** | One seed in the initial screening, not evidence of statistical robustness |
-| Per-loader batch size | **512**, fixed in the launcher | Applies to every runner configuration; feature-space optimizers and sample-wise memories may have different internal update sizes |
-| Main pretraining | 10 epochs (`--ssl-epochs 10`) | For frozen-feature paths, train a small SSL feature encoder per configuration; default settings are editable |
-| Supervised encoder training | 10 epochs (`--epochs 10`) | Relevant only to `base_supervised`; this 26-run launcher fixes `backbone=ssl` for the original suite |
+| Training batch size | **512**, fixed in the launcher | Every gradient optimizer uses 512-row batches; sample-wise statistical updates remain sample-wise by protocol |
+| Main representation | Pinned DINOv2 ViT-B/14, frozen | One shared cache stores 768-dimensional embeddings; PCA width, whitening and L2 normalization are validation-tuned |
+| DINOv2 extraction | Microbatch 16 by default | This is feature extraction only; downstream model batches remain 512 |
 | Advanced GCD training | 10 supervised-base epochs + 10 per discovery session | NCD, GCD and two-session C-GCD; no official published algorithm reproduction |
-| Embedding width | 64 | The small CNN in the existing repository; not pretrained DINOv2 |
+| Embedding width | Tuned over 64, 128, 256, 512 and 768 | PCA and whitening are fit on permitted training features only |
 | Advanced memory budget | 65,536 bytes where used | Feature-buffer or statistical memory budget as supported by the specific algorithm; does not account for entire Python process |
 | Known/new classes | Classes 0–4 known, 5–9 novel where applicable | Legal evaluator-built stream/session construction. Known labels can be used where the setting declares supervised known classes |
-| Method variants | **Exactly `lmoment`** | Original runner uses `--variant lmoment`; advanced runner now supports the same flag. The baseline variant is never invoked |
+| Method variants | `baseline` and `lmoment` | Paired under the same seed, data split, feature transform and selected hyperparameters |
 | Hardware | `--device auto` (CUDA when available) | Some feature-based statistical routines/MLP heads are still CPU or fixed-step operations; batch size 512 does not force every inner operation to have 512 elements |
-| Output directory | `results/cifar10_hypothesis26/` | Per-job config-hashed immutable artifacts, logs, manifest, metric exports |
+| Output directory | `results/cifar10_hypothesis26_tuned/` | Candidate ledger, selected configs, final per-track results, logs and metric exports |
 | Data leakage policy | Evaluation class labels restricted by each track's protocol | Some early diagnostic studies are explicitly supervised/oracle construction; see notes below |
 
-**Reproducibility caution.** The training/image encoder is independently initialized for each job. Consequently, all 26 jobs repeat some common feature-extraction work; comparing their raw accuracies as if they were trained with identical optimization and data access can be misleading. This is an exploratory pass, not a compute-matched comparison study.
+**Reproducibility caution.** DINOv2 extraction is shared across tracks. Candidate hyperparameters are selected on a development half of validation; a disjoint scoring half evaluates candidates, and the CIFAR-10 test partition is reserved for one final selected run per track. The paired control and L-moment runs receive the same cached representation and selected configuration.
 
-**Training fidelity caution.** Parameters such as `--ssl-epochs` and `--gcd-epochs-session` affect only the training loops that actually read them. Several original feature-space studies use fixed 40/50/75-step linear-head or MLP optimization, threshold heuristics, or diagnostic calculations. The launcher does **not** silently replace those existing algorithms with stronger methods; those original methodological omissions remain tracked in `docs/CIFAR10_REMAINING.md`.
+**Tuning scope.** Each track screens its representation settings and relevant algorithm-specific axes, then runs coordinate refinement until a round produces no improvement or the configured round limit is reached. The score is a track-specific validation metric recorded in `tuning_manifest.json`; “best” means best observed under this search and split, not a proof of a global optimum.
 
 ## 2. The 26 runs: implementation-level specification
 
 ### Original reference suite: O-E01–O-E14
 
-**01 — `O-E01`: Statistical discrimination (E01).** Independently fit a small label-free SSL CNN to produce embeddings, then form within-class and between-class groups using CIFAR-10 *evaluation-protocol* labels. The proposed version computes projected L-moment distance and its separation ratio instead of ordinary mean distance. Primary artifact: `separation_ratio`, `matched_mean_distance`, and `different_mean_distance`. This is a statistical shape-detection diagnostic, **not a model trained to classify unseen images**; calibration, complete distribution fitting and matched significance tests are still missing.
+**01 — `O-E01`: Statistical discrimination (E01).** Use the shared frozen DINOv2 embeddings, then form within-class and between-class groups using CIFAR-10 *evaluation-protocol* labels. The proposed version computes projected L-moment distance and its separation ratio; the paired control computes ordinary mean distance. Primary artifact: `separation_ratio`, `matched_mean_distance`, and `different_mean_distance`. This is a statistical shape-detection diagnostic, **not a model trained to classify unseen images**; calibration and matched significance tests remain limited.
 
-**02 — `O-E02`: Unsupervised engram memory (E02).** Present all training feature vectors in random order without giving class labels to the learner. The statistical engram memory predicts the next sample's memory ID before observing it, creates provisional memories, and conditionally confirms/merges memories using L-moment evidence. Measure prequential clustering/coverage, number of memories and memory footprint. The encoder uses transductive SSL pretraining; class-birth decisions are not rigorous false-alarm-controlled statistical tests.
+**02 — `O-E02`: Unsupervised engram memory (E02).** Present shared DINOv2 training feature vectors in random order without giving class labels to the learner. The memory predicts the next sample's memory ID before observing it, creates provisional memories, and conditionally confirms/merges memories using calibrated L-moment evidence. Measure prequential clustering/coverage, number of memories and memory footprint. Class-birth decisions do not control lifetime false-alarm probability.
 
-**03 — `O-E03`: Generalized category discovery (E03).** Train a head on five known labeled classes, cluster a *mixed* known/novel unlabeled feature pool into an oracle ten groups, and use L-moment reliability weights to train the pseudo-label head. Report final clustering/recognition diagnostics and validation-only pseudo-ID mapping. The method uses a fixed oracle class count and is **not** a SimGCD reproduction; unlabeled images are pre-embedded by an SSL encoder.
+**03 — `O-E03`: Generalized category discovery (E03).** Train a head on five known labeled classes, cluster a *mixed* known/novel unlabeled DINOv2 feature pool into an oracle ten groups, and use L-moment reliability weights to train the pseudo-label head. Report final clustering/recognition diagnostics and validation-only pseudo-ID mapping. The method uses a fixed oracle class count and is **not** a SimGCD reproduction; DINOv2 remains frozen.
 
 **04 — `O-E04`: Continual GCD prototype (E04).** Extend O-E03 into an evaluator-constructed two-stage stream: the known five plus two new categories, followed by all ten. Recluster, transfer cluster identities using known anchors, and update the L-moment-weighted pseudo-class head over sessions. Report stage-wise accuracy and the final result. Original labeled known-class examples are reused; this is not a complete C-GCD method or a forgetting-controlled dual-branch system.
 
@@ -58,13 +58,13 @@
 
 **12 — `O-E12`: Adaptive MLP width-growth trial (E12).** Fit an expandable MLP on classes 0–4, compare statistical shape on features of old/new classes, conduct a candidate width-growth trial and accept/reject using the existing growth criterion, then train on new classes. Report total/old/new accuracy, acceptance and parameters added. Only the *existing growth-trial prototype* is run; the full ADP family, task-free triggers and BGD growth integration remain unimplemented.
 
-**13 — `O-E13`: Continual self-supervised learning (E13).** Update the image encoder causally on class-blocked unlabeled image batches. Retain a bounded image reservoir and periodically align teacher/student features; the proposed path additionally matches differentiable L-moments of historical features. Freeze the learned encoder and train an **evaluator-only supervised linear probe**, reporting validation/test probe accuracy and training loss trace. This is a real online-SSL reference but lacks extensive representation forgetting/checkpoint protocols.
+**13 — `O-E13`: Continual self-supervised learning (E13).** Keep DINOv2 frozen and causally adapt a trainable feature adapter on class-blocked unlabeled embedding batches. Retain a bounded feature anchor reservoir, align it to a previous-stage teacher, and additionally match differentiable L-moments in the proposed path. At five stages, fit **evaluator-only supervised linear probes** and report validation/scoring, per-class and stagewise retention metrics. The backbone itself is not fine-tuned in this protocol.
 
 **14 — `O-E14`: Integrated pseudo-class reference (E14).** Reuse the original two-session GCD pseudo-label learning mechanism and its L-moment reliability weighting. Report final and session-level accuracy. **This is currently mostly an E04 duplicate, not the intended unified open-world memory/novelty/drift/growth executive.** It remains in the 26-run suite because it was explicitly counted in the previously requested list.
 
 ### Advanced reference suite: A-E01–A-E11, plus A-E03-NCD
 
-**15 — `A-E01`: L-moment-fitted class-conditional likelihood (E01).** Fit one diagonal Normal distribution per labeled CIFAR-10 class, deriving the location/scale from L1/L2 statistics of SSL features. Classify independent validation/test embeddings by the fitted distributions. Records `validation_accuracy`, `test_accuracy`. This is the **advanced predictive E01**, not a complete survey of distribution families or fully calibrated uncertainty.
+**15 — `A-E01`: L-moment-fitted class-conditional likelihood (E01).** Fit one diagonal Normal distribution per labeled CIFAR-10 class, deriving location/scale from L1/L2 statistics of DINOv2 features. The paired control uses mean/variance. Classify independent validation/test embeddings and record `validation_accuracy`, `test_accuracy`. This is not a complete survey of distribution families or fully calibrated uncertainty.
 
 **16 — `A-E02`: Support-gated unsupervised discovery (E02).** Run label-blind, shuffled-image feature arrival. Use provisional clusters, support-gated maturation, L-moment projection compatibility, bounded reservoirs, and held-out pseudo-ID alignment. Measure prequential coverage, test fixed-mapping accuracy, discovered memory count, approximate memory bytes and birth events. Its compatibility threshold is an unlabeled **heuristic**, not a selection-adjusted level-α test.
 
@@ -101,33 +101,21 @@ git pull --ff-only origin main
 python -m pip install --upgrade pip
 python -m pip install -e '.[cifar10,dev]'
 
-# Verify that the launcher and hypothesis-only switches work.
-python -m pytest -q tests/test_hypothesis26.py
+# Build the editable package and pinned DINOv2 dependencies.
+python -m pip install -e '.[vision,cifar10]'
 
-# Enumerate all 26 commands WITHOUT training or downloading.
-lmoment-cifar10-hypothesis26 --seed 0 --dry-run
-
-# Run all 26 sequentially on the first available CUDA GPU.
-lmoment-cifar10-hypothesis26 --seed 0 --device cuda --download
+# Start the idle-GPU-gated all-track tuning campaign from a tmux session.
+bash scripts/run_tuned_cifar10_when_gpu_idle.sh
 ```
 
-The script fixes `--batch-size 512` **for every job**, across both runners. It does not execute baseline variants. The default is full train/validation/test utilization (45k/5k/10k images) with ten requested SSL and GCD epochs. It may be expensive and some algorithms retain shorter hardcoded inner loops, as documented above.
+The launcher fixes downstream optimizer batches at 512 and evaluates paired baseline/L-moment variants. For the DINOv2 tuning campaign, run `scripts/run_tuned_cifar10_when_gpu_idle.sh`; it waits for a stable idle V100 before launching validation candidate screens and selected final evaluations. The campaign can be resumed from its manifest. It is computationally substantial.
 
 ### Recommended resilient server launch
 
 ```bash
-mkdir -p results/cifar10_hypothesis26
-nohup lmoment-cifar10-hypothesis26 --seed 0 --device cuda --download \
-  > results/cifar10_hypothesis26/console.log 2>&1 &
-echo $! > results/cifar10_hypothesis26/pid.txt
-
-# Inspect the console and current manifest whenever useful.
-tail -f results/cifar10_hypothesis26/console.log
-lmoment-cifar10-hypothesis26 --status
-
-# Final summary after completion.
-cat results/cifar10_hypothesis26/manifest.json
-head -n 5 results/cifar10_hypothesis26/hypothesis_metrics.csv
+tmux new-session -s lmoment-tuning 'bash scripts/run_tuned_cifar10_when_gpu_idle.sh'
+tail -f results/cifar10_hypothesis26_tuned/logs/gpu_idle_launcher.log
+cat results/cifar10_hypothesis26_tuned/tuning_manifest.json
 ```
 
 If a preempted/failed job leaves a partial immutable artifact directory, the default restart **does not overwrite** it. Review its log; then explicitly archive and retry only incomplete runs:
@@ -161,11 +149,12 @@ Do **not** mix this small smoke output with the default full-CIFAR experimental 
 ## 4. What the suite saves and validates
 
 ```
-results/cifar10_hypothesis26/
+results/cifar10_hypothesis26_tuned/
   plan.json                   # All requested configs, commands, expected artifact locations
   manifest.json               # Per-job status, timing, saved paths and failures
-  hypothesis_metrics.csv      # One row per verified hypothesis-only run
-  hypothesis_metrics.json     # Same numeric metrics in structured form
+  tuning_manifest.json       # Candidate ledger, rounds, selected configs and final rows
+  hypothesis_metrics.csv     # Final per-track paired metrics
+  hypothesis_metrics.json    # Same numeric metrics in structured form
   logs/O-E01_seed0_attempt1.log
   logs/A-E03-GCD_seed0_attempt1.log
   quarantine/                 # Optional archived incomplete attempts, never deleted
@@ -173,22 +162,25 @@ results/cifar10_hypothesis26/
     original/E01/<config_hash>_seed0/
       result.json
       split_manifest.json
-      encoder.pt
+      lmoment_model.pt
+      comparison.json
     advanced/E03/advanced_<config_hash>_seed0/
       result.json
       split_manifest.json
+      baseline_model.pt
       lmoment_model.pt
+      comparison.json
 ```
 
-The suite checks that every completed run has a result file, that the JSON configuration matches the command exactly, that the only variant is `lmoment`, that CIFAR-10 is marked as the image source, that split indices exist, and that its expected encoder/model checkpoint exists. It rejects accidental baseline results and logs failures. **The original runners only save their own algorithm-specific metrics**, so some runs have accuracy and old/new/forgetting while structural/statistical diagnostics have distances, split acceptance or alarm decisions instead.
+The suite checks that every completed run has a result file, that the JSON configuration matches the command exactly, that both paired variants are present, that CIFAR-10 is marked as the image source, that split indices and pinned-backbone provenance exist, and that expected model checkpoints exist. Structural/statistical tracks report their own diagnostics alongside paired comparison artifacts.
 
-`comparison.json` is **intentionally absent** from hypothesis-only runs. Baseline-versus-L-moment deltas cannot be calculated until baselines are separately executed; these initial results compare our **26 proposed configurations**, not against external methods.
+Each applicable job writes `comparison.json` with numeric baseline/L-moment deltas. These controls are not substitutes for published-method reproductions.
 
 The full original suite can only be called successfully completed when the manifest contains **26 verified results and zero failures**. There are no fabricated performance numbers: `dry-run` and unit tests create no CIFAR-10 research results.
 
 ## 5. Remaining scientific obligations before publication-quality conclusions
 
-1. The baseline and official-method reproductions remain separate tasks and are **not executed** here.
+1. Official-method reproductions remain separate tasks and are **not executed** here.
 2. The 141-family experimental registry is not fully implemented, despite being individually documented.
 3. E02/E05 need valid sequential false-positive calibration and stronger unknown-K methods. E03/E04 need non-oracle-K and exact published continual protocols. E06 needs autonomous structural error detection. E07 needs standardized corruption benchmarks and semantic-versus-domain methods. E08 requires a dataset with grounded hierarchies. E09/E10 need stronger continual-learning and memory controls. E11/E12 need autonomous trainable controllers, matched costs and BGD/ADP coverage. E13 needs rigorous continual-representation retention evaluation. E14 still lacks a unified architecture.
 4. One seed is for **initial performance screening**, not reliable performance estimation. Class-order variation, further seeds, ablations and independent validation must follow after the methods are stable.

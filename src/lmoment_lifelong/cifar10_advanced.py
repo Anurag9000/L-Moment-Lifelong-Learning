@@ -28,6 +28,7 @@ from .provenance import source_commit, run_fingerprint
 from .research_algorithms import (
     DeferredClassDiscovery, LMomentNormalClassifier,
     ValidatedMemoryStructure, fixed_projections, group_discrepancy,
+    calibrate_unlabeled_stationary_null,
 )
 from .continual_algorithms import (
     FixedByteReplay, IncrementalFeatureTrainer, SequentialDistributionClassifier,
@@ -73,11 +74,15 @@ class AdvancedConfig:
     distribution_shrinkage: float = 5.0
     distribution_min_scale: float = 0.02
     radius_factor: float = 1.5
+    candidate_radius_factor: float = 2.0
     max_discovered_classes: int = 200
     training_steps: int = 50
     replay_ratio: float = 0.5
     hierarchy_parents: int = 3
     drift_window: int = 32
+    loss_quantile: float = 0.95
+    split_penalty: float = 0.05
+    split_shape_floor: float = 1e-6
     variant: str = "both"  # both, baseline, lmoment
 
     def __post_init__(self):
@@ -94,10 +99,15 @@ class AdvancedConfig:
         if self.backbone not in ("ssl", "dinov2"):
             raise ValueError("Backbone must be ssl or dinov2")
         if min(self.lr, self.distribution_min_scale, self.radius_factor,
+               self.candidate_radius_factor,
                self.max_discovered_classes, self.training_steps, self.drift_window) <= 0:
             raise ValueError("Algorithm hyperparameters must be positive")
         if self.distribution_shrinkage < 0 or not 0 < self.replay_ratio < 1:
             raise ValueError("Invalid shrinkage or replay ratio")
+        if not 0.5 < self.loss_quantile < 1.0:
+            raise ValueError("loss_quantile must be in (0.5, 1)")
+        if self.split_penalty < 0 or self.split_shape_floor < 0:
+            raise ValueError("Split penalty and shape floor must be non-negative")
         if min(self.gcd_supervised_weight, self.gcd_pseudo_weight,
                self.gcd_consistency_weight, self.gcd_preservation_weight) < 0:
             raise ValueError("GCD loss weights must be non-negative")
@@ -145,23 +155,11 @@ def _learn_radius(features, *, factor=1.5):
 
 
 def _unlabeled_group_compatibility(valx, projection, kind, min_support, seed):
-    """Exploratory selected-cluster threshold, NOT a valid type-I test."""
-    n = len(valx)
-    n_clusters = max(2, min(n // max(2 * min_support, 1), 10))
-    if n_clusters >= n:
-        return None
-    groups = KMeans(n_clusters=n_clusters, n_init=5,
-                    random_state=seed).fit_predict(valx)
-    distances = []
-    rng = np.random.default_rng(seed)
-    for k in range(n_clusters):
-        indices = np.flatnonzero(groups == k)
-        if len(indices) < 2 * min_support:
-            continue
-        rng.shuffle(indices)
-        a, b = np.array_split(valx[indices], 2)
-        distances.append(group_discrepancy(a, b, projection, kind=kind))
-    return float(np.quantile(distances, .9)) if len(distances) >= 2 else None
+    """Empirical label-free null threshold on independent validation features."""
+    return calibrate_unlabeled_stationary_null(
+        valx, projection=projection, kind=kind,
+        window=max(8, min(64, 2 * min_support)), repetitions=128,
+        seed=seed, alpha=.05)
 
 
 def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
@@ -211,21 +209,27 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
             order = rng.permutation(len(tx))
         radius = _learn_radius(tx, factor=cfg.radius_factor)
         projected = fixed_projections(tx.shape[1], min(cfg.statistical_projections, tx.shape[1]), seed)
-        threshold = _unlabeled_group_compatibility(valx, projected, kind,
-                                                    cfg.min_support, seed)
+        calibration = _unlabeled_group_compatibility(valx, projected, kind,
+                                                     cfg.min_support, seed)
         memory = DeferredClassDiscovery(
-            tx.shape[1], assign_radius=radius, candidate_radius=radius,
+            tx.shape[1], assign_radius=radius,
+            candidate_radius=radius * cfg.candidate_radius_factor,
             min_support=cfg.min_support, reservoir=max(64, cfg.min_support),
             max_classes=cfg.max_discovered_classes, statistic=kind, seed=seed,
             projections=min(cfg.statistical_projections, tx.shape[1]),
-            compatibility_threshold=threshold)
+            compatibility_threshold=calibration.threshold)
         prequential = memory.stream(tx[order])
         val_prediction = np.asarray([-1 if (v := memory.predict(z)) is None else v for z in valx])
         test_prediction = np.asarray([-1 if (v := memory.predict(z)) is None else v for z in testx])
         alignment = _eval_mapping(valy, val_prediction)
         return {
             "stream_type": "label-hidden_blocked" if track == "E05" else "label-hidden_iid",
-            "calibration_warning": "selected-cluster threshold is heuristic, not valid type-I control",
+            "calibration": {"threshold": calibration.threshold,
+                            "method": calibration.method,
+                            "alpha_per_comparison": calibration.alpha,
+                            "n_calibration": calibration.n_calibration,
+                            "unit": calibration.unit,
+                            "warning": "per-comparison calibration; lifetime stream error is not controlled"},
             "initial_prediction_abstention": bool(prequential[0] == -1),
             "prequential_coverage": float(np.mean(prequential >= 0)),
             "validation": _cluster_metrics(valy, val_prediction),
@@ -233,6 +237,8 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
             "mature_classes": sum(n.state == "mature" for n in memory.nodes.values()),
             "total_assemblies": len(memory.nodes),
             "estimated_memory_bytes": memory.bytes_estimate(),
+            "canonical_id_count": int(len({memory.canonical_identity(i) for i in memory.nodes})),
+            "merge_count": memory.merges,
             "events": {e: sum(1 for _, event, _ in memory.events if event == e)
                        for e in {v for _, v, _ in memory.events}},
         }
@@ -244,11 +250,13 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
         hold_b = valx[valy == 1]
         train = np.concatenate((a, b))
         hold = np.concatenate((hold_a, hold_b))
-        structure = ValidatedMemoryStructure(tx.shape[1], seed=seed, penalty=.05)
+        structure = ValidatedMemoryStructure(tx.shape[1], seed=seed,
+                                             penalty=cfg.split_penalty)
         parent = structure.add(train)
         proposal = structure.propose_split(parent, hold, min_child=cfg.min_support,
                     shape_kind="lmoment" if kind == "lmoment" else None,
-                    shape_floor=1e-6)
+                    shape_floor=cfg.split_shape_floor,
+                    projections=cfg.statistical_projections)
         accepted = bool(proposal is not None and proposal.validated)
         if accepted:
             version, children = structure.commit_split(proposal, train)
@@ -256,11 +264,23 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
             restored = len(structure.nodes) == 1 and parent in structure.nodes
         else:
             restored = True
+        score_mask = np.isin(testy, (0, 1))
+        score_x, score_y = testx[score_mask], testy[score_mask]
+        if proposal is not None:
+            scoring_predictions = np.square(
+                score_x[:, None, :] - proposal.split_centers[None, :, :]).sum(2).argmin(1)
+        else:
+            scoring_predictions = np.zeros(len(score_y), dtype=np.int64)
+        score_ari = (float(adjusted_rand_score(score_y, scoring_predictions))
+                     if len(score_y) >= 2 else 0.)
         return {"artificial_merge_intervention": True,
                 "candidate_proposed": proposal is not None,
                 "accepted_heldout": accepted,
                 "holdout_gain": None if proposal is None else proposal.gain,
                 "holdout_shape_score": None if proposal is None else proposal.shape_score,
+                "scoring_ari": score_ari,
+                "scoring_labels": score_y.astype(int).tolist(),
+                "scoring_predictions": scoring_predictions.astype(int).tolist(),
                 "rollback_restored": restored,
                 "memory_bytes_after_rollback": structure.estimated_bytes(),
                 "note": "Shared geometric split; L-moment variant adds held-out shape gate (heuristic, not inferential)"}
@@ -272,7 +292,12 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
         model.fit(tx[ty < 5], ty[ty < 5])  # Base known classes are supervised by design.
         seen = testy < 5
         pred = model.predict(distorted[seen])
-        return {"known_class_corruption_accuracy": float(np.mean(pred == testy[seen])),
+        clean = model.predict(testx[seen])
+        clean_accuracy = float(np.mean(clean == testy[seen]))
+        shifted_accuracy = float(np.mean(pred == testy[seen]))
+        return {"known_class_clean_accuracy": clean_accuracy,
+                "known_class_corruption_accuracy": shifted_accuracy,
+                "corruption_accuracy_drop": clean_accuracy - shifted_accuracy,
                 "image_domain_corruption": shifted is not None,
                 "known_labels_permitted": 5}
     if track == "E08":
@@ -293,11 +318,13 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
         buffer = FixedByteReplay(cfg.memory_bytes, seed=seed, method=policy)
         trainer = IncrementalFeatureTrainer(tx.shape[1], classes=10, seed=seed)
         initial = ty < 5
-        trainer.train_stage(tx[initial], ty[initial], steps=cfg.training_steps)
+        trainer.train_stage(tx[initial], ty[initial], steps=cfg.training_steps,
+                            batch_size=cfg.batch_size)
         before_old = trainer.evaluate(testx, testy, seen_classes=range(5))
         buffer.update(tx[initial], ty[initial])
         trainer.train_stage(tx[~initial], ty[~initial], memory=buffer,
-                            steps=cfg.training_steps, replay_ratio=cfg.replay_ratio)
+                            steps=cfg.training_steps, replay_ratio=cfg.replay_ratio,
+                            batch_size=cfg.batch_size)
         after_old = trainer.evaluate(testx, testy, seen_classes=range(5))
         new = trainer.evaluate(testx, testy, seen_classes=range(5,10))
         return {"old_before": before_old, "old_after": after_old,
@@ -310,26 +337,71 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
                 "policy": policy,
                 "stage_training": trainer.stages}
     if track == "E11":
+        torch, _, _, _ = _torch()
         # Null development streams preserve class-mixture distribution. Use
         # independent samples; no test labels in calibration/action decisions.
-        window = max(8, min(cfg.drift_window, len(valx)//8))
+        window = max(8, min(cfg.drift_window, len(valx)//60))
         detector = EvidenceGatedAdapterRouter(tx.shape[1], window=window,
             statistic="lmoment" if kind == "lmoment" else "mean", seed=seed)
-        dev = [valx[rng.choice(len(valx), size=3*window, replace=True)]
-               for _ in range(24)]
+        null_order = rng.permutation(len(valx))
+        null_count = min(24, len(valx) // (6 * window))
+        if null_count < 10:
+            raise ValueError("E11 needs ten disjoint validation null streams")
+        null_end = null_count * 3 * window
+        dev = [valx[null_order[i * 3 * window:(i + 1) * 3 * window]]
+               for i in range(null_count)]
         cal = detector.calibrate(dev)
         reference = valx[rng.choice(len(valx), size=2*window, replace=True)]
         detector.register("initial", reference)
         stationary = testx[rng.choice(len(testx), size=window, replace=True)]
         shifted = stationary + 2.0
+        # Measure loss degradation on a supervised validation stream. Fit only
+        # on training labels; validation labels control the action and are
+        # disjoint from the scoring/test partition.
+        learner = IncrementalFeatureTrainer(tx.shape[1], classes=10, seed=seed)
+        learner.train_stage(tx, ty, steps=cfg.training_steps, batch_size=cfg.batch_size)
+        validation_ids = null_order[null_end:null_end + window]
+        loss_ids = null_order[null_end + window:]
+        if len(validation_ids) < window or len(loss_ids) < 10 * window:
+            raise ValueError("E11 validation partition is too small for independent loss calibration")
+        loss_samples = []
+        for start in range(0, len(loss_ids) - window + 1, window):
+            ids = loss_ids[start:start + window]
+            logits = learner.model(torch.as_tensor(valx[ids], dtype=torch.float32,
+                                                    device=learner.device))
+            labels = torch.as_tensor(valy[ids], dtype=torch.long, device=learner.device)
+            with torch.no_grad():
+                loss_samples.append(float(torch.nn.functional.cross_entropy(logits, labels)))
+        loss_threshold = float(np.quantile(loss_samples, cfg.loss_quantile))
+        ids = validation_ids[:window]
+        shifted_labels = valy[ids]
+        with torch.no_grad():
+            stationary_logits = learner.model(torch.as_tensor(valx[ids], dtype=torch.float32,
+                                                               device=learner.device))
+            shifted_logits = learner.model(torch.as_tensor((valx[ids] + 2.).astype(np.float32),
+                                                            device=learner.device))
+            stationary_loss = float(torch.nn.functional.cross_entropy(
+                stationary_logits, torch.as_tensor(shifted_labels, dtype=torch.long,
+                                                  device=learner.device)))
+            shifted_loss = float(torch.nn.functional.cross_entropy(
+                shifted_logits, torch.as_tensor(shifted_labels, dtype=torch.long,
+                                                device=learner.device)))
+        loss_degraded = shifted_loss > loss_threshold
         unchanged_action = detector.decide(stationary, performance_degraded=False)
-        degraded = detector.decide(shifted, performance_degraded=True,
+        degraded = detector.decide(shifted, performance_degraded=loss_degraded,
                                    capacity_trial_failed=True)
         return {"calibration_unit": cal.unit, "calibration_streams":cal.n_calibration,
                 "null_noop": unchanged_action.action == "continue",
                 "shift_alarm": degraded.alarm,
                 "shift_action": degraded.action,
-                "action_warning": "Controller receives experimental performance-degraded flag, not online estimated loss"}
+                "validation_stationary_loss": stationary_loss,
+                "validation_shifted_loss": shifted_loss,
+                "validation_loss_degradation_threshold": loss_threshold,
+                "loss_degradation_quantile": cfg.loss_quantile,
+                "loss_degraded": loss_degraded,
+                "loss_probe_batches": len(loss_samples),
+                "optimizer_batch_size": cfg.batch_size,
+                "action_warning": "Controlled synthetic feature shift; loss is measured on separate validation labels"}
     raise ValueError(f"No extended method for {track}")
 
 
@@ -419,6 +491,7 @@ def run_cifar(cfg: AdvancedConfig):
         gcd_cfg = GCDConfig(mode=mode, seed=cfg.seed, batch_size=cfg.batch_size,
                             epochs_base=cfg.gcd_epochs_base,
                             epochs_session=cfg.gcd_epochs_session, lr=cfg.lr,
+                            memory_bytes=cfg.memory_bytes,
                             supervised_weight=cfg.gcd_supervised_weight,
                             pseudo_weight=cfg.gcd_pseudo_weight,
                             consistency_weight=cfg.gcd_consistency_weight,
@@ -556,11 +629,15 @@ def main(argv=None):
     p.add_argument("--distribution-shrinkage", type=float, default=5.)
     p.add_argument("--distribution-min-scale", type=float, default=.02)
     p.add_argument("--radius-factor", type=float, default=1.5)
+    p.add_argument("--candidate-radius-factor", type=float, default=2.)
     p.add_argument("--max-discovered-classes", type=int, default=200)
     p.add_argument("--training-steps", type=int, default=50)
     p.add_argument("--replay-ratio", type=float, default=.5)
     p.add_argument("--hierarchy-parents", type=int, default=3)
     p.add_argument("--drift-window", type=int, default=32)
+    p.add_argument("--loss-quantile", type=float, default=.95)
+    p.add_argument("--split-penalty", type=float, default=.05)
+    p.add_argument("--split-shape-floor", type=float, default=1e-6)
     p.add_argument("--device", default="auto")
     p.add_argument("--download", action="store_true")
     cfg = AdvancedConfig(**vars(p.parse_args(argv)))

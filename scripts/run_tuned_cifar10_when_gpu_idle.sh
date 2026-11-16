@@ -34,4 +34,4 @@ export PYTHONPATH="$repo_root/src${PYTHONPATH:+:$PYTHONPATH}"
     --output-root results/cifar10_hypothesis26_tuned \
     --feature-cache-root results/cifar10_dinov2_cache \
     --data-root datasets --device cuda --extraction-microbatch 16 \
-    --max-rounds 4 2>&1 | tee -a "$log_file"
+    --max-rounds 20 2>&1 | tee -a "$log_file"

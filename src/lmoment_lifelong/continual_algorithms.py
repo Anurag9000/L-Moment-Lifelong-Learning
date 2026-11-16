@@ -158,27 +158,37 @@ class IncrementalFeatureTrainer:
         self.stages = []
 
     def train_stage(self, current_x, current_y, memory=None, steps=100,
-                    lr=.01, replay_ratio=1., distill_weight=0.):
+                    lr=.01, replay_ratio=1., distill_weight=0., batch_size=512):
         torch, nn = self.torch, self.nn
         data = _matrix(current_x).astype(np.float32)
         labels = np.asarray(current_y, dtype=np.int64)
-        if steps < 1 or not (0 <= replay_ratio <= 1) or len(data) != len(labels):
+        if (steps < 1 or batch_size < 1 or not (0 <= replay_ratio <= 1)
+                or len(data) != len(labels)):
             raise ValueError("Invalid incremental stage")
         old_model = copy.deepcopy(self.model).eval() if distill_weight else None
+        replay_x = replay_y = None
         if memory is not None and memory.x is not None and replay_ratio > 0:
-            bx, by = memory.replay()
-            budget = int(round(len(data) * replay_ratio / max(1 - replay_ratio, 1e-6)))
-            budget = min(budget, max(1, len(data)))
-            if budget:
-                ids = np.random.default_rng(len(self.stages)).choice(len(bx), size=budget, replace=True)
-                data = np.concatenate([data, bx[ids]], axis=0)
-                labels = np.concatenate([labels, by[ids]], axis=0)
-        x = torch.as_tensor(data, dtype=torch.float32, device=self.device)
-        y = torch.as_tensor(labels, dtype=torch.long, device=self.device)
+            replay_x, replay_y = memory.replay()
         opt = torch.optim.AdamW(self.model.parameters(), lr=lr)
         loss_trace = []
         self.model.train()
+        rng = np.random.default_rng(len(self.stages))
+        replay_count = (int(round(batch_size * replay_ratio))
+                        if replay_x is not None else 0)
+        current_count = batch_size - replay_count
+        if current_count < 1:
+            current_count, replay_count = 1, batch_size - 1
         for _ in range(steps):
+            current_ids = rng.choice(len(data), size=current_count,
+                                     replace=len(data) < current_count)
+            batch_x = data[current_ids]
+            batch_y = labels[current_ids]
+            if replay_count:
+                replay_ids = rng.choice(len(replay_x), size=replay_count, replace=True)
+                batch_x = np.concatenate((batch_x, replay_x[replay_ids]))
+                batch_y = np.concatenate((batch_y, replay_y[replay_ids]))
+            x = torch.as_tensor(batch_x, dtype=torch.float32, device=self.device)
+            y = torch.as_tensor(batch_y, dtype=torch.long, device=self.device)
             opt.zero_grad(set_to_none=True)
             logits = self.model(x)
             loss = nn.functional.cross_entropy(logits, y)
@@ -192,7 +202,9 @@ class IncrementalFeatureTrainer:
             opt.step()
             loss_trace.append(float(loss.detach()))
         self.stages.append({"updates": steps, "final_loss": loss_trace[-1],
-                            "train_examples_with_replay": len(data)})
+                            "current_examples": len(data),
+                            "batch_size": batch_size,
+                            "replay_examples_per_update": replay_count})
         return loss_trace
 
     def predict(self, x):

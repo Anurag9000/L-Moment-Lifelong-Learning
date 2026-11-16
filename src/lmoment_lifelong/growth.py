@@ -69,19 +69,20 @@ if nn is not None:
 
     def evaluate_growth(base:ExpandableMLP,x_train,y_train,x_val,y_val,
                         width:int=8,steps:int=20,lr:float=1e-3,
-                        parameter_penalty:float=0.0):
+                        parameter_penalty:float=0.0,batch_size:int=512):
         """Matched-step trial of no-growth and growth; does not mutate `base`.
 
         The caller must supply permitted development data; never final test data.
         Returns candidate models and objective scores, enabling explicit commit.
         """
-        if steps<1:raise ValueError("steps must be positive")
+        if steps<1 or batch_size<1:raise ValueError("steps and batch_size must be positive")
         def train(model):
             model.train()
             opt=torch.optim.Adam([p for p in model.parameters() if p.requires_grad],lr=lr)
             for _ in range(steps):
+                ids=torch.randint(len(y_train),(batch_size,),device=x_train.device)
                 opt.zero_grad(set_to_none=True)
-                loss=nn.functional.cross_entropy(model(x_train),y_train)
+                loss=nn.functional.cross_entropy(model(x_train[ids]),y_train[ids])
                 loss.backward();opt.step()
             model.eval()
             with torch.no_grad():

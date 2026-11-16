@@ -9,10 +9,12 @@ benchmark protocol builder and evaluator, never in student optimizer targets.
 from __future__ import annotations
 
 import copy
+import hashlib
 from dataclasses import dataclass
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 from sklearn.cluster import KMeans
+from sklearn.metrics import confusion_matrix
 
 
 def _require_torch():
@@ -36,13 +38,15 @@ class GCDConfig:
     pseudo_weight: float = 1.
     consistency_weight: float = .1
     preservation_weight: float = .05
+    memory_bytes: int = 65536
 
     def __post_init__(self):
         if self.mode not in ("ncd", "gcd", "continual_gcd"):
             raise ValueError("Choose NCD, GCD or C-GCD")
         if not (1 <= self.known_classes < self.oracle_total_classes <= 10):
             raise ValueError("Invalid known/novel class composition")
-        if min(self.epochs_base, self.epochs_session, self.batch_size) < 1:
+        if min(self.epochs_base, self.epochs_session, self.batch_size,
+               self.memory_bytes) < 1:
             raise ValueError("Need positive training epochs and batch size")
 
 
@@ -96,20 +100,46 @@ def _features(encoder, image_dataset, device, batch_size):
     return np.concatenate(vals)
 
 
-def _pseudo_assign(x, k, anchors, rng_seed, known, mode):
+def _pseudo_assign(x, k, anchors, rng_seed, known, mode, *, previous_centers=None,
+                   previous_cutoff=None):
+    previous_centers = previous_centers or {}
     if mode == "ncd":
-        cluster = KMeans(n_clusters=k-known, n_init=5, random_state=rng_seed).fit(x)
-        return cluster.labels_.astype(int) + known, cluster.cluster_centers_
-    cluster=KMeans(n_clusters=k, n_init=5, random_state=rng_seed).fit(x)
-    centroids=cluster.cluster_centers_
-    old=np.stack([anchors[i] for i in range(known)])
-    cost=np.square(old[:,None]-centroids[None]).sum(2)
-    rr,cc=linear_sum_assignment(cost)
-    mapping={int(c):int(r) for r,c in zip(rr,cc)}
-    unused=[i for i in range(k) if i not in mapping]
-    for j,c in enumerate(unused):mapping[c]=known+j
-    pseudo=np.asarray([mapping[int(i)] for i in cluster.labels_])
-    return pseudo,centroids
+        cluster_count = k - known
+        slots = list(range(known, k))
+        cluster = KMeans(n_clusters=cluster_count, n_init=10,
+                         random_state=rng_seed).fit(x)
+        mapping = {i: slots[i] for i in range(cluster_count)}
+    elif mode == "continual_gcd":
+        previous_cutoff = known if previous_cutoff is None else previous_cutoff
+        cluster_count = k - previous_cutoff
+        slots = list(range(previous_cutoff, k))
+        cluster = KMeans(n_clusters=cluster_count, n_init=10,
+                         random_state=rng_seed).fit(x)
+        mapping = {i: slots[i] for i in range(cluster_count)}
+    else:
+        cluster = KMeans(n_clusters=k, n_init=10, random_state=rng_seed).fit(x)
+        centroids = cluster.cluster_centers_
+        old = np.stack([anchors[i] for i in range(known)])
+        cost = np.square(old[:, None] - centroids[None]).sum(2)
+        rows, cols = linear_sum_assignment(cost)
+        mapping = {int(col): int(row) for row, col in zip(rows, cols)}
+        unused = [i for i in range(k) if i not in mapping]
+        slots = list(range(known, k))
+        old_slots = [s for s in slots if s in previous_centers]
+        if old_slots and unused:
+            previous = np.stack([previous_centers[s] for s in old_slots])
+            novel_cost = np.square(previous[:, None] - centroids[None, unused]).sum(2)
+            old_rows, new_cols = linear_sum_assignment(novel_cost)
+            for row, col in zip(old_rows, new_cols):
+                mapping[unused[int(col)]] = old_slots[int(row)]
+        available_slots = [s for s in slots if s not in mapping.values()]
+        unmatched_clusters = [c for c in unused if c not in mapping]
+        for cluster_id, slot in zip(unmatched_clusters, available_slots):
+            mapping[cluster_id] = slot
+    pseudo = np.asarray([mapping[int(i)] for i in cluster.labels_], dtype=np.int64)
+    centers = {int(mapping[i]): cluster.cluster_centers_[i].copy()
+               for i in range(len(cluster.cluster_centers_))}
+    return pseudo, centers
 
 
 def _pseudo_reliability(features, pseudo, seed, statistic):
@@ -170,130 +200,242 @@ def _stage_scores(y, pred, mapping, cutoff, known):
     mapped=np.asarray([mapping.get(int(i),-1) for i in np.asarray(pred)[mask]])
     old=truth<known
     novel=~old
+    per_class = {str(k): float(np.mean(mapped[truth == k] == truth[truth == k]))
+                 for k in range(cutoff) if np.any(truth == k)}
     return {"all_accuracy":float(np.mean(mapped==truth)),
             "old_accuracy":float(np.mean(mapped[old]==truth[old])) if old.any() else None,
             "novel_accuracy":float(np.mean(mapped[novel]==truth[novel])) if novel.any() else None,
+            "per_class_accuracy": per_class,
+            "confusion_matrix": confusion_matrix(truth, mapped,
+                labels=np.arange(cutoff)).tolist(),
             "seen_classes":int(cutoff),
             "evaluation_alignment": "fitted_on_separate_validation_partition"}
 
 
-def train_gcd(encoder, dimension, train, validation, test, cfg, *, variant="baseline", device=None):
-    """Train all stages from images and evaluate with validation-fixed mapping.
+def _balanced_feature_memory(old_x, old_y, new_x, new_y, budget_bytes, seed):
+    """Bounded balanced feature memory; novel targets are stored pseudo IDs."""
+    if old_x is None:
+        old_x = np.empty((0, new_x.shape[1]), dtype=np.float32)
+        old_y = np.empty((0,), dtype=np.int64)
+    x = np.concatenate((np.asarray(old_x, dtype=np.float32),
+                        np.asarray(new_x, dtype=np.float32)))
+    y = np.concatenate((np.asarray(old_y, dtype=np.int64),
+                        np.asarray(new_y, dtype=np.int64)))
+    capacity = budget_bytes // (4 * x.shape[1] + 8)
+    if capacity < 1:
+        raise ValueError("GCD replay budget cannot store one feature and pseudo label")
+    identities = np.unique(y)
+    rng = np.random.default_rng(seed)
+    quotas = {int(k): capacity // len(identities) for k in identities}
+    for identity in identities[:capacity % len(identities)]:
+        quotas[int(identity)] += 1
+    selected = []
+    for identity in identities:
+        ids = np.flatnonzero(y == identity)
+        count = min(quotas[int(identity)], len(ids))
+        if count:
+            selected.extend(rng.choice(ids, size=count, replace=False).tolist())
+    if len(selected) < capacity:
+        remaining = np.setdiff1d(np.arange(len(y)), selected)
+        count = min(capacity - len(selected), len(remaining))
+        selected.extend(rng.choice(remaining, size=count, replace=False).tolist())
+    selected = np.asarray(selected, dtype=np.int64)
+    return x[selected].copy(), y[selected].copy()
 
-    The train/validation/test datasets must be disjoint. The scheduler is
-    permitted to inspect labels for stage eligibility; no novel labels reach
-    the student through the pseudo-target dataset.
-    """
+
+def train_gcd(encoder, dimension, train, validation, test, cfg, *, variant="baseline", device=None):
+    """Refresh pseudo-labels each epoch and enforce non-cumulative C-GCD sessions."""
     torch, nn, DataLoader, _, Subset = _require_torch()
-    if variant not in ("baseline","lmoment"):
+    if variant not in ("baseline", "lmoment"):
         raise ValueError("Bad L-moment ablation choice")
     torch.manual_seed(cfg.seed)
-    device=device or ("cuda" if torch.cuda.is_available() else "cpu")
-    net=copy.deepcopy(encoder).to(device)
-    classifier=nn.Linear(dimension,cfg.oracle_total_classes).to(device)
-    optimizer=torch.optim.AdamW(list(net.parameters())+list(classifier.parameters()),lr=cfg.lr)
-    y_train=get_labels(train)
-    known_ids=np.flatnonzero(y_train<cfg.known_classes)
-    known_dataset=Subset(train,known_ids)
+    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    net = copy.deepcopy(encoder).to(device)
+    classifier = nn.Linear(dimension, cfg.oracle_total_classes).to(device)
+    optimizer = torch.optim.AdamW(list(net.parameters()) + list(classifier.parameters()),
+                                  lr=cfg.lr)
+    y_train = get_labels(train)
+    known_ids = np.flatnonzero(y_train < cfg.known_classes)
+    known_dataset = Subset(train, known_ids)
     if not len(known_dataset):
         raise ValueError("Known-class training base absent")
-    known_loader=DataLoader(known_dataset,batch_size=cfg.batch_size,shuffle=True)
-    base_trace=[]
+    known_labels = get_labels(known_dataset)
+    known_loader = DataLoader(known_dataset, batch_size=cfg.batch_size, shuffle=True)
+    base_trace = []
     for _ in range(cfg.epochs_base):
-        net.train();classifier.train()
-        for images,y in known_loader:
+        net.train(); classifier.train()
+        for images, y in known_loader:
             optimizer.zero_grad(set_to_none=True)
-            loss=nn.functional.cross_entropy(classifier(net(images.to(device))),y.to(device))
-            loss.backward();optimizer.step()
+            loss = nn.functional.cross_entropy(classifier(net(images.to(device))), y.to(device))
+            loss.backward(); optimizer.step()
             base_trace.append(float(loss.detach()))
-    teacher=copy.deepcopy(net).eval()
-    for p in teacher.parameters():p.requires_grad_(False)
-    # Teacher classifier is kept for historical logit preservation (base only).
-    teacher_classifier=copy.deepcopy(classifier).eval()
-    for p in teacher_classifier.parameters():p.requires_grad_(False)
-    cutoffs = ([cfg.known_classes + max(1,(cfg.oracle_total_classes-cfg.known_classes)//2),
+
+    teacher = copy.deepcopy(net).eval()
+    teacher_classifier = copy.deepcopy(classifier).eval()
+    for parameter in list(teacher.parameters()) + list(teacher_classifier.parameters()):
+        parameter.requires_grad_(False)
+
+    cutoffs = ([cfg.known_classes + max(1, (cfg.oracle_total_classes-cfg.known_classes)//2),
                 cfg.oracle_total_classes] if cfg.mode == "continual_gcd"
                else [cfg.oracle_total_classes])
-    session_records=[]
-    for session,cutoff in enumerate(cutoffs):
-        # Only the protocol builder inspects hidden novel-class labels.
-        if cfg.mode=="ncd":
-            session_ids=np.flatnonzero((y_train>=cfg.known_classes)&(y_train<cutoff))
+    known_features = _features(net, known_dataset, device, cfg.batch_size)
+    memory_x = memory_y = None
+    if cfg.mode == "continual_gcd":
+        memory_x, memory_y = _balanced_feature_memory(
+            None, None, known_features, known_labels, cfg.memory_bytes, cfg.seed)
+    session_records = []
+    previous_cutoff = cfg.known_classes
+    for session, cutoff in enumerate(cutoffs):
+        # Labels only construct the allowed arrival segment; training sees images/features only.
+        if cfg.mode == "ncd":
+            session_ids = np.flatnonzero((y_train >= cfg.known_classes) & (y_train < cutoff))
+        elif cfg.mode == "continual_gcd":
+            session_ids = np.flatnonzero((y_train >= previous_cutoff) & (y_train < cutoff))
         else:
-            session_ids=np.flatnonzero(y_train<cutoff)
-        current=Subset(train,session_ids)
-        current_features=_features(net,current,device,cfg.batch_size)
-        known_features=_features(net,known_dataset,device,cfg.batch_size)
-        anchors={k:known_features[get_labels(known_dataset)==k].mean(0)
-                 for k in range(cfg.known_classes)}
-        pseudo,centers=_pseudo_assign(current_features,cutoff,anchors,
-                                      cfg.seed+session,cfg.known_classes,cfg.mode)
-        weights=_pseudo_reliability(current_features,pseudo,
-                                     cfg.seed+session,variant)
-        pseudo_loader=DataLoader(_PseudoTargetView(current,pseudo,weights),
-                                 batch_size=cfg.batch_size,shuffle=True)
-        stage_trace=[]
-        for _ in range(cfg.epochs_session):
-            known_iter=iter(known_loader)
-            net.train();classifier.train()
-            for images,targets,importance in pseudo_loader:
-                try:old_images,old_y=next(known_iter)
-                except StopIteration:
-                    known_iter=iter(known_loader)
-                    old_images,old_y=next(known_iter)
-                images=images.to(device)
-                old_images=old_images.to(device)
-                old_y=old_y.to(device)
-                targets=targets.to(device)
-                importance=importance.to(device)
-                opt_logits=classifier(net(images))
-                pseudo_ce=nn.functional.cross_entropy(opt_logits,targets,reduction="none")
-                pseudo_loss=(pseudo_ce*importance).sum()/importance.sum().clamp_min(1)
-                labeled_loss=nn.functional.cross_entropy(classifier(net(old_images)),old_y)
-                # A cheap augmentation-consistency term independent of labels.
-                jitter=images+.025*torch.randn_like(images)
-                student=net(images);augmented=net(jitter)
-                consistency=nn.functional.mse_loss(student,augmented)
+            session_ids = np.flatnonzero(y_train < cutoff)
+        current = Subset(train, session_ids)
+        stage_trace = []
+        component_trace = {name: [] for name in
+                           ("pseudo", "supervised", "consistency", "preservation", "distillation")}
+        refresh_records = []
+        previous_pseudo = None
+        slot_centers = {}
+        final_features = None
+        final_pseudo = None
+        final_weights = None
+        for epoch in range(cfg.epochs_session):
+            current_features = _features(net, current, device, cfg.batch_size)
+            if cfg.mode == "continual_gcd":
+                anchors = {}
+                mode_for_assign = "continual_gcd"
+            else:
+                known_features = _features(net, known_dataset, device, cfg.batch_size)
+                anchors = {k: known_features[known_labels == k].mean(0)
+                           for k in range(cfg.known_classes)}
+                mode_for_assign = cfg.mode
+            pseudo, slot_centers = _pseudo_assign(
+                current_features, cutoff, anchors, cfg.seed + session * 1009 + epoch,
+                cfg.known_classes, mode_for_assign, previous_centers=slot_centers,
+                previous_cutoff=previous_cutoff)
+            weights = _pseudo_reliability(current_features, pseudo,
+                                          cfg.seed + session * 1009 + epoch, variant)
+            stability = (None if previous_pseudo is None else
+                         float(__import__("sklearn.metrics", fromlist=["adjusted_rand_score"])
+                               .adjusted_rand_score(previous_pseudo, pseudo)))
+            refresh_records.append({"epoch": epoch + 1,
+                "pseudo_group_count": int(len(np.unique(pseudo))),
+                "pseudo_counts": {str(int(k)): int(np.sum(pseudo == k))
+                                  for k in np.unique(pseudo)},
+                "weight_mean": float(np.mean(weights)),
+                "weight_std": float(np.std(weights)),
+                "weight_q05": float(np.quantile(weights, .05)),
+                "weight_q50": float(np.quantile(weights, .5)),
+                "weight_q95": float(np.quantile(weights, .95)),
+                "pseudo_label_stability_ari": stability})
+            previous_pseudo = pseudo.copy()
+            final_features, final_pseudo, final_weights = current_features, pseudo, weights
+            pseudo_loader = DataLoader(_PseudoTargetView(current, pseudo, weights),
+                                       batch_size=cfg.batch_size, shuffle=True)
+            known_iter = iter(known_loader)
+            net.train(); classifier.train()
+            for images, targets, importance in pseudo_loader:
+                images = images.to(device)
+                targets = targets.to(device)
+                importance = importance.to(device)
+                opt_logits = classifier(net(images))
+                pseudo_ce = nn.functional.cross_entropy(opt_logits, targets, reduction="none")
+                pseudo_loss = (pseudo_ce * importance).sum() / importance.sum().clamp_min(1)
+                replay_loss = torch.zeros((), device=device)
+                if cfg.mode == "continual_gcd" and memory_x is not None and len(memory_y):
+                    replay_size = min(cfg.batch_size, len(memory_y))
+                    replay_ids = np.random.default_rng(cfg.seed + epoch + session * 1009).choice(
+                        len(memory_y), size=replay_size, replace=len(memory_y) < cfg.batch_size)
+                    replay_features = torch.as_tensor(memory_x[replay_ids], dtype=torch.float32,
+                                                       device=device)
+                    replay_targets = torch.as_tensor(memory_y[replay_ids], dtype=torch.long,
+                                                      device=device)
+                    replay_loss = nn.functional.cross_entropy(classifier(replay_features),
+                                                             replay_targets)
+                else:
+                    try:
+                        old_images, old_y = next(known_iter)
+                    except StopIteration:
+                        known_iter = iter(known_loader)
+                        old_images, old_y = next(known_iter)
+                    old_images, old_y = old_images.to(device), old_y.to(device)
+                    replay_loss = nn.functional.cross_entropy(
+                        classifier(net(old_images)), old_y)
+                jitter = images + .025 * torch.randn_like(images)
+                student = net(images)
+                augmented = net(jitter)
+                consistency = nn.functional.mse_loss(student, augmented)
                 with torch.no_grad():
-                    historical=teacher(images)
-                    old_logits=teacher_classifier(historical)
-                preservation=_distribution_consistency(student,historical,variant)
-                kd=nn.functional.mse_loss(opt_logits[:,:cfg.known_classes],
-                                          old_logits[:,:cfg.known_classes])
-                loss=(cfg.pseudo_weight*pseudo_loss+
-                      cfg.supervised_weight*labeled_loss+
-                      cfg.consistency_weight*consistency+
-                      cfg.preservation_weight*(preservation+kd))
+                    historical = teacher(images)
+                    old_logits = teacher_classifier(historical)
+                preservation = _distribution_consistency(student, historical, variant)
+                distillation = nn.functional.mse_loss(
+                    opt_logits[:, :cfg.known_classes], old_logits[:, :cfg.known_classes])
+                loss = (cfg.pseudo_weight * pseudo_loss +
+                        cfg.supervised_weight * replay_loss +
+                        cfg.consistency_weight * consistency +
+                        cfg.preservation_weight * (preservation + distillation))
                 optimizer.zero_grad(set_to_none=True)
-                loss.backward();optimizer.step()
+                loss.backward(); optimizer.step()
                 stage_trace.append(float(loss.detach()))
-        validation_pred,val_y=_eval_stage(net,classifier,validation,cfg.known_classes,
-                                         cutoff,device,cfg.batch_size)
-        test_pred,test_y=_eval_stage(net,classifier,test,cfg.known_classes,
-                                    cutoff,device,cfg.batch_size)
-        mapping=_validation_alignment(val_y,validation_pred,cutoff)
-        scores=_stage_scores(test_y,test_pred,mapping,cutoff,cfg.known_classes)
-        scores.update({"session":session+1,"train_examples":len(current),
-                       "oracle_k":cutoff,"pseudo_groups":len(np.unique(pseudo)),
-                       "optimizer_updates":len(stage_trace),
-                       "final_training_loss":stage_trace[-1],
-                       "validation":_stage_scores(val_y,validation_pred,mapping,
-                                                  cutoff,cfg.known_classes)})
+                for name, value in (("pseudo", pseudo_loss), ("supervised", replay_loss),
+                                    ("consistency", consistency), ("preservation", preservation),
+                                    ("distillation", distillation)):
+                    component_trace[name].append(float(value.detach()))
+
+        if cfg.mode == "continual_gcd":
+            memory_x, memory_y = _balanced_feature_memory(
+                memory_x, memory_y, final_features, final_pseudo,
+                cfg.memory_bytes, cfg.seed + session + 1)
+        validation_pred, val_y = _eval_stage(net, classifier, validation,
+            cfg.known_classes, cutoff, device, cfg.batch_size)
+        test_pred, test_y = _eval_stage(net, classifier, test,
+            cfg.known_classes, cutoff, device, cfg.batch_size)
+        mapping = _validation_alignment(val_y, validation_pred, cutoff)
+        scores = _stage_scores(test_y, test_pred, mapping, cutoff, cfg.known_classes)
+        scores.update({"session": session + 1, "seen_classes": cutoff,
+            "new_class_range": [previous_cutoff, cutoff],
+            "train_examples": int(len(current)),
+            "session_index_sha256": hashlib.sha256(
+                np.asarray(session_ids, dtype=np.int64).tobytes()).hexdigest(),
+            "pseudo_groups": int(len(np.unique(final_pseudo))),
+            "optimizer_updates": len(stage_trace),
+            "final_training_loss": stage_trace[-1] if stage_trace else None,
+            "loss_components_mean": {name: float(np.mean(values)) if values else None
+                                      for name, values in component_trace.items()},
+            "pseudo_refresh": refresh_records,
+            "validation": _stage_scores(val_y, validation_pred, mapping,
+                                        cutoff, cfg.known_classes),
+            "test_predictions_raw_ids": test_pred.astype(int).tolist(),
+            "test_labels": test_y.astype(int).tolist(),
+            "test_predictions_aligned": [mapping.get(int(p), -1) for p in test_pred],
+            "validation_predictions_raw_ids": validation_pred.astype(int).tolist(),
+            "validation_labels": val_y.astype(int).tolist(),
+            "replay_bytes": (0 if memory_x is None else
+                             int(memory_x.nbytes + memory_y.nbytes)),
+            "session_image_reuse": False if cfg.mode == "continual_gcd" else None})
         session_records.append(scores)
-        # Preserve previous-stage knowledge, not the original base forever.
-        teacher=copy.deepcopy(net).eval()
-        teacher_classifier=copy.deepcopy(classifier).eval()
-        for p in teacher.parameters():p.requires_grad_(False)
-        for p in teacher_classifier.parameters():p.requires_grad_(False)
-    return {"model_state":{"encoder":net.state_dict(),
-                           "classifier":classifier.state_dict()},
-            "results":{"mode":cfg.mode,"variant":variant,
-                       "known_supervised_classes":cfg.known_classes,
-                       "oracle_class_count":cfg.oracle_total_classes,
-                       "novel_labels_in_optimizer":False,
-                       "historical_base_labeled_replay":True,
-                       "representation_trainable":True,
-                       "base_optimizer_updates":len(base_trace),
-                       "base_final_loss":base_trace[-1],
-                       "sessions":session_records,
-                       "status":"trainable_GCD_reference_not_SimGCD_or_DYDM"}}
+        previous_cutoff = cutoff
+        teacher = copy.deepcopy(net).eval()
+        teacher_classifier = copy.deepcopy(classifier).eval()
+        for parameter in list(teacher.parameters()) + list(teacher_classifier.parameters()):
+            parameter.requires_grad_(False)
+
+    return {"model_state": {"encoder": net.state_dict(), "classifier": classifier.state_dict()},
+            "results": {"mode": cfg.mode, "variant": variant,
+                "known_supervised_classes": cfg.known_classes,
+                "oracle_class_count": cfg.oracle_total_classes,
+                "novel_labels_in_optimizer": False,
+                "session_protocol": "new_classes_only_with_bounded_feature_replay"
+                    if cfg.mode == "continual_gcd" else "joint_or_novel_only_as_configured",
+                "representation_trainable": any(p.requires_grad for p in net.parameters()),
+                "frozen_backbone_feature_mode": not any(p.requires_grad for p in net.parameters()),
+                "base_optimizer_updates": len(base_trace),
+                "base_final_loss": base_trace[-1] if base_trace else None,
+                "session_count": len(session_records),
+                "sessions": session_records,
+                "status": "trainable_GCD_reference_not_SimGCD_or_DYDM"}}

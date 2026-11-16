@@ -24,7 +24,10 @@ from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 
 from .statistics import lmoments, projector, compare_groups
 from .memory import StatisticalEngramMemory
-from .research_algorithms import LMomentNormalClassifier
+from .research_algorithms import (DeferredClassDiscovery, LMomentNormalClassifier,
+                                  calibrate_unlabeled_stationary_null,
+                                  fixed_projections, group_discrepancy)
+from .continual_algorithms import FixedByteReplay, IncrementalFeatureTrainer
 from .provenance import source_commit, run_fingerprint
 
 
@@ -66,14 +69,23 @@ class Config:
     min_support: int = 8
     memory_bytes: int = 65536
     discovery_radius: float = 0.6
+    candidate_radius_factor: float = 2.0
+    max_discovered_classes: int = 200
     drift_window: int = 16
+    loss_quantile: float = 0.95
     growth_width: int = 16
     growth_trial_steps: int = 25
     growth_parameter_penalty: float = 0.0
+    split_penalty: float = 0.05
+    split_shape_floor: float = 1e-6
+    hierarchy_parents: int = 3
+    feature_ssl_anchor_weight: float = 0.5
+    feature_ssl_shape_weight: float = 0.1
     distribution_shrinkage: float = 5.0
     distribution_min_scale: float = 0.02
     training_steps: int = 50
     known_classes: int = 5
+    replay_ratio: float = 0.5
     save_features: bool = False
 
 
@@ -256,44 +268,55 @@ def centroid_classify(train_x, train_y, test_x, metric="mean"):
 
 
 def train_head(x, y, seed, steps=40, lr=.01, init=None, weights=None, classes=None,
-               class_balanced=False, examples_per_class=32):
+               class_balanced=False, batch_size=512, device=None):
     torch, nn, _, _ = _torch()
     torch.manual_seed(seed)
     labels = np.asarray(y, dtype=int)
     n_classes = max(int(labels.max()) + 1, int(classes or 0))
-    model = nn.Linear(x.shape[1], n_classes)
+    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    model = nn.Linear(x.shape[1], n_classes).to(device)
     if init is not None and init.weight.shape == model.weight.shape:
         model.load_state_dict(copy.deepcopy(init.state_dict()))
     opt = torch.optim.AdamW(model.parameters(), lr=lr)
-    tx = torch.from_numpy(np.asarray(x, dtype=np.float32))
-    ty = torch.from_numpy(labels)
-    tw = torch.from_numpy(np.ones(len(y), np.float32) if weights is None
-                          else np.asarray(weights, dtype=np.float32))
+    tx = torch.as_tensor(np.asarray(x, dtype=np.float32), device=device)
+    ty = torch.as_tensor(labels, device=device)
+    tw = torch.as_tensor(np.ones(len(y), np.float32) if weights is None
+                         else np.asarray(weights, dtype=np.float32), device=device)
     class_ids = np.unique(labels)
     class_rows = [np.flatnonzero(labels == cls) for cls in class_ids]
+    if batch_size < 1:
+        raise ValueError("batch_size must be positive")
     for step in range(steps):
         opt.zero_grad()
         if class_balanced:
-            sampled = np.concatenate([
-                np.random.default_rng(seed + step * 1009 + i).choice(
-                    rows, size=examples_per_class,
-                    replace=len(rows) < examples_per_class)
-                for i, rows in enumerate(class_rows)
-            ])
-            batch = torch.as_tensor(sampled, dtype=torch.long)
+            quotas = np.full(len(class_rows), batch_size // len(class_rows), dtype=int)
+            quotas[:batch_size % len(class_rows)] += 1
+            sampled = np.concatenate([np.random.default_rng(seed + step * 1009 + i).choice(
+                    rows, size=int(quotas[i]), replace=len(rows) < quotas[i])
+                    for i, rows in enumerate(class_rows)])
+            batch = torch.as_tensor(sampled, dtype=torch.long, device=device)
             per = nn.functional.cross_entropy(model(tx[batch]), ty[batch], reduction="none")
             loss = (per * tw[batch]).sum() / tw[batch].sum().clamp_min(1.)
         else:
-            per = nn.functional.cross_entropy(model(tx), ty, reduction="none")
-            loss = (per * tw).sum() / tw.sum().clamp_min(1.)
+            sampled = np.random.default_rng(seed + step).choice(
+                len(labels), size=batch_size, replace=len(labels) < batch_size)
+            batch = torch.as_tensor(sampled, dtype=torch.long, device=device)
+            per = nn.functional.cross_entropy(model(tx[batch]), ty[batch], reduction="none")
+            loss = (per * tw[batch]).sum() / tw[batch].sum().clamp_min(1.)
         loss.backward(); opt.step()
     return model
 
 
-def predict_head(head, x):
+def predict_head(head, x, allowed_classes=None):
     torch, nn, _, _ = _torch()
+    device = next(head.parameters()).device
     with torch.inference_mode():
-        return head(torch.from_numpy(np.asarray(x, np.float32))).argmax(1).numpy()
+        logits = head(torch.as_tensor(np.asarray(x, np.float32), device=device))
+        if allowed_classes is not None:
+            mask = torch.ones(logits.shape[1], dtype=torch.bool, device=device)
+            mask[list(allowed_classes)] = False
+            logits[:, mask] = -torch.inf
+        return logits.argmax(1).numpy()
 
 
 def build_memory(x, use_lmoment, threshold=.6, seed=0, max_memories=50,
@@ -304,47 +327,110 @@ def build_memory(x, use_lmoment, threshold=.6, seed=0, max_memories=50,
     return mem
 
 
+def _cluster_alignment(truth, predictions):
+    truth, predictions = np.asarray(truth), np.asarray(predictions)
+    valid = predictions >= 0
+    if not valid.any():
+        return {}
+    pseudo, pi = np.unique(predictions[valid], return_inverse=True)
+    labels, yi = np.unique(truth[valid], return_inverse=True)
+    counts = np.zeros((len(pseudo), len(labels)), dtype=np.int64)
+    np.add.at(counts, (pi, yi), 1)
+    rows, cols = linear_sum_assignment(counts.max() - counts)
+    return {int(pseudo[i]): int(labels[j]) for i, j in zip(rows, cols)}
+
+
+def _cluster_metrics(truth, predictions, mapping=None):
+    truth, predictions = np.asarray(truth), np.asarray(predictions)
+    if mapping is None:
+        mapping = _cluster_alignment(truth, predictions)
+    covered = predictions >= 0
+    mapped = np.asarray([mapping.get(int(p), -1) for p in predictions])
+    return {"fixed_mapping_accuracy": float(np.mean(mapped == truth)),
+            "covered_accuracy": float(np.mean(mapped[covered] == truth[covered])) if covered.any() else 0.,
+            "coverage": float(np.mean(covered)),
+            "ari": float(adjusted_rand_score(truth[covered], predictions[covered])) if covered.sum() >= 2 else 0.,
+            "nmi": float(normalized_mutual_info_score(truth[covered], predictions[covered])) if covered.sum() >= 2 else 0.,
+            "predicted_ids": int(len(np.unique(predictions[covered])))}
+
+
 def streaming_discovery(x, y, variant, seed, blocked=False, threshold=.6, holdout=None,
-                        projections=16, min_support=8):
+                        mapping_holdout=None, candidate_radius_factor=2.,
+                        projections=16, min_support=8, max_classes=200):
+    from .research_algorithms import (DeferredClassDiscovery, fixed_projections,
+                                      calibrate_unlabeled_stationary_null)
     rng = np.random.default_rng(seed)
     if blocked:
         order = np.concatenate([rng.permutation(np.flatnonzero(y == c))
                                 for c in rng.permutation(np.unique(y))])
     else:
         order = rng.permutation(len(x))
-    mem = build_memory(x, variant == "lmoment", threshold, seed, len(x) + 1,
-                       projections=projections, min_support=min_support)
-    predictions = []; events = []
-    for t, ix in enumerate(order):
-        z = x[ix]
-        predictions.append(-1 if mem.predict(z) is None else mem.predict(z))
-        mem.observe(z, source=str(int(ix)))
-        if variant == "lmoment" and t % 16 == 0:
-            for k, node in list(mem.nodes.items()):
-                if node.state == "provisional" and node.count >= mem.min_support:
-                    p = mem.propose_birth_confirmation(k)
-                    if p.validated:
-                        mem.commit(p)
-                    elif p.reason == "possible_existing_class":
-                        # A confirmed statistical match can repair a redundant birth.
-                        matches = [j for j, other in mem.nodes.items() if j != k and
-                                   other.state in ("mature", "protected", "dormant")]
-                        matches.sort(key=lambda j: np.linalg.norm(
-                            mem.nodes[j].centroid - node.centroid))
-                        if matches:
-                            merge = mem.propose_merge(matches[0], k)
-                            if merge.validated:
-                                mem.commit(merge)
-        events.append(len(mem.nodes))
-    result = accuracy(y[order], np.asarray(predictions))
-    result.update({"final_memory_count": len(mem.nodes), "memory_bytes_estimate": mem.memory_bytes(),
-                   "mean_memory_count": float(np.mean(events)), "online_predictions": len(order)})
+    null_window = max(8, min(64, 2 * min_support))
+    projection = fixed_projections(x.shape[1], min(projections, x.shape[1]), seed)
+    if mapping_holdout is not None:
+        calibration_x = np.asarray(mapping_holdout[0])
+    elif holdout is not None:
+        calibration_x = np.asarray(holdout[0])
+    else:
+        raise ValueError("Discovery requires an independent validation feature split")
+    calibration = calibrate_unlabeled_stationary_null(
+        calibration_x, projection=projection,
+        kind="lmoment" if variant == "lmoment" else "mean",
+        window=null_window, repetitions=128, seed=seed, alpha=.05)
+    memory = DeferredClassDiscovery(
+        x.shape[1], assign_radius=threshold,
+        candidate_radius=threshold * candidate_radius_factor,
+        min_support=min_support, reservoir=max(64, min_support),
+        max_classes=max_classes,
+        statistic="lmoment" if variant == "lmoment" else "mean",
+        projections=min(projections, x.shape[1]), seed=seed,
+        compatibility_threshold=calibration.threshold)
+    prequential = memory.stream(np.asarray(x)[order])
+    canonical_prequential = np.asarray([
+        memory.canonical_identity(p) if p >= 0 else -1 for p in prequential], dtype=np.int64)
+    result = {"stream_type": "label-hidden_class-blocked" if blocked else "label-hidden_iid",
+              "prequential": _cluster_metrics(y[order], canonical_prequential),
+              "prequential_labels": np.asarray(y[order], dtype=int).tolist(),
+              "prequential_predictions": canonical_prequential.tolist(),
+              "initial_prediction_abstention": bool(prequential[0] == -1),
+              "calibration": {"threshold": calibration.threshold,
+                              "method": calibration.method,
+                              "alpha_per_comparison": calibration.alpha,
+                              "n_calibration": calibration.n_calibration,
+                              "unit": calibration.unit,
+                              "window": null_window,
+                              "warning": "per-comparison calibration does not control lifetime stream error"},
+              "final_memory_count": len(memory.nodes),
+              "mature_classes": sum(n.state == "mature" for n in memory.nodes.values()),
+              "provisional_classes": sum(n.state == "provisional" for n in memory.nodes.values()),
+              "dormant_classes": sum(n.state == "dormant" for n in memory.nodes.values()),
+              "canonical_id_count": len({memory.canonical_identity(i) for i in memory.nodes}),
+              "merge_count": memory.merges,
+              "memory_bytes_estimate": memory.bytes_estimate(),
+              "events": {e: sum(1 for _, event, _ in memory.events if event == e)
+                         for e in {event for _, event, _ in memory.events}},
+              "online_predictions": len(order)}
+    if mapping_holdout is not None:
+        dev_x, dev_y = mapping_holdout
+        dev_predictions = np.asarray([-1 if (p := memory.predict(z)) is None else p
+                                      for z in dev_x])
+        alignment = _cluster_alignment(dev_y, dev_predictions)
+        result["validation_memory"] = _cluster_metrics(dev_y, dev_predictions, alignment)
     if holdout is not None:
         hold_x, hold_y = holdout
-        predictions = np.asarray([-1 if (v := mem.predict(z)) is None else v
-                                  for z in hold_x])
-        result["validation_memory"] = accuracy(hold_y, predictions)
-    result["_checkpoint"] = mem
+        hold_predictions = np.asarray([-1 if (p := memory.predict(z)) is None else p
+                                       for z in hold_x])
+        alignment = None
+        if mapping_holdout is not None:
+            dev_x, dev_y = mapping_holdout
+            dev_predictions = np.asarray([-1 if (p := memory.predict(z)) is None else p for z in dev_x])
+            alignment = _cluster_alignment(dev_y, dev_predictions)
+        else:
+            alignment = _cluster_alignment(hold_y, hold_predictions)
+        result["scoring"] = _cluster_metrics(hold_y, hold_predictions, alignment)
+        result["scoring_labels"] = np.asarray(hold_y, dtype=int).tolist()
+        result["scoring_predictions"] = hold_predictions.tolist()
+    result["_checkpoint"] = memory
     return result
 
 
@@ -435,22 +521,46 @@ def study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=False,
     return last
 
 
-def study_structure(tx, ty, variant, seed):
-    mem = build_memory(tx, variant == "lmoment", .7, seed)
-    # Controlled early merge: put two disjoint semantic groups into one engram.
-    a = tx[ty == 0][:30]; b = tx[ty == 1][:30]
-    idx = mem._new(np.concatenate([a, b]), state="mature")
-    proposed = mem.propose_split(idx, min_child=8, seed=seed)
-    accepted = False
-    if len(proposed.groups) == 2:
-        score = proposed.score if variant == "lmoment" else float(
-            np.linalg.norm(proposed.groups[0].mean(0) - proposed.groups[1].mean(0)))
-        accepted = score > (2. if variant == "lmoment" else .2)
-        if accepted:
-            old = mem.commit(proposed, approved=True)
-            mem.rollback(old)
-    return {"proposed": len(proposed.groups) == 2, "accepted": bool(accepted),
-            "rollback_restored": len(mem.nodes) == 1, "proposal_score": float(proposed.score)}
+def study_structure(tx, ty, vx, vy, validation, variant, seed, *, split_penalty=.05,
+                    split_shape_floor=1e-6, min_support=8,
+                    projections=16):
+    from .research_algorithms import ValidatedMemoryStructure
+    # A controlled early merge of two known groups; construction and validation
+    # partitions are disjoint. The score partition is never used to choose split.
+    train = np.concatenate((tx[ty == 0], tx[ty == 1]))
+    dev_x, dev_y = validation
+    dev = np.concatenate((dev_x[dev_y == 0], dev_x[dev_y == 1]))
+    if len(train) < 2 * min_support or len(dev) < 2 * min_support:
+        raise ValueError("E06 split requires both classes in train and validation")
+    structure = ValidatedMemoryStructure(tx.shape[1], seed=seed, penalty=split_penalty)
+    parent = structure.add(train)
+    proposal = structure.propose_split(parent, dev, min_child=min_support,
+        shape_kind="lmoment" if variant == "lmoment" else None,
+        shape_floor=split_shape_floor, projections=projections)
+    accepted = bool(proposal is not None and proposal.validated)
+    restored = True
+    if accepted:
+        version, _ = structure.commit_split(proposal, train)
+        structure.rollback(version)
+        restored = len(structure.nodes) == 1 and parent in structure.nodes
+    score_mask = np.isin(vy, (0, 1))
+    score_x, score_y = vx[score_mask], vy[score_mask]
+    if proposal is not None:
+        scoring_predictions = np.square(
+            score_x[:, None, :] - proposal.split_centers[None, :, :]).sum(2).argmin(1)
+    else:
+        scoring_predictions = np.zeros(len(score_y), dtype=np.int64)
+    from sklearn.metrics import adjusted_rand_score
+    return {"proposed": proposal is not None, "accepted": accepted,
+            "rollback_restored": restored,
+            "holdout_gain": None if proposal is None else proposal.gain,
+            "holdout_shape_score": None if proposal is None else proposal.shape_score,
+            "scoring_ari": (float(adjusted_rand_score(score_y, scoring_predictions))
+                            if len(score_y) >= 2 else 0.),
+            "scoring_labels": score_y.astype(int).tolist(),
+            "scoring_predictions": scoring_predictions.astype(int).tolist(),
+            "memory_bytes_after_rollback": structure.estimated_bytes(),
+            "note": "Artificial two-class merge; validation uses independent held-out features"}
 
 
 def study_domain(tx, ty, vx, vy, variant, seed, projections=16):
@@ -472,7 +582,7 @@ def study_domain(tx, ty, vx, vy, variant, seed, projections=16):
             "note": "Feature corruption proxy, not a semantic-domain factorization"}
 
 
-def study_hierarchy(tx, ty, vx, vy, variant, seed):
+def study_hierarchy(tx, ty, vx, vy, variant, seed, parents=3):
     cluster = KMeans(10, n_init=10, random_state=seed).fit(tx)
     labels = cluster.labels_
     means = []
@@ -482,29 +592,35 @@ def study_hierarchy(tx, ty, vx, vy, variant, seed):
             means.append(lmoments(data, 4).reshape(-1))
         else:
             means.append(data.mean(0).repeat(4) if variant == "lmoment" else data.mean(0))
-    groups = AgglomerativeClustering(n_clusters=3).fit_predict(np.stack(means))
+    groups = AgglomerativeClustering(n_clusters=parents).fit_predict(np.stack(means))
     validation_child = np.square(vx[:, None, :] - cluster.cluster_centers_[None, :, :]).sum(2).argmin(1)
     validation_parent = groups[validation_child]
     return {"pseudo_class_count": 10, "parent_count": len(np.unique(groups)),
+            "configured_parent_count": parents,
             "hierarchy_cluster_ari": float(adjusted_rand_score(vy, validation_parent)),
             "evaluation_partition": "held_out_validation",
             "note": "Unsupervised pseudo-class hierarchy, no WordNet taxonomy oracle"}
 
 
-def study_replay(tx, ty, vx, vy, variant, seed, budget=100, steps=75, lr=.01):
+def study_replay(tx, ty, vx, vy, variant, seed, budget_bytes=65536, steps=75, lr=.01):
     rng = np.random.default_rng(seed)
     base = ty < 5
     old_x, old_y = tx[base], ty[base]
     new_x, new_y = tx[~base], ty[~base]
+    capacity = budget_bytes // (4 * tx.shape[1] + 8)
+    if capacity < 5:
+        raise ValueError("E10 byte budget must retain at least one example per old class")
     model0 = train_head(old_x, old_y, seed, steps=steps, lr=lr, classes=10,
                         class_balanced=True)
     if variant == "lmoment":
-        # Greedy shape-coverage selection, class balanced; avoid singleton order-4 estimates.
+        # Greedy shape-coverage selection under an exact byte budget.
         chosen = []
+        quotas = np.full(5, capacity // 5, dtype=int)
+        quotas[:capacity % 5] += 1
         for k in range(5):
             ids = np.flatnonzero(old_y == k)
-            per = max(4, budget // 5)
-            selected = list(rng.choice(ids, size=min(4, len(ids)), replace=False))
+            per = int(quotas[k])
+            selected = list(rng.choice(ids, size=min(min(4, per), len(ids)), replace=False))
             target = lmoments(old_x[ids], 2)
             while len(selected) < min(per, len(ids)):
                 candidates = rng.choice(np.setdiff1d(ids, selected), size=min(20, len(ids)-len(selected)), replace=False)
@@ -514,8 +630,10 @@ def study_replay(tx, ty, vx, vy, variant, seed, budget=100, steps=75, lr=.01):
             chosen.extend(selected)
         ids = np.asarray(chosen)
     else:
+        quotas = np.full(5, capacity // 5, dtype=int)
+        quotas[:capacity % 5] += 1
         ids = np.concatenate([rng.choice(np.flatnonzero(old_y == k),
-                             min(max(4, budget // 5), sum(old_y == k)), replace=False)
+                             min(int(quotas[k]), sum(old_y == k)), replace=False)
                               for k in range(5)])
     all_x = np.concatenate([new_x, old_x[ids]])
     all_y = np.concatenate([new_y, old_y[ids]])
@@ -526,18 +644,22 @@ def study_replay(tx, ty, vx, vy, variant, seed, budget=100, steps=75, lr=.01):
             "old_accuracy": float(np.mean(predict_head(model, vx[old_test]) == vy[old_test])),
             "new_accuracy": float(np.mean(predict_head(model, vx[~old_test]) == vy[~old_test])),
             "old_before": float(np.mean(predict_head(model0, vx[old_test]) == vy[old_test])),
-            "retained_features": int(len(ids)), "buffer_bytes": int(old_x[ids].nbytes)}
+            "retained_features": int(len(ids)), "buffer_bytes": int(old_x[ids].nbytes + old_y[ids].nbytes),
+            "fixed_budget_bytes": int(budget_bytes),
+            "byte_budget_respected": bool(old_x[ids].nbytes + old_y[ids].nbytes <= budget_bytes)}
 
 
 def study_taskfree(tx, ty, vx, vy, variant, seed, validation=None,
-                   window=16, projections=8, lr=.06):
+                   window=16, projections=8, lr=.06, batch_size=512,
+                   loss_quantile=.95, device="auto"):
     # Supervised online CL: current-example labels are allowed; task IDs hidden.
     torch, nn, _, _ = _torch()
     from .taskfree import LMomentDriftMonitor, calibrate_threshold
     rng = np.random.default_rng(seed)
     stream = np.concatenate([rng.permutation(np.flatnonzero(ty == k)) for k in range(10)])
     torch.manual_seed(seed)
-    model = nn.Linear(tx.shape[1], 10)
+    device = _device(device)
+    model = nn.Linear(tx.shape[1], 10).to(device)
     opt = torch.optim.SGD(model.parameters(), lr=lr)
     projections = min(projections, tx.shape[1])
     if validation is None:
@@ -557,86 +679,148 @@ def study_taskfree(tx, ty, vx, vy, variant, seed, validation=None,
                                     false_alarm_probability=.05)
     monitor = LMomentDriftMonitor(tx.shape[1], window=window,
                                   projections=projections, threshold=threshold, seed=seed)
-    seen = 0; updates = 0; alarms = 0
+    seen = 0; updates = 0; alarms = 0; loss_degradations = 0
     comparisons = 0
-    for t in range(0, len(stream), 16):
-        ids = stream[t:t + 16]
+    loss_threshold = None
+    prequential_losses = []
+    for t in range(0, len(stream), batch_size):
+        ids = stream[t:t + batch_size]
+        actual_count = len(ids)
+        train_ids = ids
+        if len(ids) < batch_size:
+            train_ids = np.concatenate((ids, rng.choice(stream, size=batch_size-len(ids), replace=True)))
         events = [monitor.update(tx[ix]) for ix in ids]
         comparisons += sum(event.evidence_reliable for event in events)
         alarm = any(event.alarm for event in events)
+        batch_x = torch.as_tensor(tx[ids].astype(np.float32), device=device)
+        batch_y = torch.as_tensor(ty[ids].astype(np.int64), device=device)
+        with torch.no_grad():
+            observed_loss = float(nn.functional.cross_entropy(model(batch_x), batch_y))
+        prequential_losses.append(observed_loss)
+        # Calibrate measured degradation after three full warm-up updates using
+        # the independent development partition, never the scoring partition.
+        if t == 3 * batch_size:
+            model.eval()
+            val_losses = []
+            with torch.no_grad():
+                for start in range(0, len(val_x), batch_size):
+                    bx = torch.as_tensor(val_x[start:start + batch_size].astype(np.float32), device=device)
+                    by = torch.as_tensor(val_y[start:start + batch_size].astype(np.int64), device=device)
+                    if len(by):
+                        val_losses.append(float(nn.functional.cross_entropy(model(bx), by)))
+            loss_threshold = float(np.quantile(val_losses, loss_quantile))
+            model.train()
+        degraded = loss_threshold is not None and observed_loss > loss_threshold
+        loss_degradations += int(degraded)
         alarms += int(alarm)
         # Baseline always updates; proposed skips some updates only when stable.
         # Three warm-up batches initialize the head; all later proposed
         # updates require a calibrated L-moment alarm. No periodic fallback.
-        adapt = variant == "baseline" or alarm or t < 48
+        adapt = variant == "baseline" or alarm or degraded or t < 3 * batch_size
         if adapt:
-            batch_x = torch.from_numpy(tx[ids].astype(np.float32))
-            batch_y = torch.from_numpy(ty[ids].astype(np.int64))
-            opt.zero_grad(); loss = nn.functional.cross_entropy(model(batch_x), batch_y)
+            update_x = torch.as_tensor(tx[train_ids].astype(np.float32), device=device)
+            update_y = torch.as_tensor(ty[train_ids].astype(np.int64), device=device)
+            opt.zero_grad(); loss = nn.functional.cross_entropy(model(update_x), update_y)
             loss.backward(); opt.step(); updates += 1
-        seen += len(ids)
+        seen += actual_count
     with torch.inference_mode():
-        predictions = model(torch.from_numpy(vx.astype(np.float32))).argmax(1).numpy()
+        predictions = model(torch.as_tensor(vx.astype(np.float32), device=device)).argmax(1).cpu().numpy()
     return {"_checkpoint": model.state_dict(),
             "test_accuracy": float(np.mean(predictions == vy)),
             "updates": updates, "alarms": alarms, "processed": seen,
             "detector_comparisons": comparisons,
             "calibrated_threshold": float(threshold),
+            "prequential_batch_losses": prequential_losses,
+            "validation_loss_degradation_threshold": loss_threshold,
+            "loss_degradations": loss_degradations,
+            "loss_degradation_quantile": loss_quantile,
+            "optimizer_batch_size": batch_size,
             "threshold_calibration": "validation_class_stratified_per_comparison_null",
             "note": "L-moment gated online linear adaptation; not calibrated full task-free CL"}
 
 
 def study_growth(tx, ty, vx, vy, variant, seed, validation=None,
                  projections=16, width=16, trial_steps=25, parameter_penalty=0.0,
-                 lr=.01):
+                 lr=.01, batch_size=512, training_steps=40, drift_window=16,
+                 device="auto"):
     torch, nn, _, _ = _torch()
     from .growth import ExpandableMLP, evaluate_growth
     torch.manual_seed(seed)
-    model = ExpandableMLP(tx.shape[1], 32, 10)
-    x0 = torch.from_numpy(tx[ty < 5].astype(np.float32))
-    y0 = torch.from_numpy(ty[ty < 5].astype(np.int64))
-    x1 = torch.from_numpy(tx[ty >= 5].astype(np.float32))
-    y1 = torch.from_numpy(ty[ty >= 5].astype(np.int64))
+    rng = np.random.default_rng(seed)
+    device = _device(device)
+    model = ExpandableMLP(tx.shape[1], 32, 10).to(device)
+    x0 = torch.as_tensor(tx[ty < 5].astype(np.float32), device=device)
+    y0 = torch.as_tensor(ty[ty < 5].astype(np.int64), device=device)
+    x1 = torch.as_tensor(tx[ty >= 5].astype(np.float32), device=device)
+    y1 = torch.as_tensor(ty[ty >= 5].astype(np.int64), device=device)
     def fit(m, x, y, steps, learning_rate=lr):
         opt = torch.optim.AdamW([p for p in m.parameters() if p.requires_grad], lr=learning_rate)
         for _ in range(steps):
-            opt.zero_grad(); loss = nn.functional.cross_entropy(m(x), y)
+            ids = torch.randint(len(y), (batch_size,), device=device)
+            opt.zero_grad(); loss = nn.functional.cross_entropy(m(x[ids]), y[ids])
             loss.backward(); opt.step()
-    fit(model, x0, y0, 40)
+    fit(model, x0, y0, training_steps)
     before = int(sum(p.numel() for p in model.parameters()))
-    evidence = None; accepted = False; proposed = None
+    evidence = None; change_threshold = None; change_alarm = False
+    accepted = False; proposed = None
     if variant == "lmoment":
-        # Calibrated group discrepancy is needed before interpreting this as
-        # an autonomous task-free trigger. Current evidence is exploratory.
-        w = projector(tx.shape[1], min(projections, tx.shape[1]), seed)
-        evidence = compare_groups(tx[ty < 5], tx[ty >= 5], w).distance
-        # Only observed loss-relevant candidate growth may be accepted.
         if validation is None:
-            raise ValueError("Growth proposal requires independent validation data")
+            raise ValueError("Growth detection and trials require independent validation data")
         dev_x, dev_y = validation
-        dev_mask = dev_y >= 5
-        proposed = evaluate_growth(model, x1, y1,
-                                   torch.from_numpy(dev_x[dev_mask].astype(np.float32)),
-                                   torch.from_numpy(dev_y[dev_mask].astype(np.int64)),
-                                   width=width, steps=trial_steps,
-                                   lr=lr, parameter_penalty=parameter_penalty)
-        accepted = bool(proposed["accept"])
-        if accepted:
-            model = proposed["grown_model"]
+        calibration_ids, trial_ids = [], []
+        for cls in np.unique(dev_y):
+            ids = rng.permutation(np.flatnonzero(dev_y == cls))
+            midpoint = len(ids) // 2
+            calibration_ids.extend(ids[:midpoint].tolist())
+            trial_ids.extend(ids[midpoint:].tolist())
+        calibration_x = dev_x[np.asarray(calibration_ids, dtype=int)]
+        trial_x, trial_y = dev_x[np.asarray(trial_ids, dtype=int)], dev_y[np.asarray(trial_ids, dtype=int)]
+        window = min(drift_window, len(calibration_x) // 2,
+                     int(np.sum(ty < 5)), int(np.sum(ty >= 5)))
+        window = max(8, window)
+        if len(calibration_x) < 2 * window:
+            raise ValueError("Growth detector has insufficient independent calibration data")
+        w = projector(tx.shape[1], min(projections, tx.shape[1]), seed)
+        calibration = calibrate_unlabeled_stationary_null(
+            calibration_x, projection=w.T, kind="lmoment", window=window,
+            repetitions=128, seed=seed, alpha=.05)
+        old_window = tx[ty < 5][rng.choice(int(np.sum(ty < 5)), window, replace=False)]
+        new_window = tx[ty >= 5][rng.choice(int(np.sum(ty >= 5)), window, replace=False)]
+        evidence = group_discrepancy(old_window, new_window, w.T, "lmoment")
+        change_threshold = calibration.threshold
+        change_alarm = calibration.decision(evidence)
+        # Capacity is considered only after the calibrated change gate fires.
+        if change_alarm:
+            dev_mask = trial_y >= 5
+            proposed = evaluate_growth(model, x1, y1,
+                                       torch.as_tensor(trial_x[dev_mask].astype(np.float32), device=device),
+                                       torch.as_tensor(trial_y[dev_mask].astype(np.int64), device=device),
+                                       width=width, steps=trial_steps,
+                                       lr=lr, parameter_penalty=parameter_penalty,
+                                       batch_size=batch_size)
+            accepted = bool(proposed["accept"])
+            model = proposed["grown_model"] if accepted else proposed["fixed_model"]
+            fit(model, x1, y1, max(1, training_steps // 2))
         else:
-            model = proposed["fixed_model"]
-        fit(model, x1, y1, 15)
+            model = copy.deepcopy(model)
+            fit(model, x1, y1, max(1, training_steps // 2))
     else:
         # Equal candidate-trial steps would need a separate comparison; report
         # that the baseline only uses its allocated continuation updates.
-        fit(model, x1, y1, 40)
+        fit(model, x1, y1, training_steps)
     with torch.inference_mode():
-        pred = model(torch.from_numpy(vx.astype(np.float32))).argmax(1).numpy()
+        pred = model(torch.as_tensor(vx.astype(np.float32), device=device)).argmax(1).cpu().numpy()
     return {"accuracy": float(np.mean(pred == vy)),
             "old_accuracy": float(np.mean(pred[vy < 5] == vy[vy < 5])),
             "new_accuracy": float(np.mean(pred[vy >= 5] == vy[vy >= 5])),
             "parameters_added": int(sum(p.numel() for p in model.parameters()) - before),
             "statistical_change_score": None if evidence is None else float(evidence),
+            "calibrated_change_threshold": change_threshold,
+            "change_calibration": (None if variant != "lmoment" else {
+                "method": calibration.method, "alpha_per_comparison": calibration.alpha,
+                "n_calibration": calibration.n_calibration, "window": window,
+                "independent_validation_partitions": True}),
+            "change_alarm": bool(change_alarm),
             "growth_accepted": bool(accepted),
             "growth_trial": None if proposed is None else {k: proposed[k] for k in
                              ("score", "fixed_loss", "grown_loss", "extra_parameters")},
@@ -644,12 +828,104 @@ def study_growth(tx, ty, vx, vy, variant, seed, validation=None,
             "note": "Expandable MLP capacity-trial prototype; not the full ADP family"}
 
 
-def study_integrated(tx, ty, vx, vy, variant, seed):
-    # Prototype integration reuses the actual mixed-unlabeled two-session
-    # discovery mechanism. No unknown labels enter the learner.
-    result = study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=True)
-    result["note"] = "Two-session pseudo-class memory prototype; full E14 controller pending"
-    return result
+def study_integrated(tx, ty, vx, vy, variant, seed, cfg, validation):
+    """Joint discovery, pseudo-class learning, validation and bounded replay."""
+    known = cfg.known_classes
+    if validation is None:
+        raise ValueError("Integrated discovery requires a separate validation partition")
+    val_x, val_y = validation
+    train_mask = ty < known
+    trainer = IncrementalFeatureTrainer(tx.shape[1], classes=10, seed=seed)
+    trainer.train_stage(tx[train_mask], ty[train_mask], steps=cfg.training_steps,
+                        lr=cfg.lr, batch_size=cfg.batch_size)
+    replay = FixedByteReplay(cfg.memory_bytes, seed=seed,
+                             method="lmoment" if variant == "lmoment" else "reservoir")
+    replay.update(tx[train_mask], ty[train_mask])
+    projections = min(cfg.statistical_projections, tx.shape[1])
+    projection = fixed_projections(tx.shape[1], projections, seed)
+    calibration = calibrate_unlabeled_stationary_null(
+        val_x, projection=projection,
+        kind="lmoment" if variant == "lmoment" else "mean",
+        window=max(8, min(64, 2 * cfg.min_support)),
+        repetitions=128, seed=seed, alpha=.05)
+    memory = DeferredClassDiscovery(
+        tx.shape[1], assign_radius=cfg.discovery_radius,
+        candidate_radius=cfg.discovery_radius * cfg.candidate_radius_factor,
+        min_support=cfg.min_support, reservoir=max(64, cfg.min_support),
+        max_classes=min(cfg.max_discovered_classes, 10 - known),
+        statistic="lmoment" if variant == "lmoment" else "mean",
+        projections=projections, seed=seed,
+        compatibility_threshold=calibration.threshold)
+    rng = np.random.default_rng(seed)
+    novel_classes = rng.permutation(np.unique(ty[~train_mask]))
+    class_stages = np.array_split(novel_classes, 2)
+    sessions = []
+    for stage_index, stage_classes in enumerate(class_stages):
+        ids = np.concatenate([rng.permutation(np.flatnonzero(np.isin(ty, stage_classes)))])
+        stream_x = tx[ids]
+        prequential = memory.stream(stream_x)
+        canonical = np.asarray([memory.canonical_identity(p) if p >= 0 else -1
+                               for p in prequential], dtype=np.int64)
+        usable = canonical >= 0
+        pseudo_targets = known + canonical[usable]
+        if usable.any():
+            if np.any(pseudo_targets >= 10):
+                raise ValueError("Discovered identity exceeds available classifier slots")
+            current_x = stream_x[usable]
+            trainer.train_stage(current_x, pseudo_targets, memory=replay,
+                steps=cfg.training_steps, lr=cfg.lr, replay_ratio=cfg.replay_ratio,
+                batch_size=cfg.batch_size)
+            replay.update(current_x, pseudo_targets)
+        cutoff = known + sum(len(v) for v in class_stages[:stage_index + 1])
+        val_mask = val_y < cutoff
+        score_mask = vy < cutoff
+        raw_validation = trainer.predict(val_x[val_mask])
+        mapping = _alignment_from_validation(val_y[val_mask], raw_validation)
+        raw_scoring = trainer.predict(vx[score_mask])
+        truth = vy[score_mask]
+        aligned = np.asarray([mapping.get(int(p), -1) for p in raw_scoring])
+        novel_mask = truth >= known
+        per_class = {str(int(cls)): float(np.mean(aligned[truth == cls] == cls))
+                     for cls in np.unique(truth)}
+        sessions.append({
+            "session": stage_index + 1,
+            "arriving_classes_hidden_from_learner": int(len(stage_classes)),
+            "stream_examples": int(len(stream_x)),
+            "identified_examples": int(usable.sum()),
+            "deferred_examples": int((~usable).sum()),
+            "prequential_predictions": canonical.tolist(),
+            "labels_for_evaluation_only": ty[ids].astype(int).tolist(),
+            "validation_fixed_mapping": mapping,
+            "all_accuracy": float(np.mean(aligned == truth)),
+            "old_accuracy": (float(np.mean(aligned[~novel_mask] == truth[~novel_mask]))
+                             if (~novel_mask).any() else None),
+            "novel_accuracy": (float(np.mean(aligned[novel_mask] == truth[novel_mask]))
+                               if novel_mask.any() else None),
+            "per_class_accuracy": per_class,
+            "scoring_labels": truth.astype(int).tolist(),
+            "scoring_predictions_raw": raw_scoring.astype(int).tolist(),
+            "scoring_predictions_aligned": aligned.astype(int).tolist(),
+            "replay_features": int(len(replay.y)),
+            "replay_bytes": replay.stored_bytes,
+            "mature_memories": sum(n.state == "mature" for n in memory.nodes.values()),
+            "memory_merge_count": memory.merges,
+        })
+    final = sessions[-1]
+    return {"accuracy": {"accuracy": final["all_accuracy"],
+                          "novel_accuracy": final["novel_accuracy"]},
+            "sessions": sessions,
+            "discovery_calibration": {"threshold": calibration.threshold,
+                "method": calibration.method,
+                "unit": calibration.unit,
+                "alpha_per_comparison": calibration.alpha,
+                "n_calibration": calibration.n_calibration},
+            "replay_budget_bytes": cfg.memory_bytes,
+            "replay_budget_respected": replay.stored_bytes <= cfg.memory_bytes,
+            "validation_labels_used_only_for_alignment": True,
+            "novel_labels_used_by_optimizer": False,
+            "test_labels_used_only_for_evaluation": True,
+            "_checkpoint": trainer.checkpoint(),
+            "note": "Integrated reference controller; not an official published-method reproduction"}
 
 
 def continual_ssl(train, cfg, device, variant, initial):
@@ -661,6 +937,7 @@ def continual_ssl(train, cfg, device, variant, initial):
     """
     from .advanced_statistics import torch_distribution_loss
     torch, nn, _, _ = _torch()
+    torch.manual_seed(cfg.seed)
     from torch.utils.data import DataLoader, Subset
     rng = np.random.default_rng(cfg.seed)
     # Dataset construction alone sees labels, to create a deliberately
@@ -711,6 +988,7 @@ def continual_ssl(train, cfg, device, variant, initial):
 def continual_feature_ssl(train_x, train_y, val_x, test_x, cfg, device, variant):
     """Online feature adapter over frozen DINO embeddings; no image encoder updates."""
     torch, nn, _, _ = _torch()
+    torch.manual_seed(cfg.seed)
     from .advanced_statistics import torch_distribution_loss
     dim = train_x.shape[1]
     adapter = nn.Linear(dim, dim, bias=False).to(device)
@@ -721,26 +999,70 @@ def continual_feature_ssl(train_x, train_y, val_x, test_x, cfg, device, variant)
         parameter.requires_grad_(False)
     optimizer = torch.optim.AdamW(adapter.parameters(), lr=cfg.lr)
     rng = np.random.default_rng(cfg.seed)
-    classes = rng.permutation(np.unique(train_y))
-    order = np.concatenate([rng.permutation(np.flatnonzero(train_y == cls)) for cls in classes])
     trace = []
-    for start in range(0, len(order), cfg.batch_size):
-        ids = order[start:start + cfg.batch_size]
-        x = torch.as_tensor(np.asarray(train_x[ids]), dtype=torch.float32, device=device)
-        a, b = x + .01 * torch.randn_like(x), x + .02 * torch.randn_like(x)
-        z_a, z_b = adapter(a), adapter(b)
-        with torch.no_grad():
-            target = teacher(x)
-        invariant = nn.functional.mse_loss(z_a, z_b)
-        preservation = torch_distribution_loss(z_a, target, order=4)
-        if variant == "lmoment":
-            loss = invariant + .05 * preservation
-        else:
-            loss = invariant + .05 * nn.functional.mse_loss(z_a.mean(0), target.mean(0))
-        optimizer.zero_grad(set_to_none=True)
-        loss.backward()
-        optimizer.step()
-        trace.append(float(loss.detach()))
+    classes = rng.permutation(np.unique(train_y))
+    stage_groups = np.array_split(classes, 5)
+    stage_states = []
+    anchor_capacity = max(4, cfg.memory_bytes // (4 * dim + 8))
+    anchor_memory = np.empty((0, dim), dtype=np.float32)
+    anchor_seen = 0
+    for stage_index, stage_classes in enumerate(stage_groups):
+        order = np.concatenate([rng.permutation(np.flatnonzero(train_y == cls))
+                                for cls in stage_classes])
+        for start in range(0, len(order), cfg.batch_size):
+            ids = order[start:start + cfg.batch_size]
+            x = torch.as_tensor(np.asarray(train_x[ids]), dtype=torch.float32, device=device)
+            a, b = x + .01 * torch.randn_like(x), x + .02 * torch.randn_like(x)
+            z_a, z_b = adapter(a), adapter(b)
+            with torch.no_grad():
+                target = teacher(x)
+            invariant = nn.functional.mse_loss(z_a, z_b)
+            preservation = torch_distribution_loss(z_a, target, order=4)
+            anchor_mse = torch.zeros((), device=device)
+            anchor_shape = torch.zeros((), device=device)
+            if len(anchor_memory) >= 4:
+                anchor_ids = rng.choice(len(anchor_memory),
+                    size=min(cfg.batch_size // 4, len(anchor_memory)), replace=False)
+                anchors = torch.as_tensor(anchor_memory[anchor_ids], dtype=torch.float32,
+                                          device=device)
+                with torch.no_grad():
+                    teacher_anchors = teacher(anchors)
+                student_anchors = adapter(anchors)
+                anchor_mse = nn.functional.mse_loss(student_anchors, teacher_anchors)
+                anchor_shape = torch_distribution_loss(student_anchors,
+                                                       teacher_anchors, order=4)
+            if variant == "lmoment":
+                loss = (invariant + cfg.feature_ssl_shape_weight * preservation +
+                        cfg.feature_ssl_anchor_weight * anchor_mse +
+                        cfg.feature_ssl_shape_weight * anchor_shape)
+            else:
+                loss = (invariant + cfg.feature_ssl_shape_weight *
+                        nn.functional.mse_loss(z_a.mean(0), target.mean(0)) +
+                        cfg.feature_ssl_anchor_weight * anchor_mse)
+            optimizer.zero_grad(set_to_none=True)
+            loss.backward()
+            optimizer.step()
+            trace.append(float(loss.detach()))
+        # The stream memory is updated only after the current arrival stage.
+        for row in tx[order]:
+            anchor_seen += 1
+            if len(anchor_memory) < anchor_capacity:
+                anchor_memory = np.concatenate((anchor_memory, row[None].astype(np.float32)))
+            else:
+                replacement = int(rng.integers(anchor_seen))
+                if replacement < anchor_capacity:
+                    anchor_memory[replacement] = row
+        teacher = copy.deepcopy(adapter).eval()
+        for parameter in teacher.parameters():
+            parameter.requires_grad_(False)
+        stage_states.append({"stage": stage_index + 1,
+            "new_classes": [int(c) for c in stage_classes],
+            "seen_classes": [int(c) for c in classes[:(stage_index + 1) * len(stage_groups[0])]],
+            "adapter": {key: value.detach().cpu().clone()
+                        for key, value in adapter.state_dict().items()},
+            "anchor_count": len(anchor_memory),
+            "anchor_bytes": int(anchor_memory.nbytes),
+            "updates": len(trace)})
     adapter.eval()
     with torch.inference_mode():
         def apply(x):
@@ -751,7 +1073,7 @@ def continual_feature_ssl(train_x, train_y, val_x, test_x, cfg, device, variant)
                 chunks.append(adapter(tensor).cpu().numpy())
             return np.concatenate(chunks)
         adapted = apply(train_x), apply(val_x), apply(test_x)
-    return adapted, trace, adapter.state_dict()
+    return adapted, trace, adapter.state_dict(), stage_states
 
 
 def _alignment_from_validation(true_validation, predicted_validation):
@@ -810,18 +1132,27 @@ def run_study(track, variant, tx, ty, vx, vy, cfg, validation=None):
         return study_statistical(tx, ty, vx, vy, variant, cfg.seed,
                                  cfg.statistical_projections)
     if track in ("E02", "E05"):
-        holdout = (vx, vy) if track in ("E02", "E05") else validation
         return streaming_discovery(tx, ty, variant, cfg.seed, blocked=track == "E05",
-                                   threshold=cfg.discovery_radius, holdout=holdout,
+                                   threshold=cfg.discovery_radius, holdout=(vx, vy),
+                                   mapping_holdout=validation,
+                                   candidate_radius_factor=cfg.candidate_radius_factor,
+                                   max_classes=cfg.max_discovered_classes,
                                    projections=cfg.statistical_projections,
                                    min_support=cfg.min_support)
     if track in ("E03", "E04"):
         return study_gcd(tx, ty, vx, vy, variant, cfg.seed, cfg.known_classes,
                          track == "E04", lr=cfg.lr, steps=cfg.training_steps)
-    if track == "E06": return study_structure(tx, ty, variant, cfg.seed)
+    if track == "E06":
+        return study_structure(tx, ty, vx, vy, validation, variant, cfg.seed,
+                               split_penalty=cfg.split_penalty,
+                               split_shape_floor=cfg.split_shape_floor,
+                               min_support=cfg.min_support,
+                               projections=cfg.statistical_projections)
     if track == "E07": return study_domain(tx, ty, vx, vy, variant, cfg.seed,
                                             cfg.statistical_projections)
-    if track == "E08": return study_hierarchy(tx, ty, vx, vy, variant, cfg.seed)
+    if track == "E08":
+        return study_hierarchy(tx, ty, vx, vy, variant, cfg.seed,
+                               parents=cfg.hierarchy_parents)
     if track == "E09":
         model = LMomentNormalClassifier(
             mode="lmoment" if variant == "lmoment" else "mean_var",
@@ -832,27 +1163,31 @@ def run_study(track, variant, tx, ty, vx, vy, cfg, validation=None):
         return {"test_accuracy": float(np.mean(pred == vy)), "classes": 10,
                 "note": "Frozen-feature class-statistics comparator"}
     if track == "E10":
-        count = max(20, cfg.memory_bytes // max(4 * tx.shape[1] + 8, 1))
-        return study_replay(tx, ty, vx, vy, variant, cfg.seed, budget=count,
+        return study_replay(tx, ty, vx, vy, variant, cfg.seed, budget_bytes=cfg.memory_bytes,
                             steps=cfg.training_steps, lr=cfg.lr)
     if track == "E11":
         if validation is None:
             raise ValueError("Task-free adaptation requires independent validation features")
         return study_taskfree(tx, ty, vx, vy, variant, cfg.seed, validation,
                               window=cfg.drift_window,
-                              projections=cfg.statistical_projections, lr=cfg.lr)
+                              projections=cfg.statistical_projections, lr=cfg.lr,
+                              batch_size=cfg.batch_size,
+                              loss_quantile=cfg.loss_quantile, device=cfg.device)
     if track == "E12":
         return study_growth(tx, ty, vx, vy, variant, cfg.seed, validation,
                             projections=cfg.statistical_projections,
                             width=cfg.growth_width,
                             trial_steps=cfg.growth_trial_steps,
-                            parameter_penalty=cfg.growth_parameter_penalty, lr=cfg.lr)
+                            parameter_penalty=cfg.growth_parameter_penalty, lr=cfg.lr,
+                            batch_size=cfg.batch_size, training_steps=cfg.training_steps,
+                            drift_window=cfg.drift_window, device=cfg.device)
     if track == "E13":
         # Online representation training happens in main(), before extraction.
         pred = centroid_classify(tx, ty, vx)
         return {"knn_proxy_accuracy": float(np.mean(pred == vy)),
                 "note": "SSL encoder actually trained; continual checkpoints/LM loss pending"}
-    if track == "E14": return study_integrated(tx, ty, vx, vy, variant, cfg.seed)
+    if track == "E14":
+        return study_integrated(tx, ty, vx, vy, variant, cfg.seed, cfg, validation)
     raise ValueError(f"Unknown study: {track}")
 
 
@@ -868,10 +1203,17 @@ def run(cfg: Config):
     if cfg.backbone == "base_supervised" and cfg.track in ("E02", "E05", "E06", "E08"):
         raise ValueError("This unsupervised track forbids CIFAR-10 label-supervised encoder pretraining")
     if min(cfg.statistical_projections, cfg.min_support, cfg.memory_bytes,
-           cfg.drift_window, cfg.growth_width, cfg.growth_trial_steps) < 1:
+           cfg.drift_window, cfg.growth_width, cfg.growth_trial_steps,
+           cfg.max_discovered_classes) < 1:
         raise ValueError("Statistical, memory and adaptation hyperparameters must be positive")
+    if not 0 < cfg.replay_ratio < 1:
+        raise ValueError("replay_ratio must be in (0, 1)")
     if cfg.min_support < 4:
         raise ValueError("L-moment memory support must be >=4")
+    if not 0.5 < cfg.loss_quantile < 1.0:
+        raise ValueError("loss_quantile must be in (0.5, 1)")
+    if min(cfg.feature_ssl_anchor_weight, cfg.feature_ssl_shape_weight) < 0:
+        raise ValueError("E13 loss weights must be non-negative")
     torch = setup(cfg.seed)
     device = _device(cfg.device)
     feature_meta = None
@@ -942,18 +1284,69 @@ def run(cfg: Config):
         loss_trace = []
         for variant in variants:
             if cfg.track == "E13":
-                trained, trace, adapter_state = continual_feature_ssl(
+                trained, trace, adapter_state, stage_states = continual_feature_ssl(
                     tx, ty, val_x, vx, cfg, device, variant)
                 adapted_train, adapted_val, adapted_test = trained
-                probe = train_head(adapted_train, ty, cfg.seed, steps=70, classes=10)
-                val_pred = predict_head(probe, adapted_val)
-                test_pred = predict_head(probe, adapted_test)
-                results[variant] = {"linear_probe_accuracy": float(np.mean(test_pred == vy)),
-                    "validation_linear_probe_accuracy": float(np.mean(val_pred == val_y)),
+                stage_metrics = []
+                final_probe = None
+                for stage_record in stage_states:
+                    stage_adapter = nn.Linear(cfg.feature_dim, cfg.feature_dim, bias=False).to(device)
+                    stage_adapter.load_state_dict(stage_record["adapter"])
+                    stage_adapter.eval()
+                    def transform_stage(values):
+                        chunks = []
+                        with torch.inference_mode():
+                            for start in range(0, len(values), cfg.batch_size):
+                                batch = torch.as_tensor(np.asarray(values[start:start + cfg.batch_size]),
+                                    dtype=torch.float32, device=device)
+                                chunks.append(stage_adapter(batch).cpu().numpy())
+                        return np.concatenate(chunks)
+                    stage_train = transform_stage(tx)
+                    stage_val = transform_stage(val_x)
+                    stage_test = transform_stage(vx)
+                    seen = np.asarray(stage_record["seen_classes"], dtype=int)
+                    train_mask = np.isin(ty, seen)
+                    val_mask = np.isin(val_y, seen)
+                    test_mask = np.isin(vy, seen)
+                    probe = train_head(stage_train[train_mask], ty[train_mask], cfg.seed,
+                                       steps=cfg.training_steps, classes=10)
+                    val_pred = predict_head(probe, stage_val[val_mask], seen)
+                    test_pred = predict_head(probe, stage_test[test_mask], seen)
+                    per_class = {str(int(cls)): float(np.mean(
+                        test_pred[vy[test_mask] == cls] == cls))
+                        for cls in seen if np.any(vy[test_mask] == cls)}
+                    stage_metrics.append({"stage": stage_record["stage"],
+                        "new_classes": stage_record["new_classes"],
+                        "seen_classes": seen.astype(int).tolist(),
+                        "validation_linear_probe_accuracy": float(np.mean(val_pred == val_y[val_mask])),
+                        "scoring_linear_probe_accuracy": float(np.mean(test_pred == vy[test_mask])),
+                        "validation_examples": int(val_mask.sum()),
+                        "scoring_examples": int(test_mask.sum()),
+                        "per_class_scoring_accuracy": per_class,
+                        "anchor_count": stage_record["anchor_count"],
+                        "anchor_bytes": stage_record["anchor_bytes"],
+                        "adapter_optimizer_updates": stage_record["updates"]})
+                    final_probe = probe
+                final_stage = stage_metrics[-1]
+                retention = {}
+                for cls in map(str, final_stage["per_class_scoring_accuracy"]):
+                    historical = [row["per_class_scoring_accuracy"][cls]
+                                  for row in stage_metrics
+                                  if cls in row["per_class_scoring_accuracy"]]
+                    retention[cls] = {"best_prior": max(historical),
+                                      "final": final_stage["per_class_scoring_accuracy"][cls],
+                                      "probe_retention_drop": max(historical) -
+                                          final_stage["per_class_scoring_accuracy"][cls]}
+                results[variant] = {"linear_probe_accuracy": final_stage["scoring_linear_probe_accuracy"],
+                    "validation_linear_probe_accuracy": final_stage["validation_linear_probe_accuracy"],
                     "updates": len(trace), "loss_trace": trace,
+                    "stage_metrics": stage_metrics,
+                    "per_class_probe_retention": retention,
                     "learner_labels_used": False, "frozen_pretrained_backbone": True,
-                    "trainable_feature_adapter": True}
-                torch.save({"adapter": adapter_state, "probe": probe.state_dict()},
+                    "trainable_feature_adapter": True,
+                    "probe_labels_used_only_for_evaluation": True}
+                torch.save({"adapter": adapter_state, "probe": final_probe.state_dict(),
+                            "stage_adapters": [item["adapter"] for item in stage_states]},
                            outdir / f"{variant}_model.pt")
                 continue
             corrupted = None
@@ -1062,14 +1455,23 @@ def main(argv=None):
     p.add_argument("--min-support", type=int, default=8)
     p.add_argument("--memory-bytes", type=int, default=65536)
     p.add_argument("--discovery-radius", type=float, default=.6)
+    p.add_argument("--candidate-radius-factor", type=float, default=2.)
+    p.add_argument("--max-discovered-classes", type=int, default=200)
     p.add_argument("--drift-window", type=int, default=16)
+    p.add_argument("--loss-quantile", type=float, default=.95)
     p.add_argument("--growth-width", type=int, default=16)
     p.add_argument("--growth-trial-steps", type=int, default=25)
     p.add_argument("--growth-parameter-penalty", type=float, default=0.)
+    p.add_argument("--split-penalty", type=float, default=.05)
+    p.add_argument("--split-shape-floor", type=float, default=1e-6)
+    p.add_argument("--hierarchy-parents", type=int, default=3)
+    p.add_argument("--feature-ssl-anchor-weight", type=float, default=.5)
+    p.add_argument("--feature-ssl-shape-weight", type=float, default=.1)
     p.add_argument("--distribution-shrinkage", type=float, default=5.)
     p.add_argument("--distribution-min-scale", type=float, default=.02)
     p.add_argument("--training-steps", type=int, default=50)
     p.add_argument("--known-classes", type=int, default=5)
+    p.add_argument("--replay-ratio", type=float, default=.5)
     p.add_argument("--save-features", action="store_true")
     args = p.parse_args(argv)
     cfg = Config(**vars(args))

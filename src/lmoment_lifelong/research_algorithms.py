@@ -143,6 +143,27 @@ def calibrate_streamwise_null(streams, *, projection, window=32,
     return _threshold(maxima, alpha, kind, "whole_null_stream")
 
 
+def calibrate_unlabeled_stationary_null(features, *, projection, kind="lmoment",
+                                        window=32, repetitions=128, seed=0,
+                                        alpha=.05):
+    """Calibrate independent equal-size comparisons from an unlabeled holdout.
+
+    A permutation creates stationary, label-free null windows. This calibrates
+    a per-comparison threshold; it does not claim lifetime error control for a
+    longer online stream.
+    """
+    x = _matrix(features)
+    if window < 4 or repetitions < 10 or len(x) < 2 * window:
+        raise ValueError("Need >=10 repetitions and >=2 complete null windows")
+    rng = np.random.default_rng(seed)
+    scores = []
+    for _ in range(repetitions):
+        ids = rng.permutation(len(x))[:2 * window]
+        scores.append(group_discrepancy(x[ids[:window]], x[ids[window:]],
+                                        projection, kind))
+    return _threshold(scores, alpha, kind, "unlabeled_stationary_per_comparison")
+
+
 class LMomentNormalClassifier:
     """Predictive *single-sample* score from L1/L2 Normal marginal fits.
 
@@ -250,6 +271,18 @@ class DeferredClassDiscovery:
         self.next_identity = 0
         self.clock = 0
         self.events = []
+        self.aliases = {}
+        self.merges = 0
+
+    def canonical_identity(self, identity):
+        identity = int(identity)
+        path = []
+        while identity in self.aliases:
+            path.append(identity)
+            identity = self.aliases[identity]
+        for old in path:
+            self.aliases[old] = identity
+        return identity
 
     def _closest(self, z, state):
         choices = [(float(np.linalg.norm(z - n.center)), n.identity)
@@ -260,11 +293,65 @@ class DeferredClassDiscovery:
         feature = _matrix(z, self.dim)[0]
         distance, identity = self._closest(feature, {"mature", "dormant"})
         if distance <= self.assign_radius:
-            return identity
+            return self.canonical_identity(identity)
         return None
+
+    def _merge_nodes(self, source_id, target_id, reason):
+        source = self.nodes[source_id]
+        target = self.nodes[target_id]
+        old_support, old_center = target.support, target.center.copy()
+        source_support, source_center = source.support, source.center.copy()
+        for sample in source.samples:
+            target.update(sample, self.clock, self.reservoir, self.rng)
+        target.support = old_support + source_support
+        target.center = (old_support * old_center + source_support * source_center) / target.support
+        target.last_seen = max(target.last_seen, source.last_seen)
+        target.state = "mature"
+        del self.nodes[source_id]
+        self.aliases[source_id] = self.canonical_identity(target_id)
+        self.merges += 1
+        self.events.append((self.clock, reason, target_id))
+
+    def _consolidate(self):
+        """Merge mature memories only under the independently calibrated null gate."""
+        if self.threshold is None:
+            return
+        while True:
+            identities = [i for i, n in self.nodes.items()
+                          if n.state in ("mature", "dormant") and len(n.samples) >= 4]
+            merged = False
+            for pos, left_id in enumerate(identities):
+                if left_id not in self.nodes:
+                    continue
+                left = self.nodes[left_id]
+                for right_id in identities[pos + 1:]:
+                    if right_id not in self.nodes:
+                        continue
+                    right = self.nodes[right_id]
+                    if np.linalg.norm(left.center - right.center) > 2. * self.assign_radius:
+                        continue
+                    score = group_discrepancy(left.examples, right.examples,
+                                              self.projector, self.kind)
+                    if score <= self.threshold:
+                        keep, remove = ((left_id, right_id) if left.support >= right.support
+                                        else (right_id, left_id))
+                        self._merge_nodes(remove, keep, "merge_confirmed")
+                        merged = True
+                        break
+                if merged:
+                    break
+            if not merged:
+                return
 
     def _new_candidate(self, z):
         if len(self.nodes) >= self.max_classes:
+            self._consolidate()
+        if len(self.nodes) >= self.max_classes:
+            distance, identity = self._closest(z, {"mature", "dormant"})
+            if identity is not None and distance <= 2. * self.assign_radius:
+                self.nodes[identity].update(z, self.clock, self.reservoir, self.rng)
+                self.events.append((self.clock, "capacity_recovery_assign", identity))
+                return identity
             self.events.append((self.clock, "capacity_defer", None))
             return None
         idx = self.next_identity
@@ -287,18 +374,8 @@ class DeferredClassDiscovery:
                 continue
             discrepancy = group_discrepancy(node.examples, other.examples,
                                              self.projector, self.kind)
-            if self.threshold is not None and discrepancy < self.threshold:
-                old_support = other.support
-                old_center = other.center.copy()
-                for sample in node.samples:
-                    other.update(sample, self.clock, self.reservoir, self.rng)
-                other.support = old_support + node.support
-                # Restored count and centroid represent the complete history;
-                # the sample reservoir represents only its bounded approximation.
-                other.center = (old_support * old_center +
-                                node.support * node.center) / other.support
-                del self.nodes[idx]
-                self.events.append((self.clock, "merge_provisional", other.identity))
+            if self.threshold is not None and discrepancy <= self.threshold:
+                self._merge_nodes(idx, other.identity, "merge_provisional")
                 return
         node.state = "mature"
         self.events.append((self.clock, "confirm_birth", idx))
@@ -313,12 +390,16 @@ class DeferredClassDiscovery:
                 self.events.append((self.clock, "reactivate", old_idx))
                 node.state = "mature"
             node.update(feature, self.clock, self.reservoir, self.rng)
+            if self.clock % 32 == 0:
+                self._consolidate()
             return old_idx
         candidate_distance, candidate_idx = self._closest(feature, {"provisional"})
         if candidate_distance <= self.candidate_radius:
             node = self.nodes[candidate_idx]
             node.update(feature, self.clock, self.reservoir, self.rng)
             self._promote_or_merge(candidate_idx)
+            if self.clock % 32 == 0:
+                self._consolidate()
             return candidate_idx
         return self._new_candidate(feature)
 

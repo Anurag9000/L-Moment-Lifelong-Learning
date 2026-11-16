@@ -8,7 +8,7 @@ from dataclasses import asdict, replace
 from pathlib import Path
 from typing import Any
 
-from .hypothesis26 import RUNS, Options, run_jobs
+from .hypothesis26 import RUNS, Options, build_job, run_jobs, _verify, _write_summary
 from .provenance import source_commit
 
 
@@ -22,11 +22,11 @@ def _objective(run_id: str, metrics: dict[str, Any]) -> tuple[float, str]:
     if run_id == "O-E01":
         return number(metrics.get("separation_ratio"), "separation_ratio")
     if run_id in ("O-E02", "O-E05"):
-        return number((metrics.get("validation_memory") or {}).get("ari"), "validation_memory.ari")
+        return number((metrics.get("scoring") or {}).get("ari"), "scoring.ari")
     if run_id in ("O-E03", "O-E04", "O-E14"):
         return number((metrics.get("accuracy") or {}).get("accuracy"), "accuracy.accuracy")
     if run_id == "O-E06":
-        return number(float(bool(metrics.get("accepted"))), "accepted")
+        return number(metrics.get("scoring_ari"), "scoring_ari")
     if run_id == "O-E07":
         return number(metrics.get("different_class_distance"), "different_class_distance")
     if run_id == "O-E08":
@@ -46,13 +46,19 @@ def _objective(run_id: str, metrics: dict[str, Any]) -> tuple[float, str]:
         return number(metrics.get("test_accuracy"), "validation scoring-half accuracy")
     if run_id in ("A-E02", "A-E05", "A-E08"):
         nested = metrics.get("test", {})
+        if run_id in ("A-E02", "A-E05"):
+            ari, coverage = nested.get("ari_covered"), nested.get("coverage")
+            if (not isinstance(ari, (int, float))
+                    or not isinstance(coverage, (int, float))):
+                raise ValueError(f"{run_id}: missing ARI/coverage tuning metrics")
+            return float(ari * coverage), "validation scoring-half ari_covered_x_coverage"
         return number(nested.get("ari_covered"), "validation scoring-half ari_covered")
     if run_id in ("A-E03-GCD", "A-E03-NCD", "A-E04"):
         last = (metrics.get("sessions") or [{}])[-1]
         key = "novel_accuracy" if run_id == "A-E03-NCD" else "all_accuracy"
         return number(last.get(key), f"sessions[-1].{key}")
     if run_id == "A-E06":
-        return number(float(bool(metrics.get("accepted_heldout"))), "accepted_heldout")
+        return number(metrics.get("scoring_ari"), "scoring_ari")
     if run_id == "A-E07":
         return number(metrics.get("known_class_corruption_accuracy"), "known_class_corruption_accuracy")
     if run_id == "A-E09":
@@ -74,12 +80,27 @@ def _grid(spec) -> dict[str, tuple]:
         track = spec.track
         if track in ("E02", "E05"):
             axes |= {"discovery_radius": (.35, .6, .9, 1.2),
-                     "min_support": (4, 8, 16, 32)}
+                     "candidate_radius_factor": (1., 1.5, 2., 3.),
+                     "min_support": (4, 8, 16, 32),
+                     "max_discovered_classes": (10, 20, 50, 100, 200)}
         if track in ("E03", "E04", "E14"):
             axes |= {"lr": (.0001, .0003, .001, .003, .01),
                      "training_steps": (25, 50, 100, 200)}
+        if track == "E14":
+            axes |= {"discovery_radius": (.25, .4, .6, .9, 1.2),
+                     "candidate_radius_factor": (1., 1.5, 2., 3.),
+                     "min_support": (4, 8, 16, 32),
+                     "max_discovered_classes": (2, 3, 4, 5),
+                     "statistical_projections": (8, 16, 32, 64),
+                     "memory_bytes": (16384, 32768, 65536, 131072, 262144),
+                     "replay_ratio": (.2, .35, .5, .65, .8)}
         if track == "E01":
             axes["statistical_projections"] = (8, 16, 32, 64)
+        if track == "E06":
+            axes |= {"min_support": (4, 8, 16, 32),
+                     "statistical_projections": (8, 16, 32, 64),
+                     "split_penalty": (0., .01, .05, .1, .25, .5),
+                     "split_shape_floor": (0., .000001, .01, .05, .1)}
         if track == "E07":
             axes["statistical_projections"] = (8, 16, 32, 64)
         if track == "E09":
@@ -92,18 +113,27 @@ def _grid(spec) -> dict[str, tuple]:
         if track == "E11":
             axes |= {"drift_window": (8, 16, 32, 64),
                      "statistical_projections": (8, 16, 32, 64),
-                     "lr": (.001, .01, .03, .06, .1)}
+                     "lr": (.001, .01, .03, .06, .1),
+                     "loss_quantile": (.8, .9, .95, .99)}
         if track == "E12":
             axes |= {"growth_width": (8, 16, 32, 64),
                      "growth_trial_steps": (10, 25, 50, 100),
+                     "training_steps": (25, 50, 100, 200),
+                     "drift_window": (8, 16, 32, 64),
+                     "statistical_projections": (8, 16, 32, 64),
                      "growth_parameter_penalty": (0., .0001, .001, .01),
                      "lr": (.0001, .001, .003, .01, .03)}
         if track == "E13":
-            axes["lr"] = (.00001, .00003, .0001, .0003, .001)
+            axes |= {"lr": (.00001, .00003, .0001, .0003, .001),
+                     "memory_bytes": (16384, 32768, 65536, 131072, 262144),
+                     "feature_ssl_anchor_weight": (0., .1, .25, .5, 1.),
+                     "feature_ssl_shape_weight": (0., .01, .05, .1, .25),
+                     "training_steps": (25, 50, 100, 200)}
     else:
         track = spec.track
         if track in ("E02", "E05"):
             axes |= {"radius_factor": (.5, .75, 1., 1.5, 2.),
+                     "candidate_radius_factor": (1., 1.5, 2., 3.),
                      "min_support": (4, 8, 16, 32),
                      "max_discovered_classes": (10, 20, 50, 100),
                      "statistical_projections": (8, 16, 32, 64)}
@@ -115,11 +145,14 @@ def _grid(spec) -> dict[str, tuple]:
                      "gcd_pseudo_weight": (0., .25, .5, 1., 2.),
                      "gcd_consistency_weight": (0., .025, .1, .25, .5),
                      "gcd_preservation_weight": (0., .01, .05, .1, .25)}
+            axes["memory_bytes"] = (16384, 32768, 65536, 131072, 262144)
         if track in ("E01", "E07", "E09"):
             axes |= {"distribution_shrinkage": (0., .1, 1., 5., 10., 25.),
                      "distribution_min_scale": (.001, .005, .01, .02, .05, .1)}
         if track == "E06":
-            axes["min_support"] = (4, 8, 16, 32)
+            axes |= {"min_support": (4, 8, 16, 32),
+                     "split_penalty": (0., .01, .05, .1, .25, .5),
+                     "split_shape_floor": (0., .000001, .01, .05, .1)}
         if track == "E08":
             axes["hierarchy_parents"] = (2, 3, 4, 5)
         if track == "E10":
@@ -129,7 +162,9 @@ def _grid(spec) -> dict[str, tuple]:
                      "lr": (.0003, .001, .003, .01, .03)}
         if track == "E11":
             axes |= {"drift_window": (8, 16, 32, 64),
-                     "statistical_projections": (8, 16, 32, 64)}
+                     "statistical_projections": (8, 16, 32, 64),
+                     "loss_quantile": (.8, .9, .95, .99),
+                     "training_steps": (25, 50, 100, 200)}
     return axes
 
 
@@ -137,7 +172,7 @@ def _candidate_key(values: dict[str, Any]) -> str:
     return hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()[:12]
 
 
-def tune_all(base: Options, *, root: str | Path, max_rounds: int = 4,
+def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
              final_tests: bool = True) -> dict[str, Any]:
     """Screen each axis, combine winners, then coordinate-refine to convergence.
 
@@ -156,6 +191,14 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 4,
         "tracks": {}}
     if manifest.get("source_commit") != source_commit():
         raise RuntimeError("Tuning manifest belongs to a different source commit")
+    if manifest.get("base_options") != asdict(base):
+        raise RuntimeError("Tuning manifest base options differ; choose a new output root")
+    manifest["max_rounds"] = max(int(manifest.get("max_rounds", 0)), max_rounds)
+
+    def persist_manifest():
+        temporary = manifest_path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(manifest, indent=2, allow_nan=False) + "\n")
+        temporary.replace(manifest_path)
 
     def evaluate(spec, values, label):
         options = replace(base, **values, validation_only=True,
@@ -164,7 +207,14 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 4,
         track_record = manifest["tracks"].setdefault(spec.id, {"candidates": {}, "rounds": []})
         if (key in track_record["candidates"]
                 and track_record["candidates"][key].get("status") == "completed"):
-            return track_record["candidates"][key]
+            candidate_options = replace(base, **values, validation_only=True,
+                output_root=str(root / "candidates" / spec.id / key))
+            candidate_job = build_job(spec, candidate_options)
+            verified, reason = _verify(candidate_job)
+            if verified:
+                return track_record["candidates"][key]
+            track_record["candidates"][key]["status"] = "invalidated"
+            track_record["candidates"][key]["verification_error"] = reason
         rows, failures = run_jobs([spec], options, fail_fast=True,
                                   retry_incomplete=True)
         if failures or not rows or rows[0]["status"] not in ("completed", "skipped_verified"):
@@ -179,9 +229,7 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 4,
         track_record["candidates"][key] = record
         manifest["updated_utc"] = __import__("datetime").datetime.now().astimezone().isoformat()
         manifest["tracks"][spec.id] = track_record
-        tmp = manifest_path.with_suffix(".tmp")
-        tmp.write_text(json.dumps(manifest, indent=2, allow_nan=False) + "\n")
-        tmp.replace(manifest_path)
+        persist_manifest()
         return record
 
     selected = {}
@@ -193,8 +241,6 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 4,
         screen = [dict(current)]
         for dimension in axes["feature_dim"]:
             for whiten in (False, True):
-                if dimension == 768 and whiten:
-                    continue
                 for normalize in (True, False):
                     screen.append({"feature_dim": dimension,
                                    "pca_whiten": whiten,
@@ -207,8 +253,6 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 4,
                 screen.append(candidate)
         records = []
         for candidate in screen:
-            if candidate.get("feature_dim", base.feature_dim) == 768 and candidate.get("pca_whiten", False):
-                continue
             records.append(evaluate(spec, candidate, "axis_screen"))
         valid = [r for r in records if r.get("status") == "completed"]
         if not valid:
@@ -224,8 +268,6 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 4,
                 neighborhood = []
                 for value in values:
                     candidate = dict(current); candidate[field] = value
-                    if candidate.get("feature_dim", base.feature_dim) == 768 and candidate.get("pca_whiten", False):
-                        continue
                     record = evaluate(spec, candidate, f"coordinate_{round_index}_{field}")
                     if record.get("status") == "completed":
                         neighborhood.append(record)
@@ -244,7 +286,7 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 4,
 
     manifest["selected"] = selected
     manifest["status"] = "validation_tuned"
-    manifest_path.write_text(json.dumps(manifest, indent=2, allow_nan=False) + "\n")
+    persist_manifest()
     if final_tests:
         final_rows = []
         for spec in RUNS:
@@ -256,11 +298,12 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 4,
             if failures:
                 manifest["status"] = "final_runs_incomplete"
                 manifest["final_rows"] = final_rows
-                manifest_path.write_text(json.dumps(manifest, indent=2, allow_nan=False) + "\n")
+                persist_manifest()
                 raise RuntimeError(f"Final test evaluation failed for {spec.id}")
         manifest["final_rows"] = final_rows
         manifest["status"] = "complete"
-        manifest_path.write_text(json.dumps(manifest, indent=2, allow_nan=False) + "\n")
+        _write_summary(final_rows, root)
+        persist_manifest()
     return manifest
 
 
@@ -275,7 +318,7 @@ def main(argv=None) -> int:
     parser.add_argument("--no-download", action="store_false", dest="download",
                         help="Require CIFAR-10 to already exist locally")
     parser.set_defaults(download=True)
-    parser.add_argument("--max-rounds", type=int, default=4)
+    parser.add_argument("--max-rounds", type=int, default=20)
     parser.add_argument("--no-final-tests", action="store_true")
     args = parser.parse_args(argv)
     base = Options(output_root=args.output_root, feature_cache_root=args.feature_cache_root,
