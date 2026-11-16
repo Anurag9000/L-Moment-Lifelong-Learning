@@ -108,7 +108,7 @@ class Options:
     distribution_shrinkage: float = 5.0
     distribution_min_scale: float = 0.02
     radius_factor: float = 1.5
-    max_discovered_classes: int = 200
+    max_discovered_classes: int = 50
     training_steps: int = 50
     replay_ratio: float = 0.5
     hierarchy_parents: int = 3
@@ -509,7 +509,7 @@ def main(argv=None) -> int:
     parser.add_argument("--distribution-shrinkage", type=float, default=5.)
     parser.add_argument("--distribution-min-scale", type=float, default=.02)
     parser.add_argument("--radius-factor", type=float, default=1.5)
-    parser.add_argument("--max-discovered-classes", type=int, default=200)
+    parser.add_argument("--max-discovered-classes", type=int, default=50)
     parser.add_argument("--training-steps", type=int, default=50)
     parser.add_argument("--replay-ratio", type=float, default=.5)
     parser.add_argument("--hierarchy-parents", type=int, default=3)

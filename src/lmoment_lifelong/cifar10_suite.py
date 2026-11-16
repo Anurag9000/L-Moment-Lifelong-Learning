@@ -71,7 +71,7 @@ class Config:
     memory_bytes: int = 65536
     discovery_radius: float = 0.6
     candidate_radius_factor: float = 2.0
-    max_discovered_classes: int = 200
+    max_discovered_classes: int = 50
     drift_window: int = 16
     loss_quantile: float = 0.95
     growth_width: int = 16
@@ -1469,7 +1469,7 @@ def main(argv=None):
     p.add_argument("--memory-bytes", type=int, default=65536)
     p.add_argument("--discovery-radius", type=float, default=.6)
     p.add_argument("--candidate-radius-factor", type=float, default=2.)
-    p.add_argument("--max-discovered-classes", type=int, default=200)
+    p.add_argument("--max-discovered-classes", type=int, default=50)
     p.add_argument("--drift-window", type=int, default=16)
     p.add_argument("--loss-quantile", type=float, default=.95)
     p.add_argument("--growth-width", type=int, default=16)

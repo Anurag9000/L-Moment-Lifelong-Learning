@@ -91,7 +91,7 @@ def _grid(spec) -> dict[str, tuple]:
             axes |= {"discovery_radius": (.35, .6, .9, 1.2),
                      "candidate_radius_factor": (1., 1.5, 2., 3.),
                      "min_support": (4, 8, 16, 32),
-                     "max_discovered_classes": (10, 20, 50, 100, 200)}
+                     "max_discovered_classes": (10, 20, 50)}
         if track in ("E03", "E04", "E14"):
             axes |= {"lr": (.0001, .0003, .001, .003, .01),
                      "training_steps": (25, 50, 100, 200)}
@@ -144,7 +144,7 @@ def _grid(spec) -> dict[str, tuple]:
             axes |= {"radius_factor": (.5, .75, 1., 1.5, 2.),
                      "candidate_radius_factor": (1., 1.5, 2., 3.),
                      "min_support": (4, 8, 16, 32),
-                     "max_discovered_classes": (10, 20, 50, 100),
+                     "max_discovered_classes": (10, 20, 50),
                      "statistical_projections": (8, 16, 32, 64)}
         if track in ("E03", "E04"):
             axes |= {"lr": (.0001, .0003, .001, .003),

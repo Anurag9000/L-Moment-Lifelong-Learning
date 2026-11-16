@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-log_dir=results/stl10_hypothesis26_multifidelity_v2/logs
+log_dir=results/stl10_hypothesis26_multifidelity_v3/logs
 mkdir -p "$log_dir"
 log_file="$log_dir/tuner_$(date -u +%Y%m%dT%H%M%SZ).log"
 
@@ -24,5 +24,5 @@ exec "$PYTHON" -m lmoment_lifelong.cifar10_tuning \
   --device cuda \
   --extraction-microbatch 4 \
   --download \
-  --output-root results/stl10_hypothesis26_multifidelity_v2 \
+  --output-root results/stl10_hypothesis26_multifidelity_v3 \
   --max-rounds 20 2>&1 | tee -a "$log_file"
