@@ -5,7 +5,16 @@ log_dir=results/stl10_hypothesis26_tuned/logs
 mkdir -p "$log_dir"
 log_file="$log_dir/tuner_$(date -u +%Y%m%dT%H%M%SZ).log"
 
-exec python -m lmoment_lifelong.cifar10_tuning \
+if [[ -z "${PYTHON:-}" ]]; then
+  if [[ -x "$HOME/envs/tfcl-btp/bin/python" ]]; then
+    PYTHON="$HOME/envs/tfcl-btp/bin/python"
+  else
+    PYTHON=python3
+  fi
+fi
+export PYTHONPATH="src${PYTHONPATH:+:$PYTHONPATH}"
+
+exec "$PYTHON" -m lmoment_lifelong.cifar10_tuning \
   --dataset stl10 \
   --train-per-class 400 \
   --val-per-class 100 \
