@@ -101,3 +101,7 @@ metrics and groups only equal hyperparameter configurations, excluding runtime
 paths and seed from the grouping key. Every paired difference is calculated
 inside a matched run before averaging. All these are **reference** comparisons,
 not verified research conclusions.
+
+## Hypothesis-only variant selection
+
+`lmoment-cifar10-advanced --track E03 --gcd-mode gcd --variant lmoment` now trains and evaluates **only** the proposed L-moment variant. The default `--variant both` remains backward-compatible. The hypothesis-only mode intentionally does not write `comparison.json` because no baseline has been trained. See [the 26-run protocol](CIFAR10_HYPOTHESIS26_EXECUTION.md) for a batch-512 one-seed launcher spanning both reference suites. This feature does not change the scientific implementation status of the 141 proposed experiment families.

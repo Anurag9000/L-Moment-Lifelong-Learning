@@ -100,5 +100,24 @@
     "planned_research_families": 141,
     "original_paper_reproductions": false,
     "family_ledger": "experiments/research_families.json"
+  },
+  "hypothesis26": {
+    "status": "launcher_implemented_locally_tested_remote_CIFAR10_full_run_not_executed",
+    "scope": "14 original + 11 advanced GCD-mode + 1 advanced E03 NCD mode, only L-moment candidate each; the 141 scientific families remain incomplete",
+    "run_count": 26,
+    "seed": 0,
+    "batch_size": 512,
+    "proposed_only": true,
+    "baseline_training": false,
+    "dataset": "torchvision CIFAR-10",
+    "train_per_class": 4500,
+    "validation_per_class": 500,
+    "test_per_class": 1000,
+    "ssl_epochs": 10,
+    "gcd_epochs_base": 10,
+    "gcd_epochs_session": 10,
+    "launcher": "lmoment-cifar10-hypothesis26",
+    "document": "docs/CIFAR10_HYPOTHESIS26_EXECUTION.md",
+    "result_status": "not_executed_on_full_CIFAR10"
   }
 }

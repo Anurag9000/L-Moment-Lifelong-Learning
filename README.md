@@ -82,3 +82,7 @@ All families in that ledger remain research-incomplete until demonstrated.
 The extended runner now supports image-space trainable E03 NCD/GCD (`--gcd-mode ncd|gcd`) and E04 two-session continual GCD, with validation-fixed comparisons. These are reproducible **reference** algorithms, not official SimGCD/DYDM reproductions.
 
 Run `lmoment-cifar10-advanced-sweep --tracks E03 E04 E09 E10 --seeds 0 1 2 3 4 --download` for matched advanced-reference replications, then `lmoment-cifar10-report --root results/cifar10_advanced --output results/cifar10_advanced/summary.csv`. The reporter groups by configuration and includes per-session metrics rather than mixing different experiments.
+
+## Seed-0, batch-512, hypothesis-only CIFAR-10 execution (26 configs)
+
+Use `lmoment-cifar10-hypothesis26 --seed 0 --dry-run` to verify the 26 proposed L-moment configurations. Run `lmoment-cifar10-hypothesis26 --seed 0 --device cuda --download` to execute all 26 sequentially. Each command fixes **batch size 512** and excludes the baseline. The standard protocol uses 45,000 training, 5,000 validation and 10,000 held-out test CIFAR-10 images and records checkpoints, per-job results, logs and a master manifest. See [the exact 26-run specification and server commands](docs/CIFAR10_HYPOTHESIS26_EXECUTION.md). These are existing *reference implementations*, not proof that the 141 family-level research methodologies are complete.

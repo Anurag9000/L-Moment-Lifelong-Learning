@@ -19,3 +19,7 @@ results/runs/
 *.ckpt
 *.safetensors
 *.npz
+
+# Keep full-dataset hypothesis screening artifacts off git by default.
+results/cifar10_hypothesis26/
+results/cifar10_hypothesis26_smoke/

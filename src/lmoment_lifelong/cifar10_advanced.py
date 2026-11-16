@@ -58,6 +58,7 @@ class AdvancedConfig:
     gcd_mode: str = "gcd"  # E03 may choose ncd or gcd; E04 is continual_gcd.
     gcd_epochs_base: int = 1
     gcd_epochs_session: int = 1
+    variant: str = "both"  # both, baseline, lmoment
 
     def __post_init__(self):
         if self.track not in TRACKS:
@@ -66,6 +67,8 @@ class AdvancedConfig:
             raise ValueError("Require >=8 samples per class for this pilot")
         if self.min_support < 4 or self.memory_bytes <= 0:
             raise ValueError("Invalid memory capacity")
+        if self.variant not in ("both", "baseline", "lmoment"):
+            raise ValueError("Invalid variant")
         if self.gcd_mode not in ("ncd", "gcd"):
             raise ValueError("E03 mode must be ncd or gcd")
 
@@ -310,7 +313,8 @@ def run_features(track, train_x, train_y, validation_x, validation_y,
     if len({x.shape[1] for x in features}) != 1:
         raise ValueError("Inconsistent feature dimensions")
     outcome = {}
-    for variant in ("baseline", "lmoment"):
+    selected = ("baseline", "lmoment") if cfg.variant == "both" else (cfg.variant,)
+    for variant in selected:
         kind = "mean" if variant == "baseline" else "lmoment"
         outcome[variant] = _variant(track, kind, *sum(zip(features, labels), ()), cfg,
                                     shifted=shifted_test_x)
@@ -361,7 +365,8 @@ def run_cifar(cfg: AdvancedConfig):
             raise FileExistsError(f"Immutable result already exists: {folder}")
         folder.mkdir(parents=True)
         results = {}
-        for variant in ("baseline", "lmoment"):
+        selected = ("baseline", "lmoment") if cfg.variant == "both" else (cfg.variant,)
+        for variant in selected:
             output = train_gcd(encoder, cfg.feature_dim, train, val, test,
                                gcd_cfg, variant=variant, device=device)
             torch.save(output["model_state"], folder / f"{variant}_model.pt")
@@ -372,14 +377,15 @@ def run_cifar(cfg: AdvancedConfig):
                   "elapsed_seconds":time.perf_counter()-start,
                   "oracle_K":True, "novel_ground_truth_used_for_learning":False}
         (folder/"result.json").write_text(json.dumps(report,indent=2,allow_nan=False))
-        baseline_last = results["baseline"]["sessions"][-1]
-        lmoment_last = results["lmoment"]["sessions"][-1]
-        comparison = {k: {"baseline": baseline_last[k], "lmoment": lmoment_last[k],
-                          "delta": float(lmoment_last[k] - baseline_last[k])}
-                      for k in baseline_last.keys() & lmoment_last.keys()
-                      if type(baseline_last[k]) in (int, float)
-                      and type(lmoment_last[k]) in (int, float)}
-        (folder/"comparison.json").write_text(json.dumps(comparison, indent=2))
+        if cfg.variant == "both":
+            baseline_last = results["baseline"]["sessions"][-1]
+            lmoment_last = results["lmoment"]["sessions"][-1]
+            comparison = {k: {"baseline": baseline_last[k], "lmoment": lmoment_last[k],
+                              "delta": float(lmoment_last[k] - baseline_last[k])}
+                          for k in baseline_last.keys() & lmoment_last.keys()
+                          if type(baseline_last[k]) in (int, float)
+                          and type(lmoment_last[k]) in (int, float)}
+            (folder/"comparison.json").write_text(json.dumps(comparison, indent=2))
         (folder/"split_manifest.json").write_text(json.dumps({
             "train_indices":[int(i) for i in train.indices],
             "val_indices":[int(i) for i in val.indices],
@@ -406,13 +412,14 @@ def run_cifar(cfg: AdvancedConfig):
                "elapsed_seconds": time.perf_counter()-start,
                "evidence_warning": "No publication claim; stronger baseline reproductions and seeds remain"}
     (folder / "result.json").write_text(json.dumps(payload, indent=2, allow_nan=False))
-    comparison = {}
-    for k, v in results["baseline"].items():
-        lm = results["lmoment"].get(k)
-        if isinstance(v, (float, int, np.floating)) and isinstance(lm, (float, int, np.floating)):
-            comparison[k] = {"baseline": float(v), "lmoment": float(lm),
-                             "delta": float(lm - v)}
-    (folder / "comparison.json").write_text(json.dumps(comparison, indent=2))
+    if cfg.variant == "both":
+        comparison = {}
+        for k, v in results["baseline"].items():
+            lm = results["lmoment"].get(k)
+            if isinstance(v, (float, int, np.floating)) and isinstance(lm, (float, int, np.floating)):
+                comparison[k] = {"baseline": float(v), "lmoment": float(lm),
+                                 "delta": float(lm - v)}
+        (folder / "comparison.json").write_text(json.dumps(comparison, indent=2))
     (folder / "split_manifest.json").write_text(json.dumps({
         "train_indices": [int(i) for i in train.indices],
         "val_indices": [int(i) for i in val.indices],
@@ -437,6 +444,7 @@ def main(argv=None):
     p.add_argument("--statistical-projections", type=int, default=16)
     p.add_argument("--min-support", type=int, default=8)
     p.add_argument("--gcd-mode", choices=("ncd", "gcd"), default="gcd")
+    p.add_argument("--variant", choices=("both", "baseline", "lmoment"), default="both")
     p.add_argument("--gcd-epochs-base", type=int, default=1)
     p.add_argument("--gcd-epochs-session", type=int, default=1)
     p.add_argument("--device", default="auto")
