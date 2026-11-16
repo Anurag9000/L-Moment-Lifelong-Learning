@@ -1360,10 +1360,11 @@ def run(cfg: Config):
             metrics = run_study(cfg.track, variant, tx, ty, vx, vy, cfg,
                                 validation=(val_x, val_y))
             if cfg.track == "E07":
-                from .cifar10_advanced import run_features, _variant
+                from .cifar10_advanced import _variant
                 # Re-run this diagnostic with the paired corrupted frozen features.
-                metrics = _variant("E07", "lmoment", tx, ty, val_x, val_y,
-                                   vx, vy, cfg, shifted=corrupted)
+                corruption_metrics = _variant("E07", variant, tx, ty, val_x, val_y,
+                                              vx, vy, cfg, shifted=corrupted)
+                metrics.update(corruption_metrics)
             state = metrics.pop("_checkpoint", None)
             validation_metrics = validation_for_checkpoint(cfg.track, state, tx, ty,
                 val_x, val_y, vx, vy, variant) if state is not None else None
