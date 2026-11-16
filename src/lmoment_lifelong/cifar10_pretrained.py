@@ -227,7 +227,11 @@ def _project_splits(root, x_train, x_test, train_ids, val_ids, test_ids, *,
         return x_train[train_ids], x_train[val_ids], x_test[test_ids]
     projection_root = Path(root) / "projections"
     projection_root.mkdir(exist_ok=True)
-    name = f"seed{seed}_k{feature_dim}_whiten{int(whiten)}"
+    split_digest = hashlib.sha256(
+        np.asarray(train_ids, dtype=np.int64).tobytes()
+        + np.asarray(val_ids, dtype=np.int64).tobytes()
+        + np.asarray(test_ids, dtype=np.int64).tobytes()).hexdigest()[:12]
+    name = f"seed{seed}_split{split_digest}_k{feature_dim}_whiten{int(whiten)}"
     folder = projection_root / name
     paths = [folder / f"{part}.npy" for part in
              ("train", "validation", "test", "corrupted_validation", "corrupted_test")]
