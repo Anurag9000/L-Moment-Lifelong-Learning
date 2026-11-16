@@ -52,5 +52,27 @@
     "imagenet": "not_run",
     "gpu_training": "not_run",
     "synthetic_shape_power": "executed_5_seeds_100_calibration_and_100_eval_pairs_per_condition_each"
+  },
+  "cifar10_reference": {
+    "scope": "Actual torchvision CIFAR-10 image subset, trainable encoders, diagnostic baseline versus L-moment variants. Not complete 141-family research.",
+    "tracks": {
+      "E01": "reference_implementation_unvalidated_on_cifar10",
+      "E02": "reference_implementation_unvalidated_on_cifar10",
+      "E03": "reference_implementation_unvalidated_on_cifar10",
+      "E04": "reference_implementation_unvalidated_on_cifar10",
+      "E05": "reference_implementation_unvalidated_on_cifar10",
+      "E06": "reference_implementation_unvalidated_on_cifar10",
+      "E07": "reference_implementation_unvalidated_on_cifar10",
+      "E08": "reference_implementation_unvalidated_on_cifar10",
+      "E09": "reference_implementation_unvalidated_on_cifar10",
+      "E10": "reference_implementation_unvalidated_on_cifar10",
+      "E11": "reference_implementation_unvalidated_on_cifar10",
+      "E12": "reference_implementation_unvalidated_on_cifar10",
+      "E13": "reference_implementation_unvalidated_on_cifar10",
+      "E14": "reference_implementation_unvalidated_on_cifar10"
+    },
+    "numerical_results": "none_committed_as_of_creation",
+    "integration_workflow": ".github/workflows/cifar10_integration.yml",
+    "artifact_retention_days": 30
   }
 }

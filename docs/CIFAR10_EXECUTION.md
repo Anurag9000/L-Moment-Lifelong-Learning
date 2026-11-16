@@ -88,3 +88,7 @@ checkpoint provenance, memory/compute and independent seeds. No speed or
 performance claims may be made without measured GPU runs. More work is needed
 for published baselines, full test-only confirmation and the remaining family-
 level algorithms documented in `docs/RESEARCH_PLAN.md`.
+
+## Actual-image smoke workflow
+
+The workflow [.github/workflows/cifar10_integration.yml](../.github/workflows/cifar10_integration.yml) attempts **each reference track E01--E14** with 16 training samples per class and independently held-out validation/test subsets, captures failed runs, and uploads measured results as a GitHub Actions artifact. This is a low-data integration test, **not** a scientific benchmark. It does not establish the planned 141 experiment-family algorithms or their results.
