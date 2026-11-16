@@ -65,3 +65,7 @@ To enumerate immutable paired-seed smoke jobs, use `lmoment-sweep --studies E01 
 7. Tests, code, configs, experiment registry and evidence ledger change together in atomic commits to `main`; do not create PRs or branches or force push.
 
 See [research plan](docs/RESEARCH_PLAN.md) for mechanism-by-mechanism completion criteria and the [limitations ledger](docs/IMPLEMENTATION_STATUS.md) for truthful current support.
+
+## CIFAR-10 reference-experiment runners (E01--E14)
+
+The optional trainable CIFAR-10 reference suite adds `lmoment-cifar10` and `lmoment-cifar10-report`. See [CIFAR-10 execution and caveats](docs/CIFAR10_EXECUTION.md) and [remaining research closure](docs/CIFAR10_REMAINING.md). The fourteen experiment IDs are *reference/diagnostic* variants; they do not indicate that the 141 planned families or original published baselines are complete. No CIFAR-10 dataset or GPU result is bundled.

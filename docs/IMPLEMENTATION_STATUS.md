@@ -50,3 +50,7 @@ This is a **truthful capability ledger**. A module's existence does not imply it
 ## Executed research pilot
 
 A five-seed distribution-shape power study with n=64 and matched population mean/variance was executed and stored as `results/synthetic_shape_power.json`. L-moment shape rejection rates were 0.804 on standardized Gamma, 0.238 on standardized Student-t df5, and 0.134 on bimodal mixture; ordinary skew/kurt scores gave 0.540, 0.430, and 0.090. See `docs/SYNTHETIC_RESULTS.md` for the experimental design, null false-alarm rates, limits and reproduction. This is **not** an ImageNet/CL benchmark.
+
+## CIFAR-10 reference layer (additional, not research closure)
+
+A separately documented `lmoment-cifar10` runner supplies baseline and L-moment reference variants for E01--E14 on actual CIFAR-10 images, with optional encoder training, model snapshots, split manifests and saved comparisons. Its components are an experimental starting point, not completed published-method reproductions or all 141 planned families. See `docs/CIFAR10_REMAINING.md` for track-by-track limitations. CIFAR-10 execution and GPU performance results are **not** claimed by this code addition.

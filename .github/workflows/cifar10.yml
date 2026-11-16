@@ -1,0 +1,17 @@
+name: CIFAR-10 reference runner API (no dataset download)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  torch-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e '.[cifar10,dev]'
+      - run: OMP_NUM_THREADS=2 python -m pytest -q tests/test_cifar10_suite.py
