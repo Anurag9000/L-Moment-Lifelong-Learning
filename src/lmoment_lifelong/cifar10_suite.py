@@ -1282,7 +1282,7 @@ def continual_feature_ssl(train_x, train_y, val_x, test_x, cfg, device, variant)
             optimizer.step()
             trace.append(float(loss.detach()))
         # The stream memory is updated only after the current arrival stage.
-        for row in tx[order]:
+        for row in train_x[order]:
             anchor_seen += 1
             if len(anchor_memory) < anchor_capacity:
                 anchor_memory = np.concatenate((anchor_memory, row[None].astype(np.float32)))

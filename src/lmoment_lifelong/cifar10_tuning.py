@@ -216,7 +216,8 @@ def _valid_feature_config(values: dict[str, Any], max_components: int | None = N
 
 
 def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
-             final_tests: bool = True) -> dict[str, Any]:
+             final_tests: bool = True,
+             reuse_manifest: str | Path | None = None) -> dict[str, Any]:
     """Screen each axis, combine winners, then coordinate-refine to convergence.
 
     Every candidate uses disjoint validation development/scoring halves. Test
@@ -237,6 +238,29 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
     if manifest.get("base_options") != asdict(base):
         raise RuntimeError("Tuning manifest base options differ; choose a new output root")
     manifest["max_rounds"] = max(int(manifest.get("max_rounds", 0)), max_rounds)
+
+    inherited_ids = set()
+    if reuse_manifest is not None:
+        prior_path = Path(reuse_manifest)
+        prior = json.loads(prior_path.read_text())
+        prior_options = dict(prior.get("base_options", {}))
+        current_options = asdict(base)
+        prior_options.pop("output_root", None)
+        current_options.pop("output_root", None)
+        if prior_options != current_options:
+            raise RuntimeError("Prior tuning manifest has incompatible base options")
+        for spec in RUNS:
+            prior_track = prior.get("tracks", {}).get(spec.id)
+            if prior_track and prior_track.get("selected"):
+                # Keep candidate-level provenance and full-data finalist choices.
+                # Their source commit remains recorded in their individual run manifests.
+                manifest["tracks"][spec.id] = prior_track
+                inherited_ids.add(spec.id)
+        manifest["inherited_campaign"] = {
+            "manifest": str(prior_path),
+            "source_commit": prior.get("source_commit"),
+            "tracks": sorted(inherited_ids),
+            "note": "Candidate searches reused with original per-run source provenance; full-data confirmations and final evaluations rerun under this source commit."}
 
     def persist_manifest():
         temporary = manifest_path.with_suffix(".tmp")
@@ -283,6 +307,9 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
 
     selected = {}
     for spec in RUNS:
+        if spec.id in inherited_ids:
+            selected[spec.id] = manifest["tracks"][spec.id]["selected"]
+            continue
         axes = _grid(spec)
         current = {"feature_dim": base.feature_dim,
                    "pca_whiten": base.pca_whiten,
@@ -419,6 +446,8 @@ def main(argv=None) -> int:
                         help="Download the dataset if it is missing")
     parser.set_defaults(download=True)
     parser.add_argument("--max-rounds", type=int, default=20)
+    parser.add_argument("--reuse-manifest", default=None,
+                        help="Reuse completed track searches from an earlier compatible tuning manifest")
     parser.add_argument("--no-final-tests", action="store_true")
     args = parser.parse_args(argv)
     base = Options(dataset=args.dataset, batch_size=args.batch_size,
@@ -431,7 +460,8 @@ def main(argv=None) -> int:
                    extraction_microbatch=args.extraction_microbatch, seed=args.seed,
                    download=args.download)
     manifest = tune_all(base, root=args.output_root, max_rounds=args.max_rounds,
-                        final_tests=not args.no_final_tests)
+                        final_tests=not args.no_final_tests,
+                        reuse_manifest=args.reuse_manifest)
     print(json.dumps({"status": manifest.get("status"),
                       "tracks": len(manifest.get("tracks", {})),
                       "manifest": str(Path(args.output_root) / "tuning_manifest.json")}, indent=2))
