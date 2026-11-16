@@ -26,6 +26,7 @@ lmoment-cifar10-sweep = "lmoment_lifelong.cifar10_sweep:main"
 lmoment-cifar10-advanced = "lmoment_lifelong.cifar10_advanced:main"
 lmoment-cifar10-advanced-sweep = "lmoment_lifelong.cifar10_advanced_sweep:main"
 lmoment-cifar10-hypothesis26 = "lmoment_lifelong.hypothesis26:main"
+lmoment-cifar10-tune = "lmoment_lifelong.cifar10_tuning:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

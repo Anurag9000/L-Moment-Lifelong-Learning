@@ -24,6 +24,8 @@ from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 
 from .statistics import lmoments, projector, compare_groups
 from .memory import StatisticalEngramMemory
+from .research_algorithms import LMomentNormalClassifier
+from .provenance import source_commit, run_fingerprint
 
 
 def _torch():
@@ -54,7 +56,20 @@ class Config:
     memory_limit: int = 32
     device: str = "auto"
     download: bool = False
-    backbone: str = "ssl"  # ssl, base_supervised
+    backbone: str = "ssl"  # ssl, base_supervised, dinov2
+    feature_cache: str = "results/cifar10_dinov2_cache"
+    extraction_microbatch: int = 16
+    pca_whiten: bool = False
+    l2_normalize: bool = True
+    validation_only: bool = False
+    statistical_projections: int = 16
+    min_support: int = 8
+    memory_bytes: int = 65536
+    discovery_radius: float = 0.6
+    drift_window: int = 16
+    growth_width: int = 16
+    growth_trial_steps: int = 25
+    growth_parameter_penalty: float = 0.0
     known_classes: int = 5
     save_features: bool = False
 
@@ -237,7 +252,8 @@ def centroid_classify(train_x, train_y, test_x, metric="mean"):
     return classes[np.argmin(distances, axis=1)]
 
 
-def train_head(x, y, seed, steps=40, lr=.01, init=None, weights=None, classes=None):
+def train_head(x, y, seed, steps=40, lr=.01, init=None, weights=None, classes=None,
+               class_balanced=False, examples_per_class=32):
     torch, nn, _, _ = _torch()
     torch.manual_seed(seed)
     labels = np.asarray(y, dtype=int)
@@ -250,10 +266,23 @@ def train_head(x, y, seed, steps=40, lr=.01, init=None, weights=None, classes=No
     ty = torch.from_numpy(labels)
     tw = torch.from_numpy(np.ones(len(y), np.float32) if weights is None
                           else np.asarray(weights, dtype=np.float32))
-    for _ in range(steps):
+    class_ids = np.unique(labels)
+    class_rows = [np.flatnonzero(labels == cls) for cls in class_ids]
+    for step in range(steps):
         opt.zero_grad()
-        per = nn.functional.cross_entropy(model(tx), ty, reduction="none")
-        loss = (per * tw).sum() / tw.sum().clamp_min(1.)
+        if class_balanced:
+            sampled = np.concatenate([
+                np.random.default_rng(seed + step * 1009 + i).choice(
+                    rows, size=examples_per_class,
+                    replace=len(rows) < examples_per_class)
+                for i, rows in enumerate(class_rows)
+            ])
+            batch = torch.as_tensor(sampled, dtype=torch.long)
+            per = nn.functional.cross_entropy(model(tx[batch]), ty[batch], reduction="none")
+            loss = (per * tw[batch]).sum() / tw[batch].sum().clamp_min(1.)
+        else:
+            per = nn.functional.cross_entropy(model(tx), ty, reduction="none")
+            loss = (per * tw).sum() / tw.sum().clamp_min(1.)
         loss.backward(); opt.step()
     return model
 
@@ -264,21 +293,24 @@ def predict_head(head, x):
         return head(torch.from_numpy(np.asarray(x, np.float32))).argmax(1).numpy()
 
 
-def build_memory(x, use_lmoment, threshold=.6, seed=0, max_memories=50):
-    mem = StatisticalEngramMemory(x.shape[1], projections=min(16, x.shape[1]),
+def build_memory(x, use_lmoment, threshold=.6, seed=0, max_memories=50,
+                 projections=16, min_support=8):
+    mem = StatisticalEngramMemory(x.shape[1], projections=min(projections, x.shape[1]),
                                   seed=seed, reservoir_size=64, birth_distance=threshold,
-                                  min_support=8, max_memories=max_memories)
+                                  min_support=min_support, max_memories=max_memories)
     return mem
 
 
-def streaming_discovery(x, y, variant, seed, blocked=False, threshold=.6, holdout=None):
+def streaming_discovery(x, y, variant, seed, blocked=False, threshold=.6, holdout=None,
+                        projections=16, min_support=8):
     rng = np.random.default_rng(seed)
     if blocked:
         order = np.concatenate([rng.permutation(np.flatnonzero(y == c))
                                 for c in rng.permutation(np.unique(y))])
     else:
         order = rng.permutation(len(x))
-    mem = build_memory(x, variant == "lmoment", threshold, seed, len(x) + 1)
+    mem = build_memory(x, variant == "lmoment", threshold, seed, len(x) + 1,
+                       projections=projections, min_support=min_support)
     predictions = []; events = []
     for t, ix in enumerate(order):
         z = x[ix]
@@ -313,26 +345,27 @@ def streaming_discovery(x, y, variant, seed, blocked=False, threshold=.6, holdou
     return result
 
 
-def study_statistical(tx, ty, vx, vy, variant, seed):
+def study_statistical(tx, ty, vx, vy, variant, seed, projections=16):
     rng = np.random.default_rng(seed)
-    s = np.unique(ty)
-    w = projector(tx.shape[1], min(16, tx.shape[1]), seed)
+    s = np.unique(vy)
+    w = projector(tx.shape[1], min(projections, tx.shape[1]), seed)
     true_scores = []; false_scores = []
     for k in s:
-        z = tx[ty == k]
+        z = vx[vy == k]
         if len(z) < 8:
             continue
         rng.shuffle(z)
         a, b = np.array_split(z, 2)
         if variant == "lmoment":
             true_scores.append(compare_groups(a, b, w).distance)
-            false_scores.append(compare_groups(a, tx[ty != k][:len(b)], w).distance)
+            false_scores.append(compare_groups(a, vx[vy != k][:len(b)], w).distance)
         else:
             true_scores.append(float(np.linalg.norm(a.mean(0) - b.mean(0))))
-            false_scores.append(float(np.linalg.norm(a.mean(0) - tx[ty != k][:len(b)].mean(0))))
+            false_scores.append(float(np.linalg.norm(a.mean(0) - vx[vy != k][:len(b)].mean(0))))
     return {"matched_mean_distance": float(np.mean(true_scores)),
             "different_mean_distance": float(np.mean(false_scores)),
-            "separation_ratio": float(np.mean(false_scores) / max(np.mean(true_scores), 1e-8))}
+            "separation_ratio": float(np.mean(false_scores) / max(np.mean(true_scores), 1e-8)),
+            "evaluation_partition": "held_out_validation"}
 
 
 def _cluster_with_known_anchors(x, anchors, n_clusters, seed):
@@ -353,7 +386,8 @@ def _cluster_with_known_anchors(x, anchors, n_clusters, seed):
     return assigned, new_anchors
 
 
-def study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=False):
+def study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=False,
+              lr=.01, steps=50):
     """Labeled base and mixed unlabeled current data; no unseen truth to learner.
 
     The experiment scheduler uses labels ONLY to construct allowed sessions.
@@ -363,7 +397,7 @@ def study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=False):
     base_mask = ty < known
     base_x, base_y = tx[base_mask], ty[base_mask]
     anchors = {k: base_x[base_y == k].mean(0) for k in range(known)}
-    classifier = train_head(base_x, base_y, seed, steps=50, classes=10)
+    classifier = train_head(base_x, base_y, seed, steps=steps, lr=lr, classes=10)
     stage_metrics = []
     stages = [known + 2, 10] if continual else [10]
     for stage_num, class_cutoff in enumerate(stages):
@@ -381,7 +415,7 @@ def study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=False):
         train_x = np.concatenate([available_x, base_x])
         train_y = np.concatenate([pseudo, base_y])
         train_weights = np.concatenate([weights, np.ones(len(base_y))])
-        classifier = train_head(train_x, train_y, seed + stage_num, steps=50,
+        classifier = train_head(train_x, train_y, seed + stage_num, steps=steps, lr=lr,
                                 weights=train_weights, classes=10, init=classifier)
         shown = vy < class_cutoff
         predicted = predict_head(classifier, vx[shown])
@@ -416,13 +450,13 @@ def study_structure(tx, ty, variant, seed):
             "rollback_restored": len(mem.nodes) == 1, "proposal_score": float(proposed.score)}
 
 
-def study_domain(tx, ty, vx, vy, variant, seed):
+def study_domain(tx, ty, vx, vy, variant, seed, projections=16):
     rng = np.random.default_rng(seed)
     # Feature perturbations are explicitly simulated, NOT claimed ImageNet-C domains.
     corrupted = vx + rng.normal(scale=.12, size=vx.shape)
     n0 = tx[ty == 0]; old = tx[ty == 1]
     support = min(25, len(n0) // 2, len(old))
-    w = projector(tx.shape[1], min(16, tx.shape[1]), seed)
+    w = projector(tx.shape[1], min(projections, tx.shape[1]), seed)
     if variant == "lmoment":
         self_distance = compare_groups(n0[:support], n0[support:2*support], w, trim=1).distance
         different_distance = compare_groups(n0[:support], old[:support], w, trim=1).distance
@@ -435,8 +469,9 @@ def study_domain(tx, ty, vx, vy, variant, seed):
             "note": "Feature corruption proxy, not a semantic-domain factorization"}
 
 
-def study_hierarchy(tx, ty, variant, seed):
-    labels = KMeans(10, n_init=10, random_state=seed).fit_predict(tx)
+def study_hierarchy(tx, ty, vx, vy, variant, seed):
+    cluster = KMeans(10, n_init=10, random_state=seed).fit(tx)
+    labels = cluster.labels_
     means = []
     for k in range(10):
         data = tx[labels == k]
@@ -445,17 +480,21 @@ def study_hierarchy(tx, ty, variant, seed):
         else:
             means.append(data.mean(0).repeat(4) if variant == "lmoment" else data.mean(0))
     groups = AgglomerativeClustering(n_clusters=3).fit_predict(np.stack(means))
+    validation_child = np.square(vx[:, None, :] - cluster.cluster_centers_[None, :, :]).sum(2).argmin(1)
+    validation_parent = groups[validation_child]
     return {"pseudo_class_count": 10, "parent_count": len(np.unique(groups)),
-            "hierarchy_cluster_ari": float(adjusted_rand_score(ty, groups[labels])),
+            "hierarchy_cluster_ari": float(adjusted_rand_score(vy, validation_parent)),
+            "evaluation_partition": "held_out_validation",
             "note": "Unsupervised pseudo-class hierarchy, no WordNet taxonomy oracle"}
 
 
-def study_replay(tx, ty, vx, vy, variant, seed, budget=100):
+def study_replay(tx, ty, vx, vy, variant, seed, budget=100, steps=75, lr=.01):
     rng = np.random.default_rng(seed)
     base = ty < 5
     old_x, old_y = tx[base], ty[base]
     new_x, new_y = tx[~base], ty[~base]
-    model0 = train_head(old_x, old_y, seed, steps=60, classes=10)
+    model0 = train_head(old_x, old_y, seed, steps=steps, lr=lr, classes=10,
+                        class_balanced=True)
     if variant == "lmoment":
         # Greedy shape-coverage selection, class balanced; avoid singleton order-4 estimates.
         chosen = []
@@ -477,7 +516,8 @@ def study_replay(tx, ty, vx, vy, variant, seed, budget=100):
                               for k in range(5)])
     all_x = np.concatenate([new_x, old_x[ids]])
     all_y = np.concatenate([new_y, old_y[ids]])
-    model = train_head(all_x, all_y, seed, steps=75, init=model0, classes=10)
+    model = train_head(all_x, all_y, seed, steps=steps, lr=lr, init=model0, classes=10,
+                       class_balanced=True)
     old_test = vy < 5
     return {"_checkpoint": model.state_dict(),
             "old_accuracy": float(np.mean(predict_head(model, vx[old_test]) == vy[old_test])),
@@ -486,7 +526,8 @@ def study_replay(tx, ty, vx, vy, variant, seed, budget=100):
             "retained_features": int(len(ids)), "buffer_bytes": int(old_x[ids].nbytes)}
 
 
-def study_taskfree(tx, ty, vx, vy, variant, seed):
+def study_taskfree(tx, ty, vx, vy, variant, seed, validation=None,
+                   window=16, projections=8, lr=.06):
     # Supervised online CL: current-example labels are allowed; task IDs hidden.
     torch, nn, _, _ = _torch()
     from .taskfree import LMomentDriftMonitor, calibrate_threshold
@@ -494,15 +535,37 @@ def study_taskfree(tx, ty, vx, vy, variant, seed):
     stream = np.concatenate([rng.permutation(np.flatnonzero(ty == k)) for k in range(10)])
     torch.manual_seed(seed)
     model = nn.Linear(tx.shape[1], 10)
-    opt = torch.optim.SGD(model.parameters(), lr=.06)
-    monitor = LMomentDriftMonitor(tx.shape[1], window=16, projections=min(8, tx.shape[1]), threshold=1.5, seed=seed)
+    opt = torch.optim.SGD(model.parameters(), lr=lr)
+    projections = min(projections, tx.shape[1])
+    if validation is None:
+        raise ValueError("Task-free drift calibration requires independent validation features")
+    val_x, val_y = validation
+    window = min(window, max(8, len(val_x) // 8))
+    null_streams = []
+    for cls in np.unique(ty):
+        rows = val_x[val_y == cls]
+        usable = (len(rows) // (2 * window)) * (2 * window)
+        if usable >= 2 * window:
+            # Disjoint stationary chunks; thresholds are per comparison, not
+            # a lifetime false-alarm guarantee for repeated online looks.
+            null_streams.extend(np.array_split(rows[:usable], usable // (2 * window)))
+    threshold = calibrate_threshold(null_streams, window=window,
+                                    projections=projections, seed=seed,
+                                    false_alarm_probability=.05)
+    monitor = LMomentDriftMonitor(tx.shape[1], window=window,
+                                  projections=projections, threshold=threshold, seed=seed)
     seen = 0; updates = 0; alarms = 0
+    comparisons = 0
     for t in range(0, len(stream), 16):
         ids = stream[t:t + 16]
-        alarm = any(monitor.update(tx[ix]).alarm for ix in ids)
+        events = [monitor.update(tx[ix]) for ix in ids]
+        comparisons += sum(event.evidence_reliable for event in events)
+        alarm = any(event.alarm for event in events)
         alarms += int(alarm)
         # Baseline always updates; proposed skips some updates only when stable.
-        adapt = variant == "baseline" or alarm or t < 48 or t % 64 == 0
+        # Three warm-up batches initialize the head; all later proposed
+        # updates require a calibrated L-moment alarm. No periodic fallback.
+        adapt = variant == "baseline" or alarm or t < 48
         if adapt:
             batch_x = torch.from_numpy(tx[ids].astype(np.float32))
             batch_y = torch.from_numpy(ty[ids].astype(np.int64))
@@ -514,10 +577,15 @@ def study_taskfree(tx, ty, vx, vy, variant, seed):
     return {"_checkpoint": model.state_dict(),
             "test_accuracy": float(np.mean(predictions == vy)),
             "updates": updates, "alarms": alarms, "processed": seen,
+            "detector_comparisons": comparisons,
+            "calibrated_threshold": float(threshold),
+            "threshold_calibration": "validation_class_stratified_per_comparison_null",
             "note": "L-moment gated online linear adaptation; not calibrated full task-free CL"}
 
 
-def study_growth(tx, ty, vx, vy, variant, seed):
+def study_growth(tx, ty, vx, vy, variant, seed, validation=None,
+                 projections=16, width=16, trial_steps=25, parameter_penalty=0.0,
+                 lr=.01):
     torch, nn, _, _ = _torch()
     from .growth import ExpandableMLP, evaluate_growth
     torch.manual_seed(seed)
@@ -526,24 +594,30 @@ def study_growth(tx, ty, vx, vy, variant, seed):
     y0 = torch.from_numpy(ty[ty < 5].astype(np.int64))
     x1 = torch.from_numpy(tx[ty >= 5].astype(np.float32))
     y1 = torch.from_numpy(ty[ty >= 5].astype(np.int64))
-    def fit(m, x, y, steps, lr=.01):
-        opt = torch.optim.AdamW([p for p in m.parameters() if p.requires_grad], lr=lr)
+    def fit(m, x, y, steps, learning_rate=lr):
+        opt = torch.optim.AdamW([p for p in m.parameters() if p.requires_grad], lr=learning_rate)
         for _ in range(steps):
             opt.zero_grad(); loss = nn.functional.cross_entropy(m(x), y)
             loss.backward(); opt.step()
     fit(model, x0, y0, 40)
     before = int(sum(p.numel() for p in model.parameters()))
-    evidence = None; accepted = False
+    evidence = None; accepted = False; proposed = None
     if variant == "lmoment":
         # Calibrated group discrepancy is needed before interpreting this as
         # an autonomous task-free trigger. Current evidence is exploratory.
-        w = projector(tx.shape[1], min(16, tx.shape[1]), seed)
+        w = projector(tx.shape[1], min(projections, tx.shape[1]), seed)
         evidence = compare_groups(tx[ty < 5], tx[ty >= 5], w).distance
         # Only observed loss-relevant candidate growth may be accepted.
-        proposed = evaluate_growth(model, x1[:-20], y1[:-20],
-                                   x1[-20:], y1[-20:], width=16, steps=25,
-                                   parameter_penalty=0.)
-        accepted = bool(proposed["accept"]) and bool(evidence > .01)
+        if validation is None:
+            raise ValueError("Growth proposal requires independent validation data")
+        dev_x, dev_y = validation
+        dev_mask = dev_y >= 5
+        proposed = evaluate_growth(model, x1, y1,
+                                   torch.from_numpy(dev_x[dev_mask].astype(np.float32)),
+                                   torch.from_numpy(dev_y[dev_mask].astype(np.int64)),
+                                   width=width, steps=trial_steps,
+                                   lr=lr, parameter_penalty=parameter_penalty)
+        accepted = bool(proposed["accept"])
         if accepted:
             model = proposed["grown_model"]
         else:
@@ -560,7 +634,10 @@ def study_growth(tx, ty, vx, vy, variant, seed):
             "new_accuracy": float(np.mean(pred[vy >= 5] == vy[vy >= 5])),
             "parameters_added": int(sum(p.numel() for p in model.parameters()) - before),
             "statistical_change_score": None if evidence is None else float(evidence),
-            "growth_accepted": bool(accepted), "_checkpoint": model.state_dict(),
+            "growth_accepted": bool(accepted),
+            "growth_trial": None if proposed is None else {k: proposed[k] for k in
+                             ("score", "fixed_loss", "grown_loss", "extra_parameters")},
+            "_checkpoint": model.state_dict(),
             "note": "Expandable MLP capacity-trial prototype; not the full ADP family"}
 
 
@@ -628,6 +705,52 @@ def continual_ssl(train, cfg, device, variant, initial):
     return model, trace
 
 
+def continual_feature_ssl(train_x, train_y, val_x, test_x, cfg, device, variant):
+    """Online feature adapter over frozen DINO embeddings; no image encoder updates."""
+    torch, nn, _, _ = _torch()
+    from .advanced_statistics import torch_distribution_loss
+    dim = train_x.shape[1]
+    adapter = nn.Linear(dim, dim, bias=False).to(device)
+    with torch.no_grad():
+        adapter.weight.copy_(torch.eye(dim, device=device))
+    teacher = copy.deepcopy(adapter).eval()
+    for parameter in teacher.parameters():
+        parameter.requires_grad_(False)
+    optimizer = torch.optim.AdamW(adapter.parameters(), lr=cfg.lr)
+    rng = np.random.default_rng(cfg.seed)
+    classes = rng.permutation(np.unique(train_y))
+    order = np.concatenate([rng.permutation(np.flatnonzero(train_y == cls)) for cls in classes])
+    trace = []
+    for start in range(0, len(order), cfg.batch_size):
+        ids = order[start:start + cfg.batch_size]
+        x = torch.as_tensor(np.asarray(train_x[ids]), dtype=torch.float32, device=device)
+        a, b = x + .01 * torch.randn_like(x), x + .02 * torch.randn_like(x)
+        z_a, z_b = adapter(a), adapter(b)
+        with torch.no_grad():
+            target = teacher(x)
+        invariant = nn.functional.mse_loss(z_a, z_b)
+        preservation = torch_distribution_loss(z_a, target, order=4)
+        if variant == "lmoment":
+            loss = invariant + .05 * preservation
+        else:
+            loss = invariant + .05 * nn.functional.mse_loss(z_a.mean(0), target.mean(0))
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        optimizer.step()
+        trace.append(float(loss.detach()))
+    adapter.eval()
+    with torch.inference_mode():
+        def apply(x):
+            chunks = []
+            for start in range(0, len(x), cfg.batch_size):
+                tensor = torch.as_tensor(np.asarray(x[start:start + cfg.batch_size]),
+                                         dtype=torch.float32, device=device)
+                chunks.append(adapter(tensor).cpu().numpy())
+            return np.concatenate(chunks)
+        adapted = apply(train_x), apply(val_x), apply(test_x)
+    return adapted, trace, adapter.state_dict()
+
+
 def _alignment_from_validation(true_validation, predicted_validation):
     """Fit a pseudo-ID to semantic-ID map only on independent validation labels.
 
@@ -680,22 +803,47 @@ def validation_for_checkpoint(track, state, tx, ty, valx, valy, testx, testy, va
 
 
 def run_study(track, variant, tx, ty, vx, vy, cfg, validation=None):
-    if track == "E01": return study_statistical(tx, ty, vx, vy, variant, cfg.seed)
+    if track == "E01":
+        return study_statistical(tx, ty, vx, vy, variant, cfg.seed,
+                                 cfg.statistical_projections)
     if track in ("E02", "E05"):
+        holdout = (vx, vy) if track in ("E02", "E05") else validation
         return streaming_discovery(tx, ty, variant, cfg.seed, blocked=track == "E05",
-                                   holdout=validation)
+                                   threshold=cfg.discovery_radius, holdout=holdout,
+                                   projections=cfg.statistical_projections,
+                                   min_support=cfg.min_support)
     if track in ("E03", "E04"):
-        return study_gcd(tx, ty, vx, vy, variant, cfg.seed, cfg.known_classes, track == "E04")
+        return study_gcd(tx, ty, vx, vy, variant, cfg.seed, cfg.known_classes,
+                         track == "E04", lr=cfg.lr, steps=cfg.training_steps)
     if track == "E06": return study_structure(tx, ty, variant, cfg.seed)
-    if track == "E07": return study_domain(tx, ty, vx, vy, variant, cfg.seed)
-    if track == "E08": return study_hierarchy(tx, ty, variant, cfg.seed)
+    if track == "E07": return study_domain(tx, ty, vx, vy, variant, cfg.seed,
+                                            cfg.statistical_projections)
+    if track == "E08": return study_hierarchy(tx, ty, vx, vy, variant, cfg.seed)
     if track == "E09":
-        pred = centroid_classify(tx, ty, vx, "lmoment" if variant == "lmoment" else "mean")
+        model = LMomentNormalClassifier(
+            mode="lmoment" if variant == "lmoment" else "mean_var",
+            shrinkage=cfg.distribution_shrinkage,
+            minimum_scale=cfg.distribution_min_scale)
+        model.fit(tx, ty)
+        pred = model.predict(vx)
         return {"test_accuracy": float(np.mean(pred == vy)), "classes": 10,
                 "note": "Frozen-feature class-statistics comparator"}
-    if track == "E10": return study_replay(tx, ty, vx, vy, variant, cfg.seed)
-    if track == "E11": return study_taskfree(tx, ty, vx, vy, variant, cfg.seed)
-    if track == "E12": return study_growth(tx, ty, vx, vy, variant, cfg.seed)
+    if track == "E10":
+        count = max(20, cfg.memory_bytes // max(4 * tx.shape[1] + 8, 1))
+        return study_replay(tx, ty, vx, vy, variant, cfg.seed, budget=count,
+                            steps=cfg.training_steps, lr=cfg.lr)
+    if track == "E11":
+        if validation is None:
+            raise ValueError("Task-free adaptation requires independent validation features")
+        return study_taskfree(tx, ty, vx, vy, variant, cfg.seed, validation,
+                              window=cfg.drift_window,
+                              projections=cfg.statistical_projections, lr=cfg.lr)
+    if track == "E12":
+        return study_growth(tx, ty, vx, vy, variant, cfg.seed, validation,
+                            projections=cfg.statistical_projections,
+                            width=cfg.growth_width,
+                            trial_steps=cfg.growth_trial_steps,
+                            parameter_penalty=cfg.growth_parameter_penalty, lr=cfg.lr)
     if track == "E13":
         # Online representation training happens in main(), before extraction.
         pred = centroid_classify(tx, ty, vx)
@@ -716,19 +864,60 @@ def run(cfg: Config):
         raise ValueError("Need at least 8 examples per class for statistical estimation")
     if cfg.backbone == "base_supervised" and cfg.track in ("E02", "E05", "E06", "E08"):
         raise ValueError("This unsupervised track forbids CIFAR-10 label-supervised encoder pretraining")
+    if min(cfg.statistical_projections, cfg.min_support, cfg.memory_bytes,
+           cfg.drift_window, cfg.growth_width, cfg.growth_trial_steps) < 1:
+        raise ValueError("Statistical, memory and adaptation hyperparameters must be positive")
+    if cfg.min_support < 4:
+        raise ValueError("L-moment memory support must be >=4")
     torch = setup(cfg.seed)
     device = _device(cfg.device)
-    train, val, test = make_data(cfg)
-    encoder = small_encoder(cfg.feature_dim)
+    feature_meta = None
+    if cfg.backbone == "dinov2":
+        from .cifar10_pretrained import (load_cifar10_features,
+                                         load_corrupted_features, quality_report,
+                                         validation_halves,
+                                         quality_filename)
+        (train_x, train_y), (val_x, val_y), (test_x, test_y), split_manifest, feature_meta = \
+            load_cifar10_features(cfg.feature_cache, seed=cfg.seed,
+                train_per_class=cfg.samples_per_class, val_per_class=cfg.val_per_class,
+                test_per_class=cfg.test_per_class, feature_dim=cfg.feature_dim,
+                whiten=cfg.pca_whiten, normalize=cfg.l2_normalize)
+        if train_x.shape[1] != cfg.feature_dim:
+            raise ValueError(f"Configured feature_dim={cfg.feature_dim}, cache has {train_x.shape[1]}")
+        train = val = test = encoder = None
+        tx, ty, vx, vy = train_x, train_y, test_x, test_y
+        validation_score_ids = None
+        if cfg.validation_only:
+            development_ids, validation_score_ids = validation_halves(val_y, cfg.seed)
+            split_manifest["validation_development_indices"] = [
+                split_manifest["val_indices"][i] for i in development_ids]
+            split_manifest["validation_score_indices"] = [
+                split_manifest["val_indices"][i] for i in validation_score_ids]
+            vx, vy = val_x[validation_score_ids], val_y[validation_score_ids]
+            val_x, val_y = val_x[development_ids], val_y[development_ids]
+        quality_path = Path(cfg.feature_cache) / quality_filename(
+            cfg.feature_dim, cfg.pca_whiten, cfg.l2_normalize)
+        feature_quality = json.loads(quality_path.read_text()) if quality_path.exists() else None
+        if feature_quality is None:
+            feature_quality = quality_report(cfg.feature_cache, seed=cfg.seed,
+                train_per_class=cfg.samples_per_class, val_per_class=cfg.val_per_class,
+                test_per_class=cfg.test_per_class, feature_dim=cfg.feature_dim,
+                whiten=cfg.pca_whiten, normalize=cfg.l2_normalize)
+            quality_path.write_text(json.dumps(feature_quality, indent=2))
+    else:
+        train, val, test = make_data(cfg)
+        encoder = small_encoder(cfg.feature_dim)
+        split_manifest = None
+        feature_quality = None
     started = time.time()
     variants = (["baseline", "lmoment"] if cfg.variant == "both" else [cfg.variant])
-    identity = hashlib.sha256(json.dumps(asdict(cfg), sort_keys=True).encode()).hexdigest()[:12]
+    identity = run_fingerprint(asdict(cfg))
     outdir = Path(cfg.output_root) / cfg.track / f"{identity}_seed{cfg.seed}"
     if outdir.exists():
         raise FileExistsError(f"Refusing to overwrite existing run: {outdir}")
     outdir.mkdir(parents=True)
     results = {}
-    if cfg.track == "E13":
+    if cfg.track == "E13" and cfg.backbone != "dinov2":
         for variant in variants:
             trained, trace = continual_ssl(train, cfg, device, variant, encoder)
             tx, ty = extract(trained, train, cfg, device)
@@ -746,6 +935,47 @@ def run(cfg: Config):
             torch.save({"encoder": trained.state_dict(), "probe": probe.state_dict(),
                         "optimizer_updates": len(trace)}, outdir / f"{variant}_model.pt")
         loss_trace = []
+    elif cfg.backbone == "dinov2":
+        loss_trace = []
+        for variant in variants:
+            if cfg.track == "E13":
+                trained, trace, adapter_state = continual_feature_ssl(
+                    tx, ty, val_x, vx, cfg, device, variant)
+                adapted_train, adapted_val, adapted_test = trained
+                probe = train_head(adapted_train, ty, cfg.seed, steps=70, classes=10)
+                val_pred = predict_head(probe, adapted_val)
+                test_pred = predict_head(probe, adapted_test)
+                results[variant] = {"linear_probe_accuracy": float(np.mean(test_pred == vy)),
+                    "validation_linear_probe_accuracy": float(np.mean(val_pred == val_y)),
+                    "updates": len(trace), "loss_trace": trace,
+                    "learner_labels_used": False, "frozen_pretrained_backbone": True,
+                    "trainable_feature_adapter": True}
+                torch.save({"adapter": adapter_state, "probe": probe.state_dict()},
+                           outdir / f"{variant}_model.pt")
+                continue
+            corrupted = None
+            if cfg.track == "E07":
+                corrupted = load_corrupted_features(cfg.feature_cache, split_manifest,
+                    partition="validation" if cfg.validation_only else "test",
+                    feature_dim=cfg.feature_dim, whiten=cfg.pca_whiten,
+                    normalize=cfg.l2_normalize)
+                if cfg.validation_only:
+                    corrupted = corrupted[validation_score_ids]
+            metrics = run_study(cfg.track, variant, tx, ty, vx, vy, cfg,
+                                validation=(val_x, val_y))
+            if cfg.track == "E07":
+                from .cifar10_advanced import run_features, _variant
+                # Re-run this diagnostic with the paired corrupted frozen features.
+                metrics = _variant("E07", "lmoment", tx, ty, val_x, val_y,
+                                   vx, vy, cfg, shifted=corrupted)
+            state = metrics.pop("_checkpoint", None)
+            validation_metrics = validation_for_checkpoint(cfg.track, state, tx, ty,
+                val_x, val_y, vx, vy, variant) if state is not None else None
+            if validation_metrics is not None:
+                metrics["independent_validation"] = validation_metrics
+            if state is not None:
+                torch.save(state, outdir / f"{variant}_model.pt")
+            results[variant] = metrics
     else:
         loss_trace = pretrain_encoder(encoder, train, cfg, device)
         tx, ty = extract(encoder, train, cfg, device)
@@ -768,15 +998,24 @@ def run(cfg: Config):
         if cfg.save_features:
             np.savez_compressed(outdir / "features.npz", train_x=tx, train_y=ty,
                                 val_x=valx, val_y=valy, test_x=vx, test_y=vy)
-    payload = {"schema": 1, "config": asdict(cfg), "variants": results,
+    payload = {"schema": 1, "config": asdict(cfg), "source_commit": source_commit(),
+               "variants": results,
                "encoder_loss_trace": loss_trace, "elapsed_seconds": time.time()-started,
                "dataset": "torchvision.CIFAR10", "source": "actual_images",
                "feature_backbone": cfg.backbone,
+               "feature_cache": cfg.feature_cache if cfg.backbone == "dinov2" else None,
+               "backbone_provenance": feature_meta,
+               "feature_quality": feature_quality,
                "transductive_unlabeled_pretraining": cfg.backbone == "ssl" and cfg.track != "E13",
                "strict_online_encoder_training": cfg.track == "E13",
                "result_status": "reference_implementation_not_publication_reproduction",
-               "device": device}
+               "device": device,
+               "evaluation_partition": ("validation_candidate_half" if cfg.validation_only
+                                        else "test")}
     (outdir / "result.json").write_text(json.dumps(payload, indent=2, allow_nan=False))
+    if feature_meta is not None:
+        (outdir / "backbone_provenance.json").write_text(
+            json.dumps(feature_meta, indent=2, sort_keys=True))
     if "baseline" in results and "lmoment" in results:
         comparison = {}
         for metric in set(results["baseline"]) & set(results["lmoment"]):
@@ -785,7 +1024,7 @@ def run(cfg: Config):
                 comparison[metric] = {"baseline": a, "lmoment": b,
                                       "delta_lmoment_minus_baseline": b - a}
         (outdir / "comparison.json").write_text(json.dumps(comparison, indent=2, allow_nan=False))
-    manifest = {"train_indices": list(map(int, train.indices)),
+    manifest = split_manifest if split_manifest is not None else {"train_indices": list(map(int, train.indices)),
                 "val_indices": list(map(int, val.indices)),
                 "test_indices": list(map(int, test.indices)),
                 "dataset_version": "torchvision.CIFAR10"}
@@ -810,7 +1049,20 @@ def main(argv=None):
     p.add_argument("--feature-dim", type=int, default=64)
     p.add_argument("--device", default="auto")
     p.add_argument("--download", action="store_true")
-    p.add_argument("--backbone", choices=["ssl", "base_supervised"], default="ssl")
+    p.add_argument("--backbone", choices=["ssl", "base_supervised", "dinov2"], default="ssl")
+    p.add_argument("--feature-cache", default="results/cifar10_dinov2_cache")
+    p.add_argument("--extraction-microbatch", type=int, default=16)
+    p.add_argument("--pca-whiten", action="store_true")
+    p.add_argument("--no-l2-normalize", dest="l2_normalize", action="store_false")
+    p.add_argument("--validation-only", action="store_true")
+    p.add_argument("--statistical-projections", type=int, default=16)
+    p.add_argument("--min-support", type=int, default=8)
+    p.add_argument("--memory-bytes", type=int, default=65536)
+    p.add_argument("--discovery-radius", type=float, default=.6)
+    p.add_argument("--drift-window", type=int, default=16)
+    p.add_argument("--growth-width", type=int, default=16)
+    p.add_argument("--growth-trial-steps", type=int, default=25)
+    p.add_argument("--growth-parameter-penalty", type=float, default=0.)
     p.add_argument("--known-classes", type=int, default=5)
     p.add_argument("--save-features", action="store_true")
     args = p.parse_args(argv)

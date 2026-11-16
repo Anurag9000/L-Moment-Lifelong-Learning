@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import hashlib
 import json
 import os
 import subprocess
@@ -18,6 +17,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from .provenance import source_commit, run_fingerprint
 
 BATCH_SIZE = 512
 DEFAULT_SEED = 0
@@ -69,7 +69,7 @@ assert len(RUNS) == 26 and len({s.id for s in RUNS}) == 26
 @dataclass(frozen=True)
 class Options:
     seed: int = DEFAULT_SEED
-    output_root: str = "results/cifar10_hypothesis26"
+    output_root: str = "results/cifar10_hypothesis26_dinov2"
     data_root: str = "datasets"
     train_per_class: int = 4500
     val_per_class: int = 500
@@ -78,11 +78,32 @@ class Options:
     ssl_epochs: int = 10
     gcd_epochs_base: int = 10
     gcd_epochs_session: int = 10
-    feature_dim: int = 64
+    gcd_supervised_weight: float = 1.0
+    gcd_pseudo_weight: float = 1.0
+    gcd_consistency_weight: float = 0.1
+    gcd_preservation_weight: float = 0.05
+    feature_dim: int = 768
+    feature_cache_root: str = "results/cifar10_dinov2_cache"
+    extraction_microbatch: int = 16
+    pca_whiten: bool = False
+    l2_normalize: bool = True
+    validation_only: bool = False
     lr: float = 0.001
     memory_bytes: int = 65536
     statistical_projections: int = 16
     min_support: int = 8
+    discovery_radius: float = 0.6
+    drift_window: int = 16
+    growth_width: int = 16
+    growth_trial_steps: int = 25
+    growth_parameter_penalty: float = 0.0
+    distribution_shrinkage: float = 5.0
+    distribution_min_scale: float = 0.02
+    radius_factor: float = 1.5
+    max_discovered_classes: int = 200
+    training_steps: int = 50
+    replay_ratio: float = 0.5
+    hierarchy_parents: int = 3
     device: str = "auto"
     download: bool = False
     save_features: bool = False
@@ -102,6 +123,9 @@ class Options:
             raise ValueError("Use auto, cpu or cuda[:index]")
 
 
+_PREPARED_CACHES: set[tuple] = set()
+
+
 def _config(spec: RunSpec, opt: Options):
     if spec.suite == "original":
         from .cifar10_suite import Config
@@ -114,7 +138,17 @@ def _config(spec: RunSpec, opt: Options):
                       batch_size=BATCH_SIZE, feature_dim=opt.feature_dim,
                       epochs=opt.epochs, ssl_epochs=opt.ssl_epochs,
                       lr=opt.lr, device=opt.device, download=opt.download,
-                      backbone="ssl", known_classes=5,
+                      backbone="dinov2", feature_cache=opt.feature_cache_root,
+                      extraction_microbatch=opt.extraction_microbatch,
+                      pca_whiten=opt.pca_whiten, l2_normalize=opt.l2_normalize,
+                      validation_only=opt.validation_only,
+                      statistical_projections=opt.statistical_projections,
+                      min_support=opt.min_support, memory_bytes=opt.memory_bytes,
+                      discovery_radius=opt.discovery_radius, drift_window=opt.drift_window,
+                      growth_width=opt.growth_width,
+                      growth_trial_steps=opt.growth_trial_steps,
+                      growth_parameter_penalty=opt.growth_parameter_penalty,
+                      known_classes=5,
                       save_features=opt.save_features)
     from .cifar10_advanced import AdvancedConfig
     return AdvancedConfig(track=spec.track, variant="lmoment", seed=opt.seed,
@@ -124,11 +158,28 @@ def _config(spec: RunSpec, opt: Options):
                           samples_per_class=opt.train_per_class,
                           val_per_class=opt.val_per_class, test_per_class=opt.test_per_class,
                           batch_size=BATCH_SIZE, feature_dim=opt.feature_dim,
+                          backbone="dinov2", feature_cache=opt.feature_cache_root,
+                          extraction_microbatch=opt.extraction_microbatch,
+                          pca_whiten=opt.pca_whiten, l2_normalize=opt.l2_normalize,
+                          validation_only=opt.validation_only,
                           ssl_epochs=opt.ssl_epochs, memory_bytes=opt.memory_bytes,
                           statistical_projections=opt.statistical_projections,
                           min_support=opt.min_support, gcd_mode=spec.gcd_mode,
                           gcd_epochs_base=opt.gcd_epochs_base,
                           gcd_epochs_session=opt.gcd_epochs_session,
+                          gcd_supervised_weight=opt.gcd_supervised_weight,
+                          gcd_pseudo_weight=opt.gcd_pseudo_weight,
+                          gcd_consistency_weight=opt.gcd_consistency_weight,
+                          gcd_preservation_weight=opt.gcd_preservation_weight,
+                          lr=opt.lr,
+                          distribution_shrinkage=opt.distribution_shrinkage,
+                          distribution_min_scale=opt.distribution_min_scale,
+                          radius_factor=opt.radius_factor,
+                          max_discovered_classes=opt.max_discovered_classes,
+                          training_steps=opt.training_steps,
+                          replay_ratio=opt.replay_ratio,
+                          hierarchy_parents=opt.hierarchy_parents,
+                          drift_window=opt.drift_window,
                           device=opt.device, download=opt.download)
 
 
@@ -138,7 +189,7 @@ def build_job(spec: RunSpec, opt: Options) -> dict[str, Any]:
     cfg = _config(spec, opt)
     cfgdict = asdict(cfg)
     assert cfgdict["batch_size"] == 512 and cfgdict["variant"] == "lmoment"
-    digest = hashlib.sha256(json.dumps(cfgdict, sort_keys=True).encode()).hexdigest()[:12]
+    digest = run_fingerprint(cfgdict)
     if spec.suite == "original":
         module = "lmoment_lifelong.cifar10_suite"
         folder = Path(cfg.output_root) / cfg.track / f"{digest}_seed{cfg.seed}"
@@ -159,7 +210,7 @@ def build_job(spec: RunSpec, opt: Options) -> dict[str, Any]:
     return {"id": spec.id, "suite": spec.suite, "track": spec.track,
             "name": spec.name, "primary_metric": spec.metric, "limitation": spec.note,
             "gcd_mode": spec.gcd_mode if spec.id.startswith("A-E03") else None,
-            "command": argv, "config": cfgdict,
+            "command": argv, "config": cfgdict, "source_commit": source_commit(),
             "result_path": str(folder / "result.json"),
             "directory": str(folder)}
 
@@ -170,6 +221,8 @@ def _verify(job: dict[str, Any]) -> tuple[bool, str]:
         return False, "Missing result.json"
     try:
         result = json.loads(result_path.read_text())
+        if result.get("source_commit") != job["source_commit"]:
+            return False, "Saved result source commit differs from requested job"
         cfg = result.get("config", {})
         if cfg != job["config"]:
             return False, "Saved configuration differs from requested job"
@@ -180,10 +233,14 @@ def _verify(job: dict[str, Any]) -> tuple[bool, str]:
             return False, "No confirmed actual-CIFAR-10 source marker"
         if not (result_path.parent / "split_manifest.json").is_file():
             return False, "Missing split_manifest.json"
+        if job["config"].get("backbone") == "dinov2":
+            if not (result_path.parent / "backbone_provenance.json").is_file():
+                return False, "Missing DINOv2 checkpoint/cache provenance"
         if job["suite"] == "advanced" and job["track"] in ("E03", "E04"):
             if not (result_path.parent / "lmoment_model.pt").is_file():
                 return False, "Missing trained GCD model checkpoint"
-        elif not (result_path.parent / "encoder.pt").is_file() and not (
+        elif job["config"].get("backbone") != "dinov2" and not (
+                result_path.parent / "encoder.pt").is_file() and not (
                 result_path.parent / "lmoment_model.pt").is_file():
             return False, "Missing model/encoder checkpoint"
         if (result_path.parent / "baseline_model.pt").exists():
@@ -252,13 +309,48 @@ def run_jobs(specs: list[RunSpec], opt: Options, *, dry_run=False,
     jobs = [build_job(spec, opt) for spec in specs]
     if dry_run:
         return [{**j, "status": "planned"} for j in jobs], 0
+    repo_root = Path(__file__).resolve().parents[2]
+    dirty = subprocess.check_output(["git", "status", "--porcelain"], cwd=repo_root, text=True)
+    if dirty:
+        raise RuntimeError("Commit source changes before launch so run provenance is exact")
     root = Path(opt.output_root)
     root.mkdir(parents=True, exist_ok=True)
+    from .cifar10_pretrained import prepare_cifar10_cache, quality_report
+    cache_key = (opt.data_root, opt.feature_cache_root, opt.seed,
+                 opt.train_per_class, opt.val_per_class, opt.test_per_class,
+                 opt.feature_dim, opt.pca_whiten, opt.l2_normalize)
+    cache_meta = prepare_cifar10_cache(opt.data_root, opt.feature_cache_root,
+        device="cuda" if opt.device == "auto" else opt.device,
+        batch_size=opt.extraction_microbatch, download=opt.download, seed=opt.seed)
+    cache_quality = None
+    if cache_key not in _PREPARED_CACHES:
+        cache_quality = quality_report(opt.feature_cache_root, seed=opt.seed,
+            train_per_class=opt.train_per_class, val_per_class=opt.val_per_class,
+            test_per_class=opt.test_per_class, feature_dim=opt.feature_dim,
+            whiten=opt.pca_whiten, normalize=opt.l2_normalize, include_test=False)
+        _PREPARED_CACHES.add(cache_key)
+    from .cifar10_pretrained import quality_filename
+    quality_path = Path(opt.feature_cache_root) / quality_filename(
+        opt.feature_dim, opt.pca_whiten, opt.l2_normalize)
+    if cache_quality is None:
+        cache_quality = json.loads(quality_path.read_text()) if quality_path.exists() else {}
+    if quality_path.exists():
+        if json.loads(quality_path.read_text()) != cache_quality:
+            raise ValueError("Cached DINOv2 quality report differs from its embeddings")
+    else:
+        _write_atomic(quality_path, cache_quality)
+    _write_atomic(root / f"pretrained_feature_{quality_path.stem}.json", cache_quality)
+    print(json.dumps({"backbone": cache_meta["model_id"],
+                      "backbone_revision": cache_meta["resolved_model_commit"],
+                      "feature_dim": cache_meta["feature_dim"],
+                      "feature_cache": opt.feature_cache_root,
+                      "quality_report": str(quality_path)}, indent=2), flush=True)
     current = []
     started = _utc()
     _write_atomic(root / "plan.json", {"created_utc": started,
                   "seed": opt.seed, "batch_size": BATCH_SIZE,
-                  "planned": len(jobs), "jobs": jobs})
+                  "planned": len(jobs), "source_commit": source_commit(), "jobs": jobs})
+    _write_atomic(root / "backbone_provenance.json", cache_meta)
     failed = 0
     for j in jobs:
         result_folder = Path(j["directory"])
@@ -293,8 +385,11 @@ def run_jobs(specs: list[RunSpec], opt: Options, *, dry_run=False,
                 with log_file.open("w") as output:
                     output.write("COMMAND: " + " ".join(j["command"]) + "\n\n")
                     output.flush()
+                    env = os.environ.copy()
+                    env["LMOMENT_SOURCE_COMMIT"] = j["source_commit"]
                     code = subprocess.run(j["command"], stdout=output,
-                                          stderr=subprocess.STDOUT, check=False).returncode
+                                          stderr=subprocess.STDOUT, check=False,
+                                          env=env).returncode
             except OSError as exc:
                 code = 127
                 with log_file.open("a") as output:
@@ -327,7 +422,7 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--data-root", default="datasets")
-    parser.add_argument("--output-root", default="results/cifar10_hypothesis26")
+    parser.add_argument("--output-root", default="results/cifar10_hypothesis26_dinov2")
     parser.add_argument("--train-per-class", type=int, default=4500)
     parser.add_argument("--val-per-class", type=int, default=500)
     parser.add_argument("--test-per-class", type=int, default=1000)
@@ -335,11 +430,32 @@ def main(argv=None) -> int:
     parser.add_argument("--ssl-epochs", type=int, default=10)
     parser.add_argument("--gcd-epochs-base", type=int, default=10)
     parser.add_argument("--gcd-epochs-session", type=int, default=10)
-    parser.add_argument("--feature-dim", type=int, default=64)
+    parser.add_argument("--gcd-supervised-weight", type=float, default=1.)
+    parser.add_argument("--gcd-pseudo-weight", type=float, default=1.)
+    parser.add_argument("--gcd-consistency-weight", type=float, default=.1)
+    parser.add_argument("--gcd-preservation-weight", type=float, default=.05)
+    parser.add_argument("--feature-dim", type=int, default=768)
+    parser.add_argument("--feature-cache-root", default="results/cifar10_dinov2_cache")
+    parser.add_argument("--extraction-microbatch", type=int, default=16)
+    parser.add_argument("--pca-whiten", action="store_true")
+    parser.add_argument("--no-l2-normalize", dest="l2_normalize", action="store_false")
+    parser.add_argument("--validation-only", action="store_true")
     parser.add_argument("--lr", type=float, default=.001)
     parser.add_argument("--memory-bytes", type=int, default=65536)
     parser.add_argument("--statistical-projections", type=int, default=16)
     parser.add_argument("--min-support", type=int, default=8)
+    parser.add_argument("--discovery-radius", type=float, default=.6)
+    parser.add_argument("--drift-window", type=int, default=16)
+    parser.add_argument("--growth-width", type=int, default=16)
+    parser.add_argument("--growth-trial-steps", type=int, default=25)
+    parser.add_argument("--growth-parameter-penalty", type=float, default=0.)
+    parser.add_argument("--distribution-shrinkage", type=float, default=5.)
+    parser.add_argument("--distribution-min-scale", type=float, default=.02)
+    parser.add_argument("--radius-factor", type=float, default=1.5)
+    parser.add_argument("--max-discovered-classes", type=int, default=200)
+    parser.add_argument("--training-steps", type=int, default=50)
+    parser.add_argument("--replay-ratio", type=float, default=.5)
+    parser.add_argument("--hierarchy-parents", type=int, default=3)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--download", action="store_true")
     parser.add_argument("--save-features", action="store_true")
