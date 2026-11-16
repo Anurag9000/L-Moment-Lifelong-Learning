@@ -35,7 +35,7 @@ def _objective(run_id: str, metrics: dict[str, Any]) -> tuple[float, str]:
     if run_id == "O-E06":
         return number(metrics.get("scoring_ari"), "scoring_ari")
     if run_id == "O-E07":
-        return number(metrics.get("different_class_distance"), "different_class_distance")
+        return number(metrics.get("corruption_accuracy"), "corruption_accuracy")
     if run_id == "O-E08":
         return number(metrics.get("hierarchy_cluster_ari"), "hierarchy_cluster_ari")
     if run_id == "O-E09":
