@@ -24,3 +24,5 @@ results/runs/
 results/cifar10_hypothesis26/
 results/cifar10_hypothesis26_smoke/
 results/cifar10_dinov2_cache/
+results/cifar10_hypothesis26_dinov2/
+results/cifar10_hypothesis26_tuned/
