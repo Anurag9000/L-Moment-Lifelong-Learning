@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from dataclasses import asdict, replace
 from pathlib import Path
 from typing import Any
@@ -17,7 +18,10 @@ def _objective(run_id: str, metrics: dict[str, Any]) -> tuple[float, str]:
     def number(value, label):
         if not isinstance(value, (int, float)) or isinstance(value, bool):
             raise ValueError(f"{run_id}: missing numeric validation objective {label}")
-        return float(value), label
+        value = float(value)
+        if not math.isfinite(value):
+            raise ValueError(f"{run_id}: non-finite validation objective {label}")
+        return value, label
 
     if run_id == "O-E01":
         return number(metrics.get("separation_ratio"), "separation_ratio")
@@ -48,10 +52,15 @@ def _objective(run_id: str, metrics: dict[str, Any]) -> tuple[float, str]:
         nested = metrics.get("test", {})
         if run_id in ("A-E02", "A-E05"):
             ari, coverage = nested.get("ari_covered"), nested.get("coverage")
-            if (not isinstance(ari, (int, float))
-                    or not isinstance(coverage, (int, float))):
-                raise ValueError(f"{run_id}: missing ARI/coverage tuning metrics")
-            return float(ari * coverage), "validation scoring-half ari_covered_x_coverage"
+            if not isinstance(coverage, (int, float)) or isinstance(coverage, bool):
+                raise ValueError(f"{run_id}: missing validation coverage")
+            coverage = float(coverage)
+            if not math.isfinite(coverage) or not 0.0 <= coverage <= 1.0:
+                raise ValueError(f"{run_id}: invalid validation coverage {coverage}")
+            if ari is None:
+                return 0.0, "validation scoring-half ari_covered_x_coverage_no_coverage"
+            score, label = number(ari, "validation scoring-half ari_covered")
+            return score * coverage, "validation scoring-half ari_covered_x_coverage"
         return number(nested.get("ari_covered"), "validation scoring-half ari_covered")
     if run_id in ("A-E03-GCD", "A-E03-NCD", "A-E04"):
         last = (metrics.get("sessions") or [{}])[-1]
