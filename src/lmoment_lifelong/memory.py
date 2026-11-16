@@ -98,6 +98,9 @@ class StatisticalEngramMemory:
         self.clock = 0
         self.events: list[dict] = []
         self._history: dict[int, dict] = {}
+        # Preserve exact parent support even when source observations have
+        # been discarded by bounded reservoirs.
+        self.retired: dict[int, dict] = {}
         self._next_version = 1
 
     def _new(self, data: np.ndarray, state: State = "provisional") -> int:
@@ -192,12 +195,15 @@ class StatisticalEngramMemory:
     def snapshot(self) -> int:
         version=self._next_version;self._next_version+=1
         # Explicit memory overhead of history must count toward resources.
-        self._history[version] = copy.deepcopy((self.nodes,self.next_id,self.clock,self.events))
+        self._history[version] = copy.deepcopy(
+            (self.nodes,self.next_id,self.clock,self.events,self.retired))
         return version
 
     def commit(self, proposal: Proposal, approved: bool = False) -> int:
         if not approved and not proposal.validated:
             raise ValueError("Proposal must be explicitly validated or approved")
+        if proposal.action == "split" and len(self.nodes) + 1 > self.max_memories:
+            raise MemoryError("Split would exceed maximum assembly count")
         previous=self.snapshot()
         if proposal.action == "birth":
             node=self.nodes[proposal.ids[0]]
@@ -211,7 +217,7 @@ class StatisticalEngramMemory:
             # historical distribution; centroid is merged by exact count.
             total=na.count+nb.count
             center=(na.centroid*na.count+nb.centroid*nb.count)/total
-            na.reservoir.update(nb.reservoir.samples)
+            na.reservoir.merge(nb.reservoir)
             na.count=total;na.centroid=center
             na.aliases.extend([b]+nb.aliases)
             na.version+=1;del self.nodes[b]
@@ -221,10 +227,19 @@ class StatisticalEngramMemory:
             left=self._new(proposal.groups[0],"mature")
             right=self._new(proposal.groups[1],"mature")
             self.nodes[left].parent=a;self.nodes[right].parent=a
-            # Only stored reservoir can be reallocated; original full support
-            # is not reconstructed. Preserve rollback state and document it.
+            # The bounded reservoir can be partitioned, but unavailable
+            # historical support cannot be invented in child counts.
+            allocated = int(self.nodes[left].count + self.nodes[right].count)
+            if allocated > old.count:
+                raise ValueError("Split allocations exceed parent support")
+            self.retired[a] = {"parent_count": int(old.count),
+                               "allocated_count": allocated,
+                               "unallocated_historical_support": int(old.count-allocated),
+                               "child_ids": [left, right],
+                               "parent_centroid":old.centroid.copy()}
             self.events.append({"time":self.clock,"action":"retire_parent","id":a,
-                                "parent_count":old.count})
+                                "parent_count":old.count,
+                                "unallocated_historical_support":old.count-allocated})
         elif proposal.action == "reactivate":
             self.nodes[proposal.ids[0]].state="mature"
         elif proposal.action == "reconsolidate":
@@ -239,13 +254,16 @@ class StatisticalEngramMemory:
         state=self._history.get(version)
         if state is None:
             raise KeyError("Unknown rollback version")
-        self.nodes,self.next_id,self.clock,self.events=copy.deepcopy(state)
+        self.nodes,self.next_id,self.clock,self.events,self.retired=copy.deepcopy(state)
+        self._history={k:v for k,v in self._history.items() if k<=version}
 
     def memory_bytes(self, include_history: bool = True) -> int:
         current=sum(node.bytes for node in self.nodes.values())+self.w.nbytes
+        current+=sum(meta["parent_centroid"].nbytes for meta in self.retired.values())
         if include_history:
             # Approximation of array allocation in historical snapshots,
             # not a deep Python heap measurement.
-            for nodes,_,_,_ in self._history.values():
+            for nodes,_,_,_,retired in self._history.values():
                 current+=sum(node.bytes for node in nodes.values())
+                current+=sum(meta["parent_centroid"].nbytes for meta in retired.values())
         return current

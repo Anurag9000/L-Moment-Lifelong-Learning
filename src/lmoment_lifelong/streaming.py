@@ -54,3 +54,31 @@ class Reservoir:
         obj._rows = [r.copy() for r in snapshot["rows"]]
         obj._rng.bit_generator.state = snapshot["rng_state"]
         return obj
+
+    def merge(self, other: "Reservoir") -> None:
+        """Exact-count-weighted merge of two uniform reservoir samples.
+
+        Conditional on each reservoir being a uniform sample without replacement
+        of its complete stream, hypergeometric sample allocation produces a
+        uniform bounded reservoir for the union. Appending the stored sample
+        from the second reservoir as though it were the full stream is biased.
+        """
+        if self is other or not isinstance(other, Reservoir):
+            raise ValueError("Expected a different Reservoir")
+        if self.capacity != other.capacity or self.dimension != other.dimension:
+            raise ValueError("Reservoir shape/capacity mismatch")
+        total = self.seen + other.seen
+        if total == 0:
+            return
+        retained = min(self.capacity, total)
+        from_self = int(self._rng.hypergeometric(self.seen, other.seen, retained))
+        from_other = retained - from_self
+        if from_self > len(self._rows) or from_other > len(other._rows):
+            raise RuntimeError("Reservoir samples inconsistent with seen counts")
+        idx_a = self._rng.choice(len(self._rows), size=from_self, replace=False)
+        idx_b = self._rng.choice(len(other._rows), size=from_other, replace=False)
+        chosen = [self._rows[int(i)].copy() for i in idx_a] + [
+            other._rows[int(i)].copy() for i in idx_b]
+        self._rng.shuffle(chosen)
+        self._rows = chosen
+        self.seen = total
