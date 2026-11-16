@@ -238,6 +238,7 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
     if manifest.get("base_options") != asdict(base):
         raise RuntimeError("Tuning manifest base options differ; choose a new output root")
     manifest["max_rounds"] = max(int(manifest.get("max_rounds", 0)), max_rounds)
+    manifest["confirmation_top_k"] = 2
 
     inherited_ids = set()
     if reuse_manifest is not None:
@@ -373,17 +374,22 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
                              "objective": best["objective"]}
         manifest["tracks"][spec.id]["selected"] = selected[spec.id]
 
-    # Recheck the top three screen configurations with the full training split.
+    # Recheck the top two screen configurations with the full training split.
     # Validation remains the selection signal; final test stays sealed.
     for spec in RUNS:
         track_record = manifest["tracks"][spec.id]
         candidates = [r for r in track_record["candidates"].values()
                       if r.get("status") == "completed"]
-        finalists = sorted(candidates, key=lambda r: r["score"], reverse=True)[:3]
-        confirmed = []
+        finalists = sorted(candidates, key=lambda r: r["score"], reverse=True)[:2]
+        confirmed = [r for r in track_record.get("confirmations", {}).values()
+                     if r.get("status") == "completed"]
         for finalist in finalists:
             values = finalist["config"]
             key = _candidate_key({"fidelity": "full", **values})
+            prior_confirmation = next((r for r in confirmed
+                if r.get("config") == values), None)
+            if prior_confirmation is not None:
+                continue
             output = root / "confirmations" / spec.id / key
             options = replace(base, **values, validation_only=True,
                               output_root=str(output))
@@ -406,7 +412,8 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
         if not confirmed:
             raise RuntimeError(f"No full-data validation finalists for {spec.id}")
         winner = max(confirmed, key=lambda r: r["score"])
-        screen_score = next(r["score"] for r in finalists if r["config"] == winner["config"])
+        screen_score = next(r["score"] for r in candidates
+                            if r["config"] == winner["config"])
         selected[spec.id] = {"config": winner["config"], "score": winner["score"],
                              "objective": winner["objective"], "screen_score": screen_score,
                              "confirmation_result": winner["result_path"]}
