@@ -78,6 +78,8 @@ def _grid(spec) -> dict[str, tuple]:
         if track in ("E03", "E04", "E14"):
             axes |= {"lr": (.0001, .0003, .001, .003, .01),
                      "training_steps": (25, 50, 100, 200)}
+        if track == "E01":
+            axes["statistical_projections"] = (8, 16, 32, 64)
         if track == "E07":
             axes["statistical_projections"] = (8, 16, 32, 64)
         if track == "E09":
@@ -95,7 +97,8 @@ def _grid(spec) -> dict[str, tuple]:
         if track == "E12":
             axes |= {"growth_width": (8, 16, 32, 64),
                      "growth_trial_steps": (10, 25, 50, 100),
-                     "growth_parameter_penalty": (0., .0001, .001, .01)}
+                     "growth_parameter_penalty": (0., .0001, .001, .01),
+                     "lr": (.0001, .001, .003, .01, .03)}
         if track == "E13":
             axes["lr"] = (.00001, .00003, .0001, .0003, .001)
     else:
