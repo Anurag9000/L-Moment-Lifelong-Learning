@@ -27,7 +27,12 @@ def _objective(run_id: str, metrics: dict[str, Any]) -> tuple[float, str]:
         return number(metrics.get("separation_ratio"), "separation_ratio")
     if run_id in ("O-E02", "O-E05"):
         return number((metrics.get("scoring") or {}).get("ari"), "scoring.ari")
-    if run_id in ("O-E03", "O-E04", "O-E14"):
+    if run_id == "O-E04":
+        old, new = metrics.get("old_accuracy"), metrics.get("new_accuracy")
+        if not isinstance(old, (int, float)) or not isinstance(new, (int, float)):
+            raise ValueError(f"{run_id}: missing old/new validation accuracy")
+        return number((float(old) + float(new)) / 2.0, "balanced old/new accuracy")
+    if run_id in ("O-E03", "O-E14"):
         accuracy = metrics.get("accuracy")
         if isinstance(accuracy, dict):
             accuracy = accuracy.get("accuracy")
@@ -67,8 +72,14 @@ def _objective(run_id: str, metrics: dict[str, Any]) -> tuple[float, str]:
         return number(nested.get("ari_covered"), "validation scoring-half ari_covered")
     if run_id in ("A-E03-GCD", "A-E03-NCD", "A-E04"):
         last = (metrics.get("sessions") or [{}])[-1]
-        key = "novel_accuracy" if run_id == "A-E03-NCD" else "all_accuracy"
-        return number(last.get(key), f"sessions[-1].{key}")
+        if run_id == "A-E03-NCD":
+            return number(last.get("novel_accuracy"), "sessions[-1].novel_accuracy")
+        if run_id in ("A-E03-GCD", "A-E04"):
+            old, novel = last.get("old_accuracy"), last.get("novel_accuracy")
+            if not isinstance(old, (int, float)) or not isinstance(novel, (int, float)):
+                raise ValueError(f"{run_id}: missing old/novel validation accuracy")
+            return number((float(old) + float(novel)) / 2.0,
+                          "balanced old/novel accuracy")
     if run_id == "A-E06":
         return number(metrics.get("scoring_ari"), "scoring_ari")
     if run_id == "A-E07":
@@ -98,6 +109,9 @@ def _grid(spec) -> dict[str, tuple]:
         if track in ("E03", "E04", "E14"):
             axes |= {"lr": (.0001, .0003, .001, .003, .01),
                      "training_steps": (25, 50, 100, 200)}
+            axes["batch_size"] = (16, 32, 64, 128)
+        if track == "E04":
+            axes["memory_bytes"] = (16384, 32768, 65536, 131072, 262144)
         if track == "E14":
             axes |= {"discovery_radius": (.25, .4, .6, .9, 1.2),
                      "candidate_radius_factor": (1., 1.5, 2., 3.),
@@ -121,12 +135,14 @@ def _grid(spec) -> dict[str, tuple]:
         if track == "E10":
             axes |= {"memory_bytes": (16384, 32768, 65536, 131072, 262144),
                      "training_steps": (25, 50, 100, 200),
-                     "lr": (.0003, .001, .003, .01, .03)}
+                     "lr": (.0003, .001, .003, .01, .03),
+                     "batch_size": (16, 32, 64, 128)}
         if track == "E11":
             axes |= {"drift_window": (8, 16, 32, 64),
                      "statistical_projections": (8, 16, 32, 64),
                      "lr": (.001, .01, .03, .06, .1),
-                     "loss_quantile": (.8, .9, .95, .99)}
+                     "loss_quantile": (.8, .9, .95, .99),
+                     "batch_size": (16, 32, 64, 128)}
         if track == "E12":
             axes |= {"growth_width": (8, 16, 32, 64),
                      "growth_trial_steps": (10, 25, 50, 100),
@@ -134,13 +150,15 @@ def _grid(spec) -> dict[str, tuple]:
                      "drift_window": (8, 16, 32, 64),
                      "statistical_projections": (8, 16, 32, 64),
                      "growth_parameter_penalty": (0., .0001, .001, .01),
-                     "lr": (.0001, .001, .003, .01, .03)}
+                     "lr": (.0001, .001, .003, .01, .03),
+                     "batch_size": (16, 32, 64, 128)}
         if track == "E13":
             axes |= {"lr": (.00001, .00003, .0001, .0003, .001),
                      "memory_bytes": (16384, 32768, 65536, 131072, 262144),
                      "feature_ssl_anchor_weight": (0., .1, .25, .5, 1.),
                      "feature_ssl_shape_weight": (0., .01, .05, .1, .25),
-                     "training_steps": (25, 50, 100, 200)}
+                     "training_steps": (25, 50, 100, 200),
+                     "batch_size": (16, 32, 64, 128)}
     else:
         track = spec.track
         if track in ("E02", "E05"):
@@ -158,6 +176,7 @@ def _grid(spec) -> dict[str, tuple]:
                      "gcd_consistency_weight": (0., .025, .1, .25, .5),
                      "gcd_preservation_weight": (0., .01, .05, .1, .25)}
             axes["memory_bytes"] = (16384, 32768, 65536, 131072, 262144)
+            axes["batch_size"] = (16, 32, 64, 128)
         if track in ("E01", "E07", "E09"):
             axes |= {"distribution_shrinkage": (0., .1, 1., 5., 10., 25.),
                      "distribution_min_scale": (.001, .005, .01, .02, .05, .1)}
@@ -171,12 +190,14 @@ def _grid(spec) -> dict[str, tuple]:
             axes |= {"memory_bytes": (16384, 32768, 65536, 131072, 262144),
                      "training_steps": (25, 50, 100, 200),
                      "replay_ratio": (.2, .35, .5, .65, .8),
-                     "lr": (.0003, .001, .003, .01, .03)}
+                     "lr": (.0003, .001, .003, .01, .03),
+                     "batch_size": (16, 32, 64, 128)}
         if track == "E11":
             axes |= {"drift_window": (8, 16, 32, 64),
                      "statistical_projections": (8, 16, 32, 64),
                      "loss_quantile": (.8, .9, .95, .99),
-                     "training_steps": (25, 50, 100, 200)}
+                     "training_steps": (25, 50, 100, 200),
+                     "batch_size": (16, 32, 64, 128)}
     return axes
 
 

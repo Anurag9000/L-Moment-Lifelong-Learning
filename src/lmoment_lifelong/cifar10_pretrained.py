@@ -287,7 +287,9 @@ def load_cifar10_features(cache_root, *, seed=0, train_per_class=4500,
         test_per_class=test_per_class, dataset=dataset)
     split = {"seed": seed, "train_indices": train_ids.tolist(), "val_indices": val_ids.tolist(),
              "validation_indices": val_ids.tolist(),
-             "test_indices": test_ids.tolist(), "dataset_version": f"torchvision.{dataset.upper()}",
+             "test_indices": test_ids.tolist(),
+             "dataset_version": ("torchvision.CIFAR10" if dataset == "cifar10"
+                                 else "STL-10 labeled train/test partitions"),
              "feature_cache": str(root), "backbone": MODEL_ID,
              "backbone_revision": metadata["resolved_model_commit"]}
     (train_features, val_features, test_features) = _project_splits(
@@ -330,7 +332,13 @@ def load_corrupted_features(cache_root, split, *, partition="test", feature_dim=
             values = values[split["test_indices"]]
     else:
         filename = "corrupted_test.npy" if partition == "test" else "corrupted_validation.npy"
-        path = root / "projections" / f"seed{split['seed']}_k{feature_dim}_whiten{int(whiten)}" / filename
+        split_digest = hashlib.sha256(
+            np.asarray(split["train_indices"], dtype=np.int64).tobytes()
+            + np.asarray(split["val_indices"], dtype=np.int64).tobytes()
+            + np.asarray(split["test_indices"], dtype=np.int64).tobytes()).hexdigest()[:12]
+        folder = (f"seed{split['seed']}_split{split_digest}_k{feature_dim}"
+                  f"_whiten{int(whiten)}")
+        path = root / "projections" / folder / filename
         values = np.load(path, mmap_mode="r")
     values = np.asarray(values, dtype=np.float32).copy()
     if normalize:

@@ -548,39 +548,67 @@ def _cluster_with_known_anchors(x, anchors, n_clusters, seed):
 
 
 def study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=False,
-              lr=.01, steps=50, validation=None):
-    """Labeled base and mixed unlabeled current data; no unseen truth to learner.
+              lr=.01, steps=50, validation=None, memory_bytes=65536,
+              batch_size=512, device=None):
+    """Train GCD jointly or as strict sessions with bounded feature replay.
 
     The experiment scheduler uses labels ONLY to construct allowed sessions.
     Class count of 10 (or stage-specific count) is an explicit oracle setting.
     """
     from .discovery import gcd_pseudolabel_weights
+    from .continual_algorithms import FixedByteReplay
     base_mask = ty < known
     base_x, base_y = tx[base_mask], ty[base_mask]
-    anchors = {k: base_x[base_y == k].mean(0) for k in range(known)}
-    classifier = train_head(base_x, base_y, seed, steps=steps, lr=lr, classes=10)
+    classifier = train_head(base_x, base_y, seed, steps=steps, lr=lr, classes=10,
+                            batch_size=batch_size, class_balanced=continual, device=device)
     if validation is None:
         raise ValueError("GCD evaluation alignment requires independent validation features")
     validation_x, validation_y = validation
     stage_metrics = []
     stages = [known + 2, 10] if continual else [10]
+    replay = FixedByteReplay(memory_bytes, seed=seed, method="reservoir") if continual else None
+    if replay is not None:
+        replay.update(base_x, base_y)
+        # The full labeled initialization partition is no longer retained by
+        # the continual learner after its bounded replay sample is selected.
+        del base_x, base_y, base_mask
+    previous_cutoff = known
     for stage_num, class_cutoff in enumerate(stages):
-        # Session boundaries and class eligibility are evaluator-built.
-        # The learner receives ONLY x; never these dataset labels.
-        available_x = tx[ty < class_cutoff]
-        pseudo, anchors = _cluster_with_known_anchors(available_x, anchors,
-                                                       class_cutoff, seed + stage_num)
-        weights = np.ones(len(available_x))
-        if variant == "lmoment":
-            weights = gcd_pseudolabel_weights(available_x, pseudo,
-                                               weights, seed=seed + stage_num)
-        # The supervised base can be replayed as explicitly permitted labeled anchors.
-        # No novel-class labels are used.
-        train_x = np.concatenate([available_x, base_x])
-        train_y = np.concatenate([pseudo, base_y])
-        train_weights = np.concatenate([weights, np.ones(len(base_y))])
+        if continual:
+            # Only newly arriving classes enter the stream. Historical features
+            # are available solely through the fixed-byte replay buffer.
+            current_mask = (ty >= previous_cutoff) & (ty < class_cutoff)
+            current_x = tx[current_mask]
+            new_count = class_cutoff - previous_cutoff
+            if len(current_x) < new_count:
+                raise ValueError("Continual GCD session has fewer samples than new classes")
+            clusters = KMeans(n_clusters=new_count, n_init=10,
+                              random_state=seed + stage_num).fit(current_x)
+            pseudo = previous_cutoff + clusters.labels_.astype(int)
+            replay_x, replay_y = replay.replay()
+            weights = np.ones(len(current_x), dtype=np.float64)
+            if variant == "lmoment":
+                weights = gcd_pseudolabel_weights(current_x, pseudo, weights,
+                                                   seed=seed + stage_num)
+            train_x = np.concatenate([replay_x, current_x])
+            train_y = np.concatenate([replay_y, pseudo])
+            train_weights = np.concatenate([np.ones(len(replay_y)), weights])
+        else:
+            # Joint GCD retains its mixed known/novel unlabeled pool protocol.
+            anchors = {k: base_x[base_y == k].mean(0) for k in range(known)}
+            current_x = tx[ty < class_cutoff]
+            pseudo, anchors = _cluster_with_known_anchors(current_x, anchors,
+                                                           class_cutoff, seed + stage_num)
+            weights = np.ones(len(current_x))
+            if variant == "lmoment":
+                weights = gcd_pseudolabel_weights(current_x, pseudo, weights,
+                                                   seed=seed + stage_num)
+            train_x = np.concatenate([current_x, base_x])
+            train_y = np.concatenate([pseudo, base_y])
+            train_weights = np.concatenate([weights, np.ones(len(base_y))])
         classifier = train_head(train_x, train_y, seed + stage_num, steps=steps, lr=lr,
-                                weights=train_weights, classes=10, init=classifier)
+                                weights=train_weights, classes=10, init=classifier,
+                                class_balanced=continual, batch_size=batch_size, device=device)
         val_mask = validation_y < class_cutoff
         score_mask = vy < class_cutoff
         validation_raw = predict_head(classifier, validation_x[val_mask])
@@ -590,11 +618,34 @@ def study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=False,
         score_truth = vy[score_mask]
         per_class = {str(k): float(np.mean(score_aligned[score_truth == k] == k))
                      for k in range(class_cutoff) if np.any(score_truth == k)}
+        old_ids = range(previous_cutoff)
+        new_ids = range(previous_cutoff, class_cutoff)
+        old_accuracy = float(np.mean([per_class[str(k)] for k in old_ids
+                                      if str(k) in per_class]))
+        new_accuracy = float(np.mean([per_class[str(k)] for k in new_ids
+                                      if str(k) in per_class]))
+        replay_state = None
+        if continual:
+            replay.update(current_x, pseudo)
+            replay_labels, replay_counts = np.unique(replay.y, return_counts=True)
+            replay_state = {"budget_bytes": int(memory_bytes),
+                "stored_bytes": replay.stored_bytes, "stored_samples": len(replay.y),
+                "class_counts": {str(int(k)): int(v)
+                                 for k, v in zip(replay_labels, replay_counts)}}
         stage_metrics.append({"session": stage_num + 1, "seen_classes": int(class_cutoff),
+            "previous_seen_classes": int(previous_cutoff),
+            "new_class_ids": list(range(previous_cutoff, class_cutoff)),
+            "pseudo_cluster_to_session_class": {str(k): previous_cutoff + k
+                                                for k in range(class_cutoff - previous_cutoff)},
+            "session_new_sample_count": int(len(current_x)),
+            "strict_new_class_session": bool(continual),
+            "replay_buffer": replay_state,
             "validation_alignment": {str(k): int(v) for k, v in alignment.items()},
             "validation_accuracy": float(np.mean(np.asarray([
                 alignment.get(int(p), -1) for p in validation_raw]) == validation_y[val_mask])),
             "accuracy": {"accuracy": float(np.mean(score_aligned == score_truth)),
+                         "old_accuracy": old_accuracy, "new_accuracy": new_accuracy,
+                         "old_class_ids": list(old_ids), "new_class_ids": list(new_ids),
                          "per_class_accuracy": per_class,
                          "confusion_matrix": classification_artifacts(
                              score_truth, score_aligned,
@@ -607,14 +658,19 @@ def study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=False,
             "scoring_predictions_aligned": score_aligned.tolist(),
             "validation_labels": validation_y[val_mask].astype(int).tolist(),
             "validation_predictions_raw_ids": validation_raw.astype(int).tolist()})
+        previous_cutoff = class_cutoff
     # Copy the final accuracy mapping: stage_metrics retains its original dict.
     # Updating that dict in place would insert stage_metrics into itself, causing
     # a circular JSON reference in E03/E04/E14 result artifacts.
     last = dict(stage_metrics[-1]["accuracy"])
     last.update({"oracle_global_k": 10, "known_training_labels": known,
                  "continual_sessions": len(stages), "stage_metrics": stage_metrics,
-                 "unlabeled_pool_contains_known_classes": True,
-                 "labelled_base_replay": True, "_checkpoint": classifier.state_dict()})
+                 "unlabeled_pool_contains_known_classes": not continual,
+                 "labelled_base_replay": True,
+                 "continual_protocol": ("strict_new_class_sessions_bounded_feature_replay"
+                                        if continual else "joint_mixed_unlabeled_pool"),
+                 "memory_budget_bytes": int(memory_bytes) if continual else None,
+                 "_checkpoint": classifier.state_dict()})
     return last
 
 
@@ -769,7 +825,8 @@ def study_hierarchy(tx, ty, vx, vy, variant, seed, parents=3, validation=None,
     return output
 
 
-def study_replay(tx, ty, vx, vy, variant, seed, budget_bytes=65536, steps=75, lr=.01):
+def study_replay(tx, ty, vx, vy, variant, seed, budget_bytes=65536, steps=75,
+                 lr=.01, batch_size=512, device=None):
     rng = np.random.default_rng(seed)
     base = ty < 5
     old_x, old_y = tx[base], ty[base]
@@ -778,7 +835,7 @@ def study_replay(tx, ty, vx, vy, variant, seed, budget_bytes=65536, steps=75, lr
     if capacity < 5:
         raise ValueError("E10 byte budget must retain at least one example per old class")
     model0 = train_head(old_x, old_y, seed, steps=steps, lr=lr, classes=10,
-                        class_balanced=True)
+                        class_balanced=True, batch_size=batch_size, device=device)
     if variant == "lmoment":
         # Greedy shape-coverage selection under an exact byte budget.
         chosen = []
@@ -805,7 +862,7 @@ def study_replay(tx, ty, vx, vy, variant, seed, budget_bytes=65536, steps=75, lr
     all_x = np.concatenate([new_x, old_x[ids]])
     all_y = np.concatenate([new_y, old_y[ids]])
     model = train_head(all_x, all_y, seed, steps=steps, lr=lr, init=model0, classes=10,
-                       class_balanced=True)
+                       class_balanced=True, batch_size=batch_size, device=device)
     old_test = vy < 5
     before_prediction = predict_head(model0, vx[old_test])
     test_prediction = predict_head(model, vx)
@@ -1339,7 +1396,8 @@ def run_study(track, variant, tx, ty, vx, vy, cfg, validation=None, shifted=None
     if track in ("E03", "E04"):
         return study_gcd(tx, ty, vx, vy, variant, cfg.seed, cfg.known_classes,
                          track == "E04", lr=cfg.lr, steps=cfg.training_steps,
-                         validation=validation)
+                         validation=validation, memory_bytes=cfg.memory_bytes,
+                         batch_size=cfg.batch_size, device=_device(cfg.device))
     if track == "E06":
         return study_structure(tx, ty, vx, vy, validation, variant, cfg.seed,
                                split_penalty=cfg.split_penalty,
@@ -1369,7 +1427,8 @@ def run_study(track, variant, tx, ty, vx, vy, cfg, validation=None, shifted=None
                 "note": "Frozen-feature class-statistics comparator"}
     if track == "E10":
         return study_replay(tx, ty, vx, vy, variant, cfg.seed, budget_bytes=cfg.memory_bytes,
-                            steps=cfg.training_steps, lr=cfg.lr)
+                            steps=cfg.training_steps, lr=cfg.lr,
+                            batch_size=cfg.batch_size, device=_device(cfg.device))
     if track == "E11":
         if validation is None:
             raise ValueError("Task-free adaptation requires independent validation features")
