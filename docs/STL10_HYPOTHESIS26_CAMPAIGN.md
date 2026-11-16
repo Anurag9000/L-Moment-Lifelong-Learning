@@ -28,14 +28,14 @@ From the repository root, after installing the project's vision dependencies:
 
 ```bash
 python -m lmoment_lifelong.cifar10_tuning \
-  --dataset stl10 --train-per-class 400 --screen-train-per-class 100 --val-per-class 100 \
+  --dataset stl10 --train-per-class 400 --screen-train-per-class 20 --val-per-class 100 \
   --test-per-class 800 --batch-size 64 --device cuda \
   --extraction-microbatch 4 --download --max-rounds 20 \
-  --output-root results/stl10_hypothesis26_multifidelity_v3
+  --output-root results/stl10_hypothesis26_multifidelity_v4
 ```
 
 The tuner screens the representation settings and track-specific hyperparameter
-axes with 100 training examples per class, coordinate-refines each selected
+axes with 20 training examples per class, coordinate-refines each selected
 configuration, then confirms the top three candidates with 400 training
 examples per class. It records the
 validation objective for both variants and their paired difference. It evaluates

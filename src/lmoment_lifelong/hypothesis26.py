@@ -71,7 +71,7 @@ assert len(RUNS) == 26 and len({s.id for s in RUNS}) == 26
 class Options:
     dataset: str = "stl10"
     batch_size: int = BATCH_SIZE
-    screen_train_per_class: int = 100
+    screen_train_per_class: int = 20
     seed: int = DEFAULT_SEED
     output_root: str = "results/stl10_hypothesis26_dinov2"
     data_root: str = "datasets"
@@ -475,7 +475,7 @@ def main(argv=None) -> int:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--dataset", choices=("cifar10", "stl10"), default="stl10")
     parser.add_argument("--batch-size", type=int, default=64)
-    parser.add_argument("--screen-train-per-class", type=int, default=100)
+    parser.add_argument("--screen-train-per-class", type=int, default=20)
     parser.add_argument("--data-root", default="datasets")
     parser.add_argument("--output-root", default="results/stl10_hypothesis26_dinov2")
     parser.add_argument("--train-per-class", type=int, default=400)

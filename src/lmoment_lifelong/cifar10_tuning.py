@@ -181,9 +181,14 @@ def _candidate_key(values: dict[str, Any]) -> str:
     return hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()[:12]
 
 
-def _valid_feature_config(values: dict[str, Any]) -> bool:
+def _valid_feature_config(values: dict[str, Any], max_components: int | None = None) -> bool:
     # DINOv2-base features have 768 raw dimensions; PCA whitening needs k < 768.
-    return not values.get("pca_whiten", False) or int(values.get("feature_dim", 768)) < 768
+    dimension = int(values.get("feature_dim", 768))
+    if values.get("pca_whiten", False) and dimension >= 768:
+        return False
+    if max_components is not None and dimension != 768 and dimension > max_components:
+        return False
+    return True
 
 
 def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
@@ -265,7 +270,7 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
                     candidate = {"feature_dim": dimension,
                                  "pca_whiten": whiten,
                                  "l2_normalize": normalize}
-                    if _valid_feature_config(candidate):
+                    if _valid_feature_config(candidate, base.screen_train_per_class * 10):
                         screen.append(candidate)
         for field, values in axes.items():
             if field in ("feature_dim", "pca_whiten", "l2_normalize"):
@@ -290,7 +295,7 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
                 neighborhood = []
                 for value in values:
                     candidate = dict(current); candidate[field] = value
-                    if not _valid_feature_config(candidate):
+                    if not _valid_feature_config(candidate, base.screen_train_per_class * 10):
                         continue
                     record = evaluate(spec, candidate, f"coordinate_{round_index}_{field}")
                     if record.get("status") == "completed":
@@ -375,7 +380,7 @@ def main(argv=None) -> int:
     parser.add_argument("--dataset", choices=("cifar10", "stl10"), default="stl10")
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--train-per-class", type=int, default=400)
-    parser.add_argument("--screen-train-per-class", type=int, default=100)
+    parser.add_argument("--screen-train-per-class", type=int, default=20)
     parser.add_argument("--val-per-class", type=int, default=100)
     parser.add_argument("--test-per-class", type=int, default=800)
     parser.add_argument("--output-root", default="results/stl10_hypothesis26_multifidelity")
