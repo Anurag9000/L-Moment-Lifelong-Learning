@@ -54,3 +54,7 @@ A five-seed distribution-shape power study with n=64 and matched population mean
 ## CIFAR-10 reference layer (additional, not research closure)
 
 A separately documented `lmoment-cifar10` runner supplies baseline and L-moment reference variants for E01--E14 on actual CIFAR-10 images, with optional encoder training, model snapshots, split manifests and saved comparisons. Its components are an experimental starting point, not completed published-method reproductions or all 141 planned families. See `docs/CIFAR10_REMAINING.md` for track-by-track limitations. CIFAR-10 execution and GPU performance results are **not** claimed by this code addition.
+
+## Metric correction
+
+`cluster_accuracy` and `cluster_scores` now treat prediction `-1` as abstention rather than a cluster, report coverage and covered-only accuracy separately, and penalize abstention in full-stream accuracy. Older synthetic clustering scores computed under the previous policy should be regenerated before comparison.
