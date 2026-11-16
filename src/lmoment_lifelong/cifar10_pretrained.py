@@ -81,10 +81,22 @@ def prepare_cifar10_cache(data_root, cache_root, *, device="cuda", batch_size=16
         raw_test = Dataset(data_root, train=False, download=download, transform=None)
         train_images, test_images = raw_train.data, raw_test.data
     elif dataset == "stl10":
-        raw_train = Dataset(data_root, split="train", download=download, transform=None)
-        raw_test = Dataset(data_root, split="test", download=download, transform=None)
-        train_images = np.transpose(raw_train.data, (0, 2, 3, 1))
-        test_images = np.transpose(raw_test.data, (0, 2, 3, 1))
+        binary_root = Path(data_root) / "stl10_binary"
+        required = [binary_root / f"{part}_{suffix}.bin"
+                    for part in ("train", "test") for suffix in ("X", "y")]
+        if all(path.is_file() for path in required):
+            class BinaryPartition:
+                def __init__(self, part):
+                    self.data = np.fromfile(binary_root / f"{part}_X.bin", dtype=np.uint8)
+                    self.data = self.data.reshape(-1, 3, 96, 96).transpose(0, 2, 3, 1)
+                    self.labels = np.fromfile(binary_root / f"{part}_y.bin", dtype=np.uint8).astype(np.int64) - 1
+                    if len(self.data) != (5000 if part == "train" else 8000) or len(self.labels) != len(self.data):
+                        raise ValueError(f"Incomplete STL-10 {part} binary partition")
+            raw_train, raw_test = BinaryPartition("train"), BinaryPartition("test")
+        else:
+            raw_train = Dataset(data_root, split="train", download=download, transform=None)
+            raw_test = Dataset(data_root, split="test", download=download, transform=None)
+        train_images, test_images = raw_train.data, raw_test.data
     else:
         raise ValueError("dataset must be cifar10 or stl10")
     train_labels = getattr(raw_train, "targets", getattr(raw_train, "labels", None))

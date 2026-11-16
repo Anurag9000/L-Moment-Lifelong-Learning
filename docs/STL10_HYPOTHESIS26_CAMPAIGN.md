@@ -5,7 +5,10 @@ implemented tracks on a shared, frozen DINOv2 ViT-B/14 embedding cache.
 
 ## Data and protocol
 
-- Dataset: torchvision STL-10 labeled `train` and `test` partitions.
+- Dataset: STL-10 labeled `train` and `test` partitions in torchvision's binary
+  layout. If Stanford's dataset host is unreachable, use
+  `scripts/prepare_stl10_hf_mirror.py` on the Hugging Face `tanganke/stl10`
+  parquet files; it records source checksums and verifies class counts.
 - Per class: 400 train, 100 validation (all 500 official labeled train images),
   and 800 final test images (the full official test partition).
 - The validation set is split into disjoint development and scoring halves for
