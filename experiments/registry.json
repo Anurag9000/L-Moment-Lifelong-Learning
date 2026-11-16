@@ -74,5 +74,31 @@
     "numerical_results": "none_committed_as_of_creation",
     "integration_workflow": ".github/workflows/cifar10_integration.yml",
     "artifact_retention_days": 30
+  },
+  "advanced_cifar10_reference": {
+    "tracks": [
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E05",
+      "E06",
+      "E07",
+      "E08",
+      "E09",
+      "E10",
+      "E11"
+    ],
+    "trainable_gcd_modes": [
+      "ncd",
+      "gcd",
+      "continual_gcd"
+    ],
+    "implementation": "reference_algorithms",
+    "cifar10_evaluation_status": "no_full_real_dataset_multi_seed_evidence",
+    "complete_research_families": 0,
+    "planned_research_families": 141,
+    "original_paper_reproductions": false,
+    "family_ledger": "experiments/research_families.json"
   }
 }

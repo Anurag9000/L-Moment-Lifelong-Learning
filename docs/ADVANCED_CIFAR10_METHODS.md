@@ -78,3 +78,7 @@ retains only per-class mean/scale parameters, and fits class 5–9 in a later
 session without re-supplying old examples. Stage-wise old/new accuracy and
 statistics-memory bytes are recorded. The encoder is frozen for these fits;
 this does not establish full trainable-backbone exemplar-free CIL.
+
+## Image-space NCD/GCD/C-GCD reference path (E03/E04)
+
+`lmoment-cifar10-advanced --track E03 --gcd-mode ncd --download` runs novel-only NCD, `--gcd-mode gcd` runs mixed known/new GCD, and `--track E04` runs two-session continual GCD. The code trains both encoder and classifier after known-class initialization, using unlabeled pseudo-cluster targets, consistency and historical preservation losses. A validation-only mapping aligns cluster IDs for test reporting. The proposed path uses **oracle K** and is not an official SimGCD or DYDM reproduction. Feature-only reference tracks use common `baseline` and `lmoment` result keys.

@@ -27,3 +27,7 @@ runs; exact memory/compute; automatic resume/checkpoint; progress accounting;
 ImageNet confirmation; and reliable quantitative negative/positive results.
 None of the research outcomes is guaranteed. No CIFAR-10 numerical results are
 included unless the real dataset has actually been executed.
+
+## Added trainable GCD (reference, incomplete)
+
+E03 NCD/GCD and E04 two-session continual GCD now have actual neural image training, pseudo-label consistency, distribution preservation, individual checkpoints, held-out validation and paired comparison outputs via `lmoment-cifar10-advanced`. Full official baseline reproduction, unknown-K learning, strong long-horizon protocols, full 141-family sweep and actual CIFAR-10 multi-seed evidence remain unfinished.

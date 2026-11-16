@@ -78,3 +78,5 @@ E01/E02/E05/E06/E07/E08/E09/E10/E11 candidate methods. See
 [advanced mechanisms and limitations](docs/ADVANCED_CIFAR10_METHODS.md) and
 the [141-family implementation/evidence ledger](experiments/research_families.json).
 All families in that ledger remain research-incomplete until demonstrated.
+
+The extended runner now supports image-space trainable E03 NCD/GCD (`--gcd-mode ncd|gcd`) and E04 two-session continual GCD, with validation-fixed comparisons. These are reproducible **reference** algorithms, not official SimGCD/DYDM reproductions.
