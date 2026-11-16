@@ -6,10 +6,13 @@ on:
       - "src/lmoment_lifelong/research_algorithms.py"
       - "src/lmoment_lifelong/continual_algorithms.py"
       - "src/lmoment_lifelong/cifar10_advanced.py"
+      - "src/lmoment_lifelong/cifar10_advanced_sweep.py"
+      - "src/lmoment_lifelong/cifar10_report.py"
       - "src/lmoment_lifelong/gcd_training.py"
       - "tests/test_research_algorithms.py"
       - "tests/test_continual_algorithms.py"
       - "tests/test_cifar10_advanced.py"
+      - "tests/test_cifar10_advanced_sweep.py"
       - "tests/test_gcd_training.py"
       - ".github/workflows/cifar10_advanced.yml"
   workflow_dispatch:
@@ -24,4 +27,4 @@ jobs:
           python-version: "3.12"
       - run: pip install --upgrade pip
       - run: pip install -e '.[cifar10,dev]'
-      - run: OMP_NUM_THREADS=2 python -m pytest -q tests/test_research_algorithms.py tests/test_continual_algorithms.py tests/test_cifar10_advanced.py tests/test_gcd_training.py
+      - run: OMP_NUM_THREADS=2 python -m pytest -q tests/test_research_algorithms.py tests/test_continual_algorithms.py tests/test_cifar10_advanced.py tests/test_gcd_training.py tests/test_cifar10_advanced_sweep.py

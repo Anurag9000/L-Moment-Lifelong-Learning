@@ -80,3 +80,5 @@ the [141-family implementation/evidence ledger](experiments/research_families.js
 All families in that ledger remain research-incomplete until demonstrated.
 
 The extended runner now supports image-space trainable E03 NCD/GCD (`--gcd-mode ncd|gcd`) and E04 two-session continual GCD, with validation-fixed comparisons. These are reproducible **reference** algorithms, not official SimGCD/DYDM reproductions.
+
+Run `lmoment-cifar10-advanced-sweep --tracks E03 E04 E09 E10 --seeds 0 1 2 3 4 --download` for matched advanced-reference replications, then `lmoment-cifar10-report --root results/cifar10_advanced --output results/cifar10_advanced/summary.csv`. The reporter groups by configuration and includes per-session metrics rather than mixing different experiments.

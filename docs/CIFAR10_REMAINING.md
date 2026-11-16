@@ -31,3 +31,5 @@ included unless the real dataset has actually been executed.
 ## Added trainable GCD (reference, incomplete)
 
 E03 NCD/GCD and E04 two-session continual GCD now have actual neural image training, pseudo-label consistency, distribution preservation, individual checkpoints, held-out validation and paired comparison outputs via `lmoment-cifar10-advanced`. Full official baseline reproduction, unknown-K learning, strong long-horizon protocols, full 141-family sweep and actual CIFAR-10 multi-seed evidence remain unfinished.
+
+The advanced sweep and reporting infrastructure are implemented. Full CIFAR-10 multi-seed runs and all 141 individual family-level experiments are still not verified. Stage metrics and hyperparameter strata are preserved separately in summary.csv.

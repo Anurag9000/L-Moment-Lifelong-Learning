@@ -82,3 +82,22 @@ this does not establish full trainable-backbone exemplar-free CIL.
 ## Image-space NCD/GCD/C-GCD reference path (E03/E04)
 
 `lmoment-cifar10-advanced --track E03 --gcd-mode ncd --download` runs novel-only NCD, `--gcd-mode gcd` runs mixed known/new GCD, and `--track E04` runs two-session continual GCD. The code trains both encoder and classifier after known-class initialization, using unlabeled pseudo-cluster targets, consistency and historical preservation losses. A validation-only mapping aligns cluster IDs for test reporting. The proposed path uses **oracle K** and is not an official SimGCD or DYDM reproduction. Feature-only reference tracks use common `baseline` and `lmoment` result keys.
+
+## Multi-seed advanced runs and configuration-safe comparisons
+
+```bash
+lmoment-cifar10-advanced-sweep --tracks E01 E02 E03 E04 E05 E06 E07 E08 E09 E10 E11 \
+  --seeds 0 1 2 3 4 --download --samples-per-class 200 --dry-run
+lmoment-cifar10-advanced-sweep --tracks E03 E04 E09 E10 \
+  --seeds 0 1 2 3 4 --download --samples-per-class 200
+lmoment-cifar10-report --root results/cifar10_advanced \
+  --output results/cifar10_advanced/summary.csv
+```
+
+The sweep preserves configuration-derived immutable per-seed results and logs.
+It detects prior complete results, refuses to overwrite incomplete output
+directories, and records failed attempts. The reporter now traverses stage-wise
+metrics and groups only equal hyperparameter configurations, excluding runtime
+paths and seed from the grouping key. Every paired difference is calculated
+inside a matched run before averaging. All these are **reference** comparisons,
+not verified research conclusions.
