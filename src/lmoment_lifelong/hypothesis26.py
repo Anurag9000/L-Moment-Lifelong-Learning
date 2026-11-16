@@ -381,7 +381,9 @@ def run_jobs(specs: list[RunSpec], opt: Options, *, dry_run=False,
         _PREPARED_CACHES.add(cache_key)
     from .cifar10_pretrained import quality_filename
     quality_path = Path(opt.feature_cache_root) / quality_filename(
-        opt.feature_dim, opt.pca_whiten, opt.l2_normalize)
+        opt.feature_dim, opt.pca_whiten, opt.l2_normalize, dataset=opt.dataset,
+        train_per_class=opt.train_per_class, val_per_class=opt.val_per_class,
+        test_per_class=opt.test_per_class)
     if cache_quality is None:
         cache_quality = json.loads(quality_path.read_text()) if quality_path.exists() else {}
     if quality_path.exists():

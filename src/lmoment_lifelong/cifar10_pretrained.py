@@ -13,8 +13,14 @@ MODEL_REVISION = "fed69336d31be0ed1883be4cd5ea0456fa3fdbac"
 FEATURE_SCHEMA = 1
 
 
-def quality_filename(feature_dim, whiten, normalize):
-    return f"quality_k{feature_dim}_whiten{int(whiten)}_l2{int(normalize)}.json"
+def quality_filename(feature_dim, whiten, normalize, *, dataset=None,
+                     train_per_class=None, val_per_class=None, test_per_class=None):
+    base = f"quality_k{feature_dim}_whiten{int(whiten)}_l2{int(normalize)}"
+    if dataset is not None:
+        base = (f"quality_{dataset}_train{train_per_class}_val{val_per_class}"
+                f"_test{test_per_class}_k{feature_dim}_whiten{int(whiten)}"
+                f"_l2{int(normalize)}")
+    return f"{base}.json"
 
 
 def _file_sha256(path):

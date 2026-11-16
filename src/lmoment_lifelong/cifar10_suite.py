@@ -1250,7 +1250,9 @@ def run(cfg: Config):
             vx, vy = val_x[validation_score_ids], val_y[validation_score_ids]
             val_x, val_y = val_x[development_ids], val_y[development_ids]
         quality_path = Path(cfg.feature_cache) / quality_filename(
-            cfg.feature_dim, cfg.pca_whiten, cfg.l2_normalize)
+            cfg.feature_dim, cfg.pca_whiten, cfg.l2_normalize, dataset=cfg.dataset,
+            train_per_class=cfg.samples_per_class, val_per_class=cfg.val_per_class,
+            test_per_class=cfg.test_per_class)
         feature_quality = json.loads(quality_path.read_text()) if quality_path.exists() else None
         if feature_quality is None:
             feature_quality = quality_report(cfg.feature_cache, seed=cfg.seed,
