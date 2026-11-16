@@ -148,6 +148,9 @@ def _config(spec: RunSpec, opt: Options):
                       growth_width=opt.growth_width,
                       growth_trial_steps=opt.growth_trial_steps,
                       growth_parameter_penalty=opt.growth_parameter_penalty,
+                      distribution_shrinkage=opt.distribution_shrinkage,
+                      distribution_min_scale=opt.distribution_min_scale,
+                      training_steps=opt.training_steps,
                       known_classes=5,
                       save_features=opt.save_features)
     from .cifar10_advanced import AdvancedConfig

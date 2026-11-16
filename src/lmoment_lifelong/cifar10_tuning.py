@@ -88,7 +88,6 @@ def _grid(spec) -> dict[str, tuple]:
         if track == "E10":
             axes |= {"memory_bytes": (16384, 32768, 65536, 131072, 262144),
                      "training_steps": (25, 50, 100, 200),
-                     "replay_ratio": (.2, .35, .5, .65, .8),
                      "lr": (.0003, .001, .003, .01, .03)}
         if track == "E11":
             axes |= {"drift_window": (8, 16, 32, 64),

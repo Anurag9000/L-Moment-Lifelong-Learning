@@ -70,6 +70,9 @@ class Config:
     growth_width: int = 16
     growth_trial_steps: int = 25
     growth_parameter_penalty: float = 0.0
+    distribution_shrinkage: float = 5.0
+    distribution_min_scale: float = 0.02
+    training_steps: int = 50
     known_classes: int = 5
     save_features: bool = False
 
@@ -1063,6 +1066,9 @@ def main(argv=None):
     p.add_argument("--growth-width", type=int, default=16)
     p.add_argument("--growth-trial-steps", type=int, default=25)
     p.add_argument("--growth-parameter-penalty", type=float, default=0.)
+    p.add_argument("--distribution-shrinkage", type=float, default=5.)
+    p.add_argument("--distribution-min-scale", type=float, default=.02)
+    p.add_argument("--training-steps", type=int, default=50)
     p.add_argument("--known-classes", type=int, default=5)
     p.add_argument("--save-features", action="store_true")
     args = p.parse_args(argv)
