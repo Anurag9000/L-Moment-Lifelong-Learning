@@ -28,7 +28,10 @@ def _objective(run_id: str, metrics: dict[str, Any]) -> tuple[float, str]:
     if run_id in ("O-E02", "O-E05"):
         return number((metrics.get("scoring") or {}).get("ari"), "scoring.ari")
     if run_id in ("O-E03", "O-E04", "O-E14"):
-        return number((metrics.get("accuracy") or {}).get("accuracy"), "accuracy.accuracy")
+        accuracy = metrics.get("accuracy")
+        if isinstance(accuracy, dict):
+            accuracy = accuracy.get("accuracy")
+        return number(accuracy, "accuracy")
     if run_id == "O-E06":
         return number(metrics.get("scoring_ari"), "scoring_ari")
     if run_id == "O-E07":
