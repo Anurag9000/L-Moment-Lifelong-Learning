@@ -1,4 +1,4 @@
-"""Shared, frozen DINOv2 features for the complete CIFAR-10 experiment suite."""
+"""Shared frozen DINOv2 features for CIFAR-10 and STL-10 experiment suites."""
 from __future__ import annotations
 
 import hashlib
@@ -25,21 +25,22 @@ def _file_sha256(path):
     return digest.hexdigest()
 
 
-def _torchvision():
+def _torchvision(dataset="cifar10"):
     try:
         import torch
-        from torchvision.datasets import CIFAR10
+        from torchvision.datasets import CIFAR10, STL10
         from PIL import Image
     except ImportError as exc:
-        raise RuntimeError("DINOv2 CIFAR features require the vision dependencies") from exc
-    return torch, CIFAR10, Image
+        raise RuntimeError("DINOv2 image features require the vision dependencies") from exc
+    return torch, (CIFAR10 if dataset == "cifar10" else STL10), Image
 
 
 def _dataset_digest(train, test) -> str:
     digest = hashlib.sha256()
     for dataset in (train, test):
         digest.update(np.asarray(dataset.data, dtype=np.uint8).tobytes())
-        digest.update(np.asarray(dataset.targets, dtype=np.int64).tobytes())
+        labels = getattr(dataset, "targets", getattr(dataset, "labels", None))
+        digest.update(np.asarray(labels, dtype=np.int64).tobytes())
     return digest.hexdigest()
 
 
@@ -66,24 +67,36 @@ def _extract(images, model, processor, *, torch, Image, device, batch_size, labe
 
 def prepare_cifar10_cache(data_root, cache_root, *, device="cuda", batch_size=16,
                           download=False, corruption_sigma=0.35, seed=0,
-                          val_per_class=500):
-    """Extract 50k train and 10k test embeddings once, plus paired corruption features."""
+                          val_per_class=500, dataset="cifar10"):
+    """Extract official labeled partition embeddings once, plus paired corruptions."""
     if batch_size < 1:
         raise ValueError("Extraction microbatch must be positive")
-    torch, CIFAR10, Image = _torchvision()
+    torch, Dataset, Image = _torchvision(dataset)
     try:
         from transformers import AutoImageProcessor, AutoModel
     except ImportError as exc:
         raise RuntimeError("Install the vision extra, including transformers, for DINOv2") from exc
-    raw_train = CIFAR10(data_root, train=True, download=download, transform=None)
-    raw_test = CIFAR10(data_root, train=False, download=download, transform=None)
+    if dataset == "cifar10":
+        raw_train = Dataset(data_root, train=True, download=download, transform=None)
+        raw_test = Dataset(data_root, train=False, download=download, transform=None)
+        train_images, test_images = raw_train.data, raw_test.data
+    elif dataset == "stl10":
+        raw_train = Dataset(data_root, split="train", download=download, transform=None)
+        raw_test = Dataset(data_root, split="test", download=download, transform=None)
+        train_images = np.transpose(raw_train.data, (0, 2, 3, 1))
+        test_images = np.transpose(raw_test.data, (0, 2, 3, 1))
+    else:
+        raise ValueError("dataset must be cifar10 or stl10")
+    train_labels = getattr(raw_train, "targets", getattr(raw_train, "labels", None))
+    test_labels = getattr(raw_test, "targets", getattr(raw_test, "labels", None))
     data_digest = _dataset_digest(raw_train, raw_test)
     root = Path(cache_root)
     root.mkdir(parents=True, exist_ok=True)
     metadata_path = root / "metadata.json"
-    expected = {"schema": FEATURE_SCHEMA, "model_id": MODEL_ID,
+    train_per_class, test_capacity = ((5000, 1000) if dataset == "cifar10" else (500, 800))
+    expected = {"schema": FEATURE_SCHEMA, "dataset": dataset, "model_id": MODEL_ID,
                 "model_revision": MODEL_REVISION, "dataset_sha256": data_digest,
-                "train_images": 50000, "test_images": 10000,
+                "train_images": len(train_images), "test_images": len(test_images),
                 "val_per_class": val_per_class,
                 "feature_type": "last_hidden_state_cls", "feature_normalization": "none",
                 "processor_resize_crop": "processor_defaults", "corruption_sigma": corruption_sigma,
@@ -115,35 +128,35 @@ def prepare_cifar10_cache(data_root, cache_root, *, device="cuda", batch_size=16
     test_tmp = root / ".test_features.tmp.npy"
     corrupt_tmp = root / ".corrupted_test_features.tmp.npy"
     corrupt_val_tmp = root / ".corrupted_validation_features.tmp.npy"
-    _extract(raw_train.data, model, processor, torch=torch, Image=Image, device=device,
+    _extract(train_images, model, processor, torch=torch, Image=Image, device=device,
              batch_size=batch_size, label=train_tmp)
-    _extract(raw_test.data, model, processor, torch=torch, Image=Image, device=device,
+    _extract(test_images, model, processor, torch=torch, Image=Image, device=device,
              batch_size=batch_size, label=test_tmp)
 
     rng = np.random.default_rng(seed)
-    corrupted = np.empty_like(raw_test.data)
-    for i, image in enumerate(raw_test.data):
+    corrupted = np.empty_like(test_images)
+    for i, image in enumerate(test_images):
         noise = rng.normal(0.0, corruption_sigma, size=image.shape)
         corrupted[i] = np.clip(
             np.rint((image.astype(np.float32) / 255.0 + noise) * 255),
             0, 255).astype(np.uint8)
     _extract(corrupted, model, processor, torch=torch, Image=Image, device=device,
              batch_size=batch_size, label=corrupt_tmp)
-    _, validation_ids, _ = split_indices(raw_train.targets, raw_test.targets,
-        seed=seed, train_per_class=5000-val_per_class, val_per_class=val_per_class,
-        test_per_class=1000)
-    corrupted_validation = np.empty((len(validation_ids), *raw_train.data.shape[1:]), dtype=np.uint8)
+    _, validation_ids, _ = split_indices(train_labels, test_labels,
+        seed=seed, train_per_class=train_per_class-val_per_class, val_per_class=val_per_class,
+        test_per_class=test_capacity, dataset=dataset)
+    corrupted_validation = np.empty((len(validation_ids), *train_images.shape[1:]), dtype=np.uint8)
     val_rng = np.random.default_rng(seed + 98317)
     for out_index, image_id in enumerate(validation_ids):
-        image = raw_train.data[image_id]
+        image = train_images[image_id]
         noise = val_rng.normal(0.0, corruption_sigma, size=image.shape)
         corrupted_validation[out_index] = np.clip(
             np.rint((image.astype(np.float32) / 255.0 + noise) * 255),
             0, 255).astype(np.uint8)
     _extract(corrupted_validation, model, processor, torch=torch, Image=Image,
              device=device, batch_size=batch_size, label=corrupt_val_tmp)
-    np.save(root / "train_labels.npy", np.asarray(raw_train.targets, dtype=np.int64))
-    np.save(root / "test_labels.npy", np.asarray(raw_test.targets, dtype=np.int64))
+    np.save(root / "train_labels.npy", np.asarray(train_labels, dtype=np.int64))
+    np.save(root / "test_labels.npy", np.asarray(test_labels, dtype=np.int64))
     train_tmp.replace(root / "train_features.npy")
     test_tmp.replace(root / "test_features.npy")
     corrupt_tmp.replace(root / "corrupted_test_features.npy")
@@ -165,10 +178,11 @@ def prepare_cifar10_cache(data_root, cache_root, *, device="cuda", batch_size=16
 
 
 def split_indices(train_labels, test_labels, *, seed=0, train_per_class=4500,
-                   val_per_class=500, test_per_class=1000):
-    """Match the reference CIFAR-10 stratified split exactly."""
-    if train_per_class + val_per_class > 5000 or not 1 <= test_per_class <= 1000:
-        raise ValueError("Requested split exceeds canonical CIFAR-10 sizes")
+                   val_per_class=500, test_per_class=1000, dataset="cifar10"):
+    """Deterministic stratified split within the official labeled partitions."""
+    train_capacity, test_capacity = ((5000, 1000) if dataset == "cifar10" else (500, 800))
+    if train_per_class + val_per_class > train_capacity or not 1 <= test_per_class <= test_capacity:
+        raise ValueError(f"Requested split exceeds canonical {dataset} sizes")
     rng = np.random.default_rng(seed)
     train_ids, val_ids = [], []
     train_labels = np.asarray(train_labels)
@@ -235,7 +249,7 @@ def _project_splits(root, x_train, x_test, train_ids, val_ids, test_ids, *,
 
 def load_cifar10_features(cache_root, *, seed=0, train_per_class=4500,
                           val_per_class=500, test_per_class=1000,
-                          feature_dim=768, whiten=False, normalize=True):
+                          feature_dim=768, whiten=False, normalize=True, dataset="cifar10"):
     root = Path(cache_root)
     metadata = json.loads((root / "metadata.json").read_text())
     if metadata.get("schema") != FEATURE_SCHEMA or metadata.get("model_revision") != MODEL_REVISION:
@@ -244,12 +258,14 @@ def load_cifar10_features(cache_root, *, seed=0, train_per_class=4500,
     y_train = np.load(root / "train_labels.npy", mmap_mode="r")
     x_test = np.load(root / "test_features.npy", mmap_mode="r")
     y_test = np.load(root / "test_labels.npy", mmap_mode="r")
+    if metadata.get("dataset", "cifar10") != dataset:
+        raise ValueError("Feature cache belongs to a different dataset")
     train_ids, val_ids, test_ids = split_indices(y_train, y_test, seed=seed,
         train_per_class=train_per_class, val_per_class=val_per_class,
-        test_per_class=test_per_class)
+        test_per_class=test_per_class, dataset=dataset)
     split = {"seed": seed, "train_indices": train_ids.tolist(), "val_indices": val_ids.tolist(),
              "validation_indices": val_ids.tolist(),
-             "test_indices": test_ids.tolist(), "dataset_version": "torchvision.CIFAR10",
+             "test_indices": test_ids.tolist(), "dataset_version": f"torchvision.{dataset.upper()}",
              "feature_cache": str(root), "backbone": MODEL_ID,
              "backbone_revision": metadata["resolved_model_commit"]}
     (train_features, val_features, test_features) = _project_splits(
@@ -302,13 +318,13 @@ def load_corrupted_features(cache_root, split, *, partition="test", feature_dim=
 
 def quality_report(cache_root, *, seed=0, train_per_class=4500,
                    val_per_class=500, test_per_class=1000, feature_dim=768,
-                   whiten=False, normalize=True, include_test=False):
+                   whiten=False, normalize=True, include_test=False, dataset="cifar10"):
     """Train-only ridge probe and class/covariance diagnostics for frozen features."""
     from sklearn.metrics import accuracy_score, confusion_matrix
     (train_x, train_y), (val_x, val_y), (test_x, test_y), split, meta = load_cifar10_features(
         cache_root, seed=seed, train_per_class=train_per_class,
         val_per_class=val_per_class, test_per_class=test_per_class,
-        feature_dim=feature_dim, whiten=whiten, normalize=normalize)
+        feature_dim=feature_dim, whiten=whiten, normalize=normalize, dataset=dataset)
     mean = np.asarray(train_x).mean(axis=0)
     scale = np.asarray(train_x).std(axis=0)
     scale = np.maximum(scale, 1e-6)

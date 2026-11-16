@@ -42,6 +42,7 @@ TRACKS = tuple(sorted(FEATURE_TRACKS + GCD_TRACKS))
 
 @dataclass
 class AdvancedConfig:
+    dataset: str = "cifar10"
     track: str = "E02"
     seed: int = 0
     data_root: str = "datasets"
@@ -452,6 +453,7 @@ def run_cifar(cfg: AdvancedConfig):
     start = time.perf_counter()
     setup(cfg.seed)
     c = Config(track=cfg.track, data_root=cfg.data_root,
+               dataset=cfg.dataset,
                output_root=cfg.output_root, seed=cfg.seed,
                samples_per_class=cfg.samples_per_class,
                val_per_class=cfg.val_per_class, test_per_class=cfg.test_per_class,
@@ -468,7 +470,7 @@ def run_cifar(cfg: AdvancedConfig):
             load_cifar10_features(cfg.feature_cache, seed=cfg.seed,
                 train_per_class=cfg.samples_per_class, val_per_class=cfg.val_per_class,
                 test_per_class=cfg.test_per_class, feature_dim=cfg.feature_dim,
-                whiten=cfg.pca_whiten, normalize=cfg.l2_normalize)
+                whiten=cfg.pca_whiten, normalize=cfg.l2_normalize, dataset=cfg.dataset)
         validation_score_ids = None
         if cfg.validation_only:
             development_ids, validation_score_ids = validation_halves(val_y, cfg.seed)
@@ -517,7 +519,7 @@ def run_cifar(cfg: AdvancedConfig):
             torch.save(output["model_state"], folder / f"{variant}_model.pt")
             results[variant] = output["results"]
         report = {"status":"trainable_GCD_reference_not_official_paper_reproduction",
-                  "dataset":"torchvision CIFAR-10", "source":"real_images",
+                  "dataset":f"torchvision {cfg.dataset.upper()}", "source":"real_images",
                   "config":asdict(cfg),"source_commit":source_commit(),"variants":results,
                   "backbone_provenance":feature_meta,
                   "elapsed_seconds":time.perf_counter()-start,
@@ -565,7 +567,7 @@ def run_cifar(cfg: AdvancedConfig):
         raise FileExistsError(f"Immutable result already exists: {folder}")
     folder.mkdir(parents=True)
     payload = {"status": "extended_reference_not_published_reproduction",
-               "dataset": "torchvision CIFAR-10", "config": asdict(cfg),
+               "dataset": f"torchvision {cfg.dataset.upper()}", "config": asdict(cfg),
                "source_commit": source_commit(),
                "backbone_provenance": feature_meta,
                "source": "real_images", "supervision": "per-track see code",
@@ -599,6 +601,7 @@ def run_cifar(cfg: AdvancedConfig):
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--track", choices=TRACKS, required=True)
+    p.add_argument("--dataset", choices=("cifar10", "stl10"), default="cifar10")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--data-root", default="datasets")
     p.add_argument("--output-root", default="results/cifar10_advanced")

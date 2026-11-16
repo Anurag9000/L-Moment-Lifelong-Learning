@@ -1,4 +1,4 @@
-"""Validation-only, resumable coordinate tuning for all 26 CIFAR-10 tracks."""
+"""Validation-only, resumable coordinate tuning for all 26 image tracks."""
 from __future__ import annotations
 
 import argparse
@@ -200,7 +200,7 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
     manifest_path = root / "tuning_manifest.json"
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {
         "schema": 1, "protocol": "validation_only_coordinate_search",
-        "max_rounds": max_rounds, "batch_size": 512,
+        "max_rounds": max_rounds, "batch_size": base.batch_size,
         "source_commit": source_commit(), "base_options": asdict(base),
         "tracks": {}}
     if manifest.get("source_commit") != source_commit():
@@ -237,8 +237,12 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
         else:
             result = json.loads(Path(rows[0]["result_path"]).read_text())
             score, objective = _objective(spec.id, result["variants"]["lmoment"])
+            baseline_score, baseline_objective = _objective(spec.id, result["variants"]["baseline"])
             record = {"key": key, "label": label, "config": values,
                       "score": score, "objective": objective,
+                      "baseline_score": baseline_score,
+                      "baseline_objective": baseline_objective,
+                      "lmoment_minus_baseline": score - baseline_score,
                       "status": "completed", "result_path": rows[0]["result_path"]}
         track_record["candidates"][key] = record
         manifest["updated_utc"] = __import__("datetime").datetime.now().astimezone().isoformat()
@@ -327,19 +331,29 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output-root", default="results/cifar10_hypothesis26_tuned")
-    parser.add_argument("--feature-cache-root", default="results/cifar10_dinov2_cache")
+    parser.add_argument("--dataset", choices=("cifar10", "stl10"), default="stl10")
+    parser.add_argument("--batch-size", type=int, default=64)
+    parser.add_argument("--train-per-class", type=int, default=400)
+    parser.add_argument("--val-per-class", type=int, default=100)
+    parser.add_argument("--test-per-class", type=int, default=800)
+    parser.add_argument("--output-root", default="results/stl10_hypothesis26_tuned")
+    parser.add_argument("--feature-cache-root", default="results/stl10_dinov2_cache")
     parser.add_argument("--data-root", default="datasets")
     parser.add_argument("--device", default="auto")
-    parser.add_argument("--extraction-microbatch", type=int, default=16)
+    parser.add_argument("--extraction-microbatch", type=int, default=4)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--no-download", action="store_false", dest="download",
-                        help="Require CIFAR-10 to already exist locally")
+                        help="Require dataset to already exist locally")
+    parser.add_argument("--download", action="store_true", dest="download",
+                        help="Download the dataset if it is missing")
     parser.set_defaults(download=True)
     parser.add_argument("--max-rounds", type=int, default=20)
     parser.add_argument("--no-final-tests", action="store_true")
     args = parser.parse_args(argv)
-    base = Options(output_root=args.output_root, feature_cache_root=args.feature_cache_root,
+    base = Options(dataset=args.dataset, batch_size=args.batch_size,
+                   train_per_class=args.train_per_class, val_per_class=args.val_per_class,
+                   test_per_class=args.test_per_class,
+                   output_root=args.output_root, feature_cache_root=args.feature_cache_root,
                    data_root=args.data_root, device=args.device,
                    extraction_microbatch=args.extraction_microbatch, seed=args.seed,
                    download=args.download)

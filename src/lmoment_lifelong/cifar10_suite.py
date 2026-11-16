@@ -43,6 +43,7 @@ def _torch():
 
 @dataclass
 class Config:
+    dataset: str = "cifar10"
     track: str = "E02"
     variant: str = "both"  # baseline, lmoment, both
     data_root: str = "datasets"
@@ -114,28 +115,36 @@ def select_indices(labels, per_class, seed):
         idx = np.flatnonzero(labels == c)
         rng.shuffle(idx)
         if len(idx) < per_class:
-            raise ValueError("Not enough CIFAR-10 data per class")
+            raise ValueError("Not enough labeled data per class")
         parts.append(idx[:per_class])
     return np.concatenate(parts)
 
 
 def make_data(cfg: Config):
     torch, _, datasets, T = _torch()
-    transform = T.Compose([T.ToTensor(), T.Normalize((.4914, .4822, .4465),
-                                                    (.247, .243, .261))])
-    train = datasets.CIFAR10(cfg.data_root, train=True, download=cfg.download, transform=transform)
-    test = datasets.CIFAR10(cfg.data_root, train=False, download=cfg.download, transform=transform)
+    transform = T.Compose([T.ToTensor(), T.Normalize((.4467, .4398, .4066),
+                                                    (.2603, .2566, .2713))]) if cfg.dataset == "stl10" else T.Compose([T.ToTensor(), T.Normalize((.4914, .4822, .4465), (.247, .243, .261))])
+    if cfg.dataset == "stl10":
+        train = datasets.STL10(cfg.data_root, split="train", download=cfg.download, transform=transform)
+        test = datasets.STL10(cfg.data_root, split="test", download=cfg.download, transform=transform)
+        train_labels, test_labels = train.labels, test.labels
+        train_cap = 500
+    else:
+        train = datasets.CIFAR10(cfg.data_root, train=True, download=cfg.download, transform=transform)
+        test = datasets.CIFAR10(cfg.data_root, train=False, download=cfg.download, transform=transform)
+        train_labels, test_labels = train.targets, test.targets
+        train_cap = 5000
     rng = np.random.default_rng(cfg.seed)
     train_ids = []
     val_ids = []
     for cls in range(10):
-        ids = np.flatnonzero(np.asarray(train.targets) == cls)
+        ids = np.flatnonzero(np.asarray(train_labels) == cls)
         rng.shuffle(ids)
         if cfg.samples_per_class + cfg.val_per_class > len(ids):
-            raise ValueError("CIFAR-10 train+val cap exceeds available class examples")
+            raise ValueError(f"{cfg.dataset} train+val cap exceeds available class examples")
         val_ids.extend(ids[:cfg.val_per_class])
         train_ids.extend(ids[cfg.val_per_class:cfg.val_per_class + cfg.samples_per_class])
-    test_ids = select_indices(test.targets, cfg.test_per_class, cfg.seed + 1001)
+    test_ids = select_indices(test_labels, cfg.test_per_class, cfg.seed + 1001)
     return (torch.utils.data.Subset(train, train_ids),
             torch.utils.data.Subset(train, val_ids),
             torch.utils.data.Subset(test, test_ids))
@@ -1226,7 +1235,7 @@ def run(cfg: Config):
             load_cifar10_features(cfg.feature_cache, seed=cfg.seed,
                 train_per_class=cfg.samples_per_class, val_per_class=cfg.val_per_class,
                 test_per_class=cfg.test_per_class, feature_dim=cfg.feature_dim,
-                whiten=cfg.pca_whiten, normalize=cfg.l2_normalize)
+                whiten=cfg.pca_whiten, normalize=cfg.l2_normalize, dataset=cfg.dataset)
         if train_x.shape[1] != cfg.feature_dim:
             raise ValueError(f"Configured feature_dim={cfg.feature_dim}, cache has {train_x.shape[1]}")
         train = val = test = encoder = None
@@ -1247,7 +1256,7 @@ def run(cfg: Config):
             feature_quality = quality_report(cfg.feature_cache, seed=cfg.seed,
                 train_per_class=cfg.samples_per_class, val_per_class=cfg.val_per_class,
                 test_per_class=cfg.test_per_class, feature_dim=cfg.feature_dim,
-                whiten=cfg.pca_whiten, normalize=cfg.l2_normalize)
+                whiten=cfg.pca_whiten, normalize=cfg.l2_normalize, dataset=cfg.dataset)
             quality_path.write_text(json.dumps(feature_quality, indent=2))
     else:
         train, val, test = make_data(cfg)
@@ -1398,7 +1407,7 @@ def run(cfg: Config):
     payload = {"schema": 1, "config": asdict(cfg), "source_commit": source_commit(),
                "variants": results,
                "encoder_loss_trace": loss_trace, "elapsed_seconds": time.time()-started,
-               "dataset": "torchvision.CIFAR10", "source": "actual_images",
+               "dataset": f"torchvision.{cfg.dataset.upper()}", "source": "actual_images",
                "feature_backbone": cfg.backbone,
                "feature_cache": cfg.feature_cache if cfg.backbone == "dinov2" else None,
                "backbone_provenance": feature_meta,
@@ -1424,7 +1433,7 @@ def run(cfg: Config):
     manifest = split_manifest if split_manifest is not None else {"train_indices": list(map(int, train.indices)),
                 "val_indices": list(map(int, val.indices)),
                 "test_indices": list(map(int, test.indices)),
-                "dataset_version": "torchvision.CIFAR10"}
+                "dataset_version": f"torchvision.{cfg.dataset.upper()}"}
     (outdir / "split_manifest.json").write_text(json.dumps(manifest, indent=2))
     return outdir, payload
 
@@ -1432,6 +1441,7 @@ def run(cfg: Config):
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--track", choices=[f"E{i:02}" for i in range(1, 15)], required=True)
+    p.add_argument("--dataset", choices=["cifar10", "stl10"], default="cifar10")
     p.add_argument("--variant", choices=["both", "baseline", "lmoment"], default="both")
     p.add_argument("--data-root", default="datasets")
     p.add_argument("--output-root", default="results/cifar10")

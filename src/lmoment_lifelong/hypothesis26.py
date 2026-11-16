@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 from .provenance import source_commit, run_fingerprint
 
-BATCH_SIZE = 512
+BATCH_SIZE = 64
 DEFAULT_SEED = 0
 
 
@@ -69,12 +69,14 @@ assert len(RUNS) == 26 and len({s.id for s in RUNS}) == 26
 
 @dataclass(frozen=True)
 class Options:
+    dataset: str = "stl10"
+    batch_size: int = BATCH_SIZE
     seed: int = DEFAULT_SEED
-    output_root: str = "results/cifar10_hypothesis26_dinov2"
+    output_root: str = "results/stl10_hypothesis26_dinov2"
     data_root: str = "datasets"
-    train_per_class: int = 4500
-    val_per_class: int = 500
-    test_per_class: int = 1000
+    train_per_class: int = 400
+    val_per_class: int = 100
+    test_per_class: int = 800
     epochs: int = 10
     ssl_epochs: int = 10
     gcd_epochs_base: int = 10
@@ -84,8 +86,8 @@ class Options:
     gcd_consistency_weight: float = 0.1
     gcd_preservation_weight: float = 0.05
     feature_dim: int = 768
-    feature_cache_root: str = "results/cifar10_dinov2_cache"
-    extraction_microbatch: int = 16
+    feature_cache_root: str = "results/stl10_dinov2_cache"
+    extraction_microbatch: int = 4
     pca_whiten: bool = False
     l2_normalize: bool = True
     validation_only: bool = False
@@ -116,15 +118,19 @@ class Options:
     save_features: bool = False
 
     def validate(self) -> None:
+        if self.dataset not in ("cifar10", "stl10"):
+            raise ValueError("dataset must be cifar10 or stl10")
         if self.seed < 0 or self.train_per_class < 8 or self.val_per_class < 8:
             raise ValueError("Seed must be non-negative and class train/val sizes >= 8")
-        if self.train_per_class + self.val_per_class > 5000:
-            raise ValueError("CIFAR-10 has only 5000 original training images per class")
-        if not 8 <= self.test_per_class <= 1000:
-            raise ValueError("CIFAR-10 has 1000 test images per class")
+        train_cap, test_cap = (5000, 1000) if self.dataset == "cifar10" else (500, 800)
+        if self.train_per_class + self.val_per_class > train_cap:
+            raise ValueError(f"{self.dataset} training partition is too small")
+        if not 8 <= self.test_per_class <= test_cap:
+            raise ValueError(f"{self.dataset} test partition is too small")
         if min(self.epochs, self.ssl_epochs, self.gcd_epochs_base,
                self.gcd_epochs_session, self.feature_dim, self.memory_bytes,
-               self.statistical_projections, self.min_support) < 1:
+               self.statistical_projections, self.min_support, self.batch_size,
+               self.extraction_microbatch) < 1:
             raise ValueError("Epoch, dimension, memory and support settings must be positive")
         if self.device not in ("auto", "cpu", "cuda") and not self.device.startswith("cuda:"):
             raise ValueError("Use auto, cpu or cuda[:index]")
@@ -137,12 +143,13 @@ def _config(spec: RunSpec, opt: Options):
     if spec.suite == "original":
         from .cifar10_suite import Config
         return Config(track=spec.track, variant="both", seed=opt.seed,
+                      dataset=opt.dataset,
                       data_root=opt.data_root,
                       output_root=str(Path(opt.output_root) / "runs" / "original"),
                       samples_per_class=opt.train_per_class,
                       val_per_class=opt.val_per_class,
                       test_per_class=opt.test_per_class,
-                      batch_size=BATCH_SIZE, feature_dim=opt.feature_dim,
+                      batch_size=opt.batch_size, feature_dim=opt.feature_dim,
                       epochs=opt.epochs, ssl_epochs=opt.ssl_epochs,
                       lr=opt.lr, device=opt.device, download=opt.download,
                       backbone="dinov2", feature_cache=opt.feature_cache_root,
@@ -172,12 +179,13 @@ def _config(spec: RunSpec, opt: Options):
                       save_features=opt.save_features)
     from .cifar10_advanced import AdvancedConfig
     return AdvancedConfig(track=spec.track, variant="both", seed=opt.seed,
+                          dataset=opt.dataset,
                           data_root=opt.data_root,
                           output_root=str(Path(opt.output_root) / "runs" / (
                               "advanced_ncd" if spec.gcd_mode == "ncd" else "advanced")),
                           samples_per_class=opt.train_per_class,
                           val_per_class=opt.val_per_class, test_per_class=opt.test_per_class,
-                          batch_size=BATCH_SIZE, feature_dim=opt.feature_dim,
+                          batch_size=opt.batch_size, feature_dim=opt.feature_dim,
                           backbone="dinov2", feature_cache=opt.feature_cache_root,
                           extraction_microbatch=opt.extraction_microbatch,
                           pca_whiten=opt.pca_whiten, l2_normalize=opt.l2_normalize,
@@ -212,7 +220,7 @@ def build_job(spec: RunSpec, opt: Options) -> dict[str, Any]:
     opt.validate()
     cfg = _config(spec, opt)
     cfgdict = asdict(cfg)
-    assert cfgdict["batch_size"] == 512 and cfgdict["variant"] == "both"
+    assert cfgdict["batch_size"] == opt.batch_size and cfgdict["variant"] == "both"
     digest = run_fingerprint(cfgdict)
     if spec.suite == "original":
         module = "lmoment_lifelong.cifar10_suite"
@@ -341,7 +349,7 @@ def _write_summary(rows: list[dict[str, Any]], root: Path) -> None:
 
 def run_jobs(specs: list[RunSpec], opt: Options, *, dry_run=False,
              fail_fast=False, retry_incomplete=False) -> tuple[list[dict[str, Any]], int]:
-    """One subprocess per config; no baseline, with safe restarts and evidence checks."""
+    """Run paired configurations with safe restarts and evidence checks."""
     opt.validate()
     jobs = [build_job(spec, opt) for spec in specs]
     if dry_run:
@@ -353,18 +361,20 @@ def run_jobs(specs: list[RunSpec], opt: Options, *, dry_run=False,
     root = Path(opt.output_root)
     root.mkdir(parents=True, exist_ok=True)
     from .cifar10_pretrained import prepare_cifar10_cache, quality_report
-    cache_key = (opt.data_root, opt.feature_cache_root, opt.seed,
+    cache_key = (opt.dataset, opt.data_root, opt.feature_cache_root, opt.seed,
                  opt.train_per_class, opt.val_per_class, opt.test_per_class,
                  opt.feature_dim, opt.pca_whiten, opt.l2_normalize)
     cache_meta = prepare_cifar10_cache(opt.data_root, opt.feature_cache_root,
         device="cuda" if opt.device == "auto" else opt.device,
-        batch_size=opt.extraction_microbatch, download=opt.download, seed=opt.seed)
+        batch_size=opt.extraction_microbatch, download=opt.download, seed=opt.seed,
+        val_per_class=opt.val_per_class, dataset=opt.dataset)
     cache_quality = None
     if cache_key not in _PREPARED_CACHES:
         cache_quality = quality_report(opt.feature_cache_root, seed=opt.seed,
             train_per_class=opt.train_per_class, val_per_class=opt.val_per_class,
             test_per_class=opt.test_per_class, feature_dim=opt.feature_dim,
-            whiten=opt.pca_whiten, normalize=opt.l2_normalize, include_test=False)
+            whiten=opt.pca_whiten, normalize=opt.l2_normalize, include_test=False,
+            dataset=opt.dataset)
         _PREPARED_CACHES.add(cache_key)
     from .cifar10_pretrained import quality_filename
     quality_path = Path(opt.feature_cache_root) / quality_filename(
@@ -385,7 +395,7 @@ def run_jobs(specs: list[RunSpec], opt: Options, *, dry_run=False,
     current = []
     started = _utc()
     _write_atomic(root / "plan.json", {"created_utc": started,
-                  "seed": opt.seed, "batch_size": BATCH_SIZE,
+                  "seed": opt.seed, "batch_size": opt.batch_size,
                   "planned": len(jobs), "source_commit": source_commit(), "jobs": jobs})
     _write_atomic(root / "backbone_provenance.json", cache_meta)
     failed = 0
@@ -442,7 +452,7 @@ def run_jobs(specs: list[RunSpec], opt: Options, *, dry_run=False,
         record["finished_utc"] = _utc()
         current.append(record)
         _write_atomic(root / "manifest.json", {"schema": 1, "seed": opt.seed,
-                      "batch_size": BATCH_SIZE, "started_utc": started,
+                      "batch_size": opt.batch_size, "started_utc": started,
                       "updated_utc": _utc(), "total_planned": len(jobs),
                       "processed": len(current), "failed": failed,
                       "rows": current})
@@ -458,11 +468,13 @@ def run_jobs(specs: list[RunSpec], opt: Options, *, dry_run=False,
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--dataset", choices=("cifar10", "stl10"), default="stl10")
+    parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--data-root", default="datasets")
-    parser.add_argument("--output-root", default="results/cifar10_hypothesis26_dinov2")
-    parser.add_argument("--train-per-class", type=int, default=4500)
-    parser.add_argument("--val-per-class", type=int, default=500)
-    parser.add_argument("--test-per-class", type=int, default=1000)
+    parser.add_argument("--output-root", default="results/stl10_hypothesis26_dinov2")
+    parser.add_argument("--train-per-class", type=int, default=400)
+    parser.add_argument("--val-per-class", type=int, default=100)
+    parser.add_argument("--test-per-class", type=int, default=800)
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--ssl-epochs", type=int, default=10)
     parser.add_argument("--gcd-epochs-base", type=int, default=10)
@@ -472,8 +484,8 @@ def main(argv=None) -> int:
     parser.add_argument("--gcd-consistency-weight", type=float, default=.1)
     parser.add_argument("--gcd-preservation-weight", type=float, default=.05)
     parser.add_argument("--feature-dim", type=int, default=768)
-    parser.add_argument("--feature-cache-root", default="results/cifar10_dinov2_cache")
-    parser.add_argument("--extraction-microbatch", type=int, default=16)
+    parser.add_argument("--feature-cache-root", default="results/stl10_dinov2_cache")
+    parser.add_argument("--extraction-microbatch", type=int, default=4)
     parser.add_argument("--pca-whiten", action="store_true")
     parser.add_argument("--no-l2-normalize", dest="l2_normalize", action="store_false")
     parser.add_argument("--validation-only", action="store_true")
@@ -533,7 +545,7 @@ def main(argv=None) -> int:
         for index, r in enumerate(rows, 1):
             print(f"{index:02d}. {r['id']} | {r['name']} | {r['primary_metric']}")
             print("    " + " ".join(r["command"]))
-    print(json.dumps({"seed": opt.seed, "batch_size": BATCH_SIZE,
+    print(json.dumps({"seed": opt.seed, "batch_size": opt.batch_size,
                       "planned": len(specs),
                       "completed_or_verified": sum(r["status"] in ("completed", "skipped_verified") for r in rows),
                       "failures": failures, "output_root": opt.output_root,
