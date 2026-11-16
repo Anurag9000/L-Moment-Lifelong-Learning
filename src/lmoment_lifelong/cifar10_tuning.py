@@ -270,12 +270,16 @@ def main(argv=None) -> int:
     parser.add_argument("--device", default="auto")
     parser.add_argument("--extraction-microbatch", type=int, default=16)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--no-download", action="store_false", dest="download",
+                        help="Require CIFAR-10 to already exist locally")
+    parser.set_defaults(download=True)
     parser.add_argument("--max-rounds", type=int, default=4)
     parser.add_argument("--no-final-tests", action="store_true")
     args = parser.parse_args(argv)
     base = Options(output_root=args.output_root, feature_cache_root=args.feature_cache_root,
                    data_root=args.data_root, device=args.device,
-                   extraction_microbatch=args.extraction_microbatch, seed=args.seed)
+                   extraction_microbatch=args.extraction_microbatch, seed=args.seed,
+                   download=args.download)
     manifest = tune_all(base, root=args.output_root, max_rounds=args.max_rounds,
                         final_tests=not args.no_final_tests)
     print(json.dumps({"status": manifest.get("status"),
