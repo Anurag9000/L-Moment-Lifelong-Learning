@@ -181,6 +181,11 @@ def _candidate_key(values: dict[str, Any]) -> str:
     return hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()[:12]
 
 
+def _valid_feature_config(values: dict[str, Any]) -> bool:
+    # DINOv2-base features have 768 raw dimensions; PCA whitening needs k < 768.
+    return not values.get("pca_whiten", False) or int(values.get("feature_dim", 768)) < 768
+
+
 def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
              final_tests: bool = True) -> dict[str, Any]:
     """Screen each axis, combine winners, then coordinate-refine to convergence.
@@ -251,9 +256,11 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
         for dimension in axes["feature_dim"]:
             for whiten in (False, True):
                 for normalize in (True, False):
-                    screen.append({"feature_dim": dimension,
-                                   "pca_whiten": whiten,
-                                   "l2_normalize": normalize})
+                    candidate = {"feature_dim": dimension,
+                                 "pca_whiten": whiten,
+                                 "l2_normalize": normalize}
+                    if _valid_feature_config(candidate):
+                        screen.append(candidate)
         for field, values in axes.items():
             if field in ("feature_dim", "pca_whiten", "l2_normalize"):
                 continue
@@ -277,6 +284,8 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
                 neighborhood = []
                 for value in values:
                     candidate = dict(current); candidate[field] = value
+                    if not _valid_feature_config(candidate):
+                        continue
                     record = evaluate(spec, candidate, f"coordinate_{round_index}_{field}")
                     if record.get("status") == "completed":
                         neighborhood.append(record)
