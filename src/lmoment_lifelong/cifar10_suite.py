@@ -12,6 +12,8 @@ import hashlib
 import json
 import os
 import random
+import resource
+import sys
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -21,6 +23,7 @@ from scipy.optimize import linear_sum_assignment
 from scipy.stats import norm
 from sklearn.cluster import AgglomerativeClustering, KMeans
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
+from sklearn.metrics import confusion_matrix
 
 from .statistics import lmoments, projector, compare_groups
 from .memory import StatisticalEngramMemory
@@ -104,6 +107,20 @@ def _device(requested):
     torch = setup(0)
     return "cuda" if requested == "auto" and torch.cuda.is_available() else (
         "cpu" if requested == "auto" else requested)
+
+
+def runtime_resource_usage(torch, device):
+    """Peak process and CUDA memory observed by this experiment process."""
+    peak_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    # Linux reports KiB; macOS reports bytes.
+    peak_rss_bytes = int(peak_rss if sys.platform == "darwin" else peak_rss * 1024)
+    values = {"process_peak_rss_bytes": peak_rss_bytes,
+              "process_peak_rss_source": "getrusage.RUSAGE_SELF.ru_maxrss"}
+    if str(device).startswith("cuda") and torch.cuda.is_available():
+        values.update({"cuda_peak_allocated_bytes": int(torch.cuda.max_memory_allocated(device)),
+                       "cuda_peak_reserved_bytes": int(torch.cuda.max_memory_reserved(device)),
+                       "cuda_device": str(device)})
+    return values
 
 
 def select_indices(labels, per_class, seed):
@@ -257,6 +274,23 @@ def accuracy(truth, prediction, abstain=-1):
             "ari": float(adjusted_rand_score(y, p)),
             "nmi": float(normalized_mutual_info_score(y, p)),
             "estimated_k": int(len(py))}
+
+
+def classification_artifacts(truth, prediction, classes=None):
+    """Serializable per-example and per-class evidence for a fitted predictor."""
+    truth = np.asarray(truth, dtype=int)
+    prediction = np.asarray(prediction, dtype=int)
+    if truth.shape != prediction.shape:
+        raise ValueError("Prediction and label arrays must have the same shape")
+    classes = (np.unique(truth) if classes is None else np.asarray(classes, dtype=int))
+    matrix_labels = ([-1] if np.any(prediction < 0) else []) + list(map(int, classes))
+    return {"labels": truth.tolist(), "predictions": prediction.tolist(),
+            "confusion_matrix_labels": matrix_labels,
+            "confusion_matrix": confusion_matrix(truth, prediction,
+                                                 labels=matrix_labels).tolist(),
+            "per_class_accuracy": {str(int(cls)): float(np.mean(
+                prediction[truth == cls] == cls))
+                for cls in classes if np.any(truth == cls)}}
 
 
 def centroid_classify(train_x, train_y, test_x, metric="mean"):
@@ -443,27 +477,56 @@ def streaming_discovery(x, y, variant, seed, blocked=False, threshold=.6, holdou
     return result
 
 
-def study_statistical(tx, ty, vx, vy, variant, seed, projections=16):
+def study_statistical(tx, ty, vx, vy, variant, seed, projections=16,
+                      evaluation_partition="test"):
     rng = np.random.default_rng(seed)
-    s = np.unique(vy)
+    classes = np.unique(vy)
     w = projector(tx.shape[1], min(projections, tx.shape[1]), seed)
-    true_scores = []; false_scores = []
-    for k in s:
-        z = vx[vy == k]
-        if len(z) < 8:
-            continue
-        rng.shuffle(z)
-        a, b = np.array_split(z, 2)
+    def distance(a, b):
         if variant == "lmoment":
-            true_scores.append(compare_groups(a, b, w).distance)
-            false_scores.append(compare_groups(a, vx[vy != k][:len(b)], w).distance)
-        else:
-            true_scores.append(float(np.linalg.norm(a.mean(0) - b.mean(0))))
-            false_scores.append(float(np.linalg.norm(a.mean(0) - vx[vy != k][:len(b)].mean(0))))
-    return {"matched_mean_distance": float(np.mean(true_scores)),
-            "different_mean_distance": float(np.mean(false_scores)),
-            "separation_ratio": float(np.mean(false_scores) / max(np.mean(true_scores), 1e-8)),
-            "evaluation_partition": "held_out_validation"}
+            return float(compare_groups(a, b, w).distance)
+        return float(np.linalg.norm(a.mean(0) - b.mean(0)))
+
+    true_scores = []
+    false_scores = []
+    pair_scores = []
+    # Use every ordered class pair and equal sized groups. The old negative
+    # construction sliced a class-ordered array, so class 0 dominated it.
+    for left in classes:
+        own = vx[vy == left].copy()
+        rng.shuffle(own)
+        a, b = np.array_split(own, 2)
+        if min(len(a), len(b)) < 4:
+            continue
+        n = min(len(a), len(b))
+        same_score = distance(a[:n], b[:n])
+        true_scores.append(same_score)
+        for right in classes:
+            if right == left:
+                continue
+            other = vx[vy == right]
+            if len(other) < n:
+                continue
+            selected = rng.choice(len(other), size=n, replace=False)
+            score = distance(a[:n], other[selected])
+            false_scores.append(score)
+            pair_scores.append({"same_class": int(left), "different_class": int(right),
+                                "same_class_distance": same_score,
+                                "different_class_distance": score})
+    within = float(np.mean(true_scores)) if true_scores else 0.0
+    between = float(np.mean(false_scores)) if false_scores else 0.0
+    return {"matched_mean_distance": within,
+            "different_mean_distance": between,
+            "separation_ratio": between / max(within, 1e-8),
+            "same_class_pair_scores": true_scores,
+            "different_class_pair_scores": false_scores,
+            "ordered_class_pair_scores": pair_scores,
+            "balanced_class_pair_count": len(pair_scores),
+            "same_class_q05_q50_q95": (np.quantile(true_scores, [.05, .5, .95]).tolist()
+                                        if true_scores else []),
+            "different_class_q05_q50_q95": (np.quantile(false_scores, [.05, .5, .95]).tolist()
+                                            if false_scores else []),
+            "evaluation_partition": evaluation_partition}
 
 
 def _cluster_with_known_anchors(x, anchors, n_clusters, seed):
@@ -485,7 +548,7 @@ def _cluster_with_known_anchors(x, anchors, n_clusters, seed):
 
 
 def study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=False,
-              lr=.01, steps=50):
+              lr=.01, steps=50, validation=None):
     """Labeled base and mixed unlabeled current data; no unseen truth to learner.
 
     The experiment scheduler uses labels ONLY to construct allowed sessions.
@@ -496,6 +559,9 @@ def study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=False,
     base_x, base_y = tx[base_mask], ty[base_mask]
     anchors = {k: base_x[base_y == k].mean(0) for k in range(known)}
     classifier = train_head(base_x, base_y, seed, steps=steps, lr=lr, classes=10)
+    if validation is None:
+        raise ValueError("GCD evaluation alignment requires independent validation features")
+    validation_x, validation_y = validation
     stage_metrics = []
     stages = [known + 2, 10] if continual else [10]
     for stage_num, class_cutoff in enumerate(stages):
@@ -515,10 +581,32 @@ def study_gcd(tx, ty, vx, vy, variant, seed, known=5, continual=False,
         train_weights = np.concatenate([weights, np.ones(len(base_y))])
         classifier = train_head(train_x, train_y, seed + stage_num, steps=steps, lr=lr,
                                 weights=train_weights, classes=10, init=classifier)
-        shown = vy < class_cutoff
-        predicted = predict_head(classifier, vx[shown])
+        val_mask = validation_y < class_cutoff
+        score_mask = vy < class_cutoff
+        validation_raw = predict_head(classifier, validation_x[val_mask])
+        alignment = _alignment_from_validation(validation_y[val_mask], validation_raw)
+        score_raw = predict_head(classifier, vx[score_mask])
+        score_aligned = np.asarray([alignment.get(int(p), -1) for p in score_raw], dtype=int)
+        score_truth = vy[score_mask]
+        per_class = {str(k): float(np.mean(score_aligned[score_truth == k] == k))
+                     for k in range(class_cutoff) if np.any(score_truth == k)}
         stage_metrics.append({"session": stage_num + 1, "seen_classes": int(class_cutoff),
-                              "accuracy": accuracy(vy[shown], predicted, abstain=-999)})
+            "validation_alignment": {str(k): int(v) for k, v in alignment.items()},
+            "validation_accuracy": float(np.mean(np.asarray([
+                alignment.get(int(p), -1) for p in validation_raw]) == validation_y[val_mask])),
+            "accuracy": {"accuracy": float(np.mean(score_aligned == score_truth)),
+                         "per_class_accuracy": per_class,
+                         "confusion_matrix": classification_artifacts(
+                             score_truth, score_aligned,
+                             classes=np.arange(class_cutoff))["confusion_matrix"],
+                         "confusion_matrix_labels": [-1, *range(class_cutoff)]},
+            "scoring_diagnostics": classification_artifacts(
+                score_truth, score_aligned, classes=np.arange(class_cutoff)),
+            "scoring_labels": score_truth.astype(int).tolist(),
+            "scoring_predictions_raw_ids": score_raw.astype(int).tolist(),
+            "scoring_predictions_aligned": score_aligned.tolist(),
+            "validation_labels": validation_y[val_mask].astype(int).tolist(),
+            "validation_predictions_raw_ids": validation_raw.astype(int).tolist()})
     # Copy the final accuracy mapping: stage_metrics retains its original dict.
     # Updating that dict in place would insert stage_metrics into itself, causing
     # a circular JSON reference in E03/E04/E14 result artifacts.
@@ -572,26 +660,84 @@ def study_structure(tx, ty, vx, vy, validation, variant, seed, *, split_penalty=
             "note": "Artificial two-class merge; validation uses independent held-out features"}
 
 
-def study_domain(tx, ty, vx, vy, variant, seed, projections=16):
+def study_domain(tx, ty, vx, vy, variant, seed, projections=16, shifted=None):
     rng = np.random.default_rng(seed)
-    # Feature perturbations are explicitly simulated, NOT claimed ImageNet-C domains.
-    corrupted = vx + rng.normal(scale=.12, size=vx.shape)
-    n0 = tx[ty == 0]; old = tx[ty == 1]
-    support = min(25, len(n0) // 2, len(old))
+    # When an image-corrupted embedding set is supplied, use it with the same
+    # fitted classifier as the clean set. The fallback is explicitly a
+    # feature-space perturbation proxy, not an image-domain corruption.
+    corrupted = (vx + rng.normal(scale=.12, size=vx.shape)
+                 if shifted is None else np.asarray(shifted))
+    known_train = ty < 5
+    known_eval = vy < 5
+    if len(corrupted) != len(vx):
+        raise ValueError("Corrupted and clean feature partitions must align")
+    model = LMomentNormalClassifier(
+        mode="lmoment" if variant == "lmoment" else "mean_var")
+    model.fit(tx[known_train], ty[known_train])
+    clean_prediction = model.predict(vx[known_eval])
+    corrupted_prediction = model.predict(corrupted[known_eval])
+    clean_truth = vy[known_eval]
+    clean_confusion = confusion_matrix(clean_truth, clean_prediction,
+                                       labels=np.arange(5)).tolist()
+    per_class = {str(k): float(np.mean(corrupted_prediction[clean_truth == k] == k))
+                 for k in range(5) if np.any(clean_truth == k)}
+    per_class_clean = {str(k): float(np.mean(clean_prediction[clean_truth == k] == k))
+                       for k in range(5) if np.any(clean_truth == k)}
+    within_scores = []
+    different_scores = []
     w = projector(tx.shape[1], min(projections, tx.shape[1]), seed)
-    if variant == "lmoment":
-        self_distance = compare_groups(n0[:support], n0[support:2*support], w, trim=1).distance
-        different_distance = compare_groups(n0[:support], old[:support], w, trim=1).distance
-    else:
-        self_distance = float(np.linalg.norm(n0[:support].mean(0) - n0[support:2*support].mean(0)))
-        different_distance = float(np.linalg.norm(n0[:support].mean(0) - old[:support].mean(0)))
-    return {"shifted_classification": float(np.mean(centroid_classify(tx, ty, corrupted) == vy)),
-            "within_class_distance": self_distance,
-            "different_class_distance": different_distance,
-            "note": "Feature corruption proxy, not a semantic-domain factorization"}
+    for cls in range(5):
+        group = tx[ty == cls]
+        rng.shuffle(group)
+        n = min(25, len(group) // 2)
+        if n >= 4:
+            a, b = group[:n], group[n:2*n]
+            if variant == "lmoment":
+                within_scores.append(float(compare_groups(a, b, w, trim=1).distance))
+            else:
+                within_scores.append(float(np.linalg.norm(a.mean(0) - b.mean(0))))
+        for other in range(5):
+            if other == cls:
+                continue
+            other_group = tx[ty == other]
+            n = min(25, len(group), len(other_group))
+            if n < 4:
+                continue
+            a = group[:n]
+            b = other_group[rng.choice(len(other_group), n, replace=False)]
+            if variant == "lmoment":
+                different_scores.append(float(compare_groups(a, b, w, trim=1).distance))
+            else:
+                different_scores.append(float(np.linalg.norm(a.mean(0) - b.mean(0))))
+    return {"clean_accuracy": float(np.mean(clean_prediction == clean_truth)),
+            "corruption_accuracy": float(np.mean(corrupted_prediction == clean_truth)),
+            "corruption_accuracy_drop": float(np.mean(clean_prediction == clean_truth) -
+                                               np.mean(corrupted_prediction == clean_truth)),
+            "known_class_clean_accuracy": float(np.mean(clean_prediction == clean_truth)),
+            "known_class_corruption_accuracy": float(np.mean(corrupted_prediction == clean_truth)),
+            "within_class_distance": float(np.mean(within_scores)) if within_scores else 0.0,
+            "different_class_distance": float(np.mean(different_scores)) if different_scores else 0.0,
+            "within_class_pair_scores": within_scores,
+            "different_class_pair_scores": different_scores,
+            "clean_confusion_matrix": clean_confusion,
+            "corrupted_confusion_matrix": confusion_matrix(
+                clean_truth, corrupted_prediction, labels=np.arange(5)).tolist(),
+            "per_class_clean_accuracy": per_class_clean,
+            "per_class_corruption_accuracy": per_class,
+            "evaluation_labels": clean_truth.astype(int).tolist(),
+            "clean_predictions": clean_prediction.astype(int).tolist(),
+            "corrupted_predictions": corrupted_prediction.astype(int).tolist(),
+            "clean_classification_diagnostics": classification_artifacts(
+                clean_truth, clean_prediction, classes=np.arange(5)),
+            "corrupted_classification_diagnostics": classification_artifacts(
+                clean_truth, corrupted_prediction, classes=np.arange(5)),
+            "corruption_source": "paired_image_corruption_features" if shifted is not None
+                                else "synthetic_feature_space_perturbation",
+            "note": "Same fitted variant-specific classifier on paired clean/corrupted examples"}
 
 
-def study_hierarchy(tx, ty, vx, vy, variant, seed, parents=3):
+def study_hierarchy(tx, ty, vx, vy, variant, seed, parents=3, validation=None,
+                    evaluation_partition="test"):
     cluster = KMeans(10, n_init=10, random_state=seed).fit(tx)
     labels = cluster.labels_
     means = []
@@ -602,13 +748,25 @@ def study_hierarchy(tx, ty, vx, vy, variant, seed, parents=3):
         else:
             means.append(data.mean(0).repeat(4) if variant == "lmoment" else data.mean(0))
     groups = AgglomerativeClustering(n_clusters=parents).fit_predict(np.stack(means))
-    validation_child = np.square(vx[:, None, :] - cluster.cluster_centers_[None, :, :]).sum(2).argmin(1)
-    validation_parent = groups[validation_child]
-    return {"pseudo_class_count": 10, "parent_count": len(np.unique(groups)),
+    scoring_child = np.square(vx[:, None, :] - cluster.cluster_centers_[None, :, :]).sum(2).argmin(1)
+    scoring_parent = groups[scoring_child]
+    output = {"pseudo_class_count": 10, "parent_count": len(np.unique(groups)),
             "configured_parent_count": parents,
-            "hierarchy_cluster_ari": float(adjusted_rand_score(vy, validation_parent)),
-            "evaluation_partition": "held_out_validation",
-            "note": "Unsupervised pseudo-class hierarchy, no WordNet taxonomy oracle"}
+            "hierarchy_cluster_ari": float(adjusted_rand_score(vy, scoring_parent)),
+            "scoring_child_predictions": scoring_child.astype(int).tolist(),
+            "scoring_parent_predictions": scoring_parent.astype(int).tolist(),
+            "scoring_labels": vy.astype(int).tolist(),
+            "evaluation_partition": evaluation_partition,
+            "note": "Unsupervised visual hierarchy; parent IDs are clusters, not semantic classes"}
+    if validation is not None:
+        val_x, val_y = validation
+        val_child = np.square(val_x[:, None, :] - cluster.cluster_centers_[None, :, :]).sum(2).argmin(1)
+        val_parent = groups[val_child]
+        output.update({"validation_child_predictions": val_child.astype(int).tolist(),
+                       "validation_parent_predictions": val_parent.astype(int).tolist(),
+                       "validation_labels": val_y.astype(int).tolist(),
+                       "validation_hierarchy_ari": float(adjusted_rand_score(val_y, val_parent))})
+    return output
 
 
 def study_replay(tx, ty, vx, vy, variant, seed, budget_bytes=65536, steps=75, lr=.01):
@@ -649,10 +807,16 @@ def study_replay(tx, ty, vx, vy, variant, seed, budget_bytes=65536, steps=75, lr
     model = train_head(all_x, all_y, seed, steps=steps, lr=lr, init=model0, classes=10,
                        class_balanced=True)
     old_test = vy < 5
+    before_prediction = predict_head(model0, vx[old_test])
+    test_prediction = predict_head(model, vx)
     return {"_checkpoint": model.state_dict(),
-            "old_accuracy": float(np.mean(predict_head(model, vx[old_test]) == vy[old_test])),
-            "new_accuracy": float(np.mean(predict_head(model, vx[~old_test]) == vy[~old_test])),
-            "old_before": float(np.mean(predict_head(model0, vx[old_test]) == vy[old_test])),
+            "old_accuracy": float(np.mean(test_prediction[old_test] == vy[old_test])),
+            "new_accuracy": float(np.mean(test_prediction[~old_test] == vy[~old_test])),
+            "old_before": float(np.mean(before_prediction == vy[old_test])),
+            "stage1_old_diagnostics": classification_artifacts(
+                vy[old_test], before_prediction, classes=np.arange(5)),
+            "scoring_diagnostics": classification_artifacts(
+                vy, test_prediction, classes=np.arange(10)),
             "retained_features": int(len(ids)), "buffer_bytes": int(old_x[ids].nbytes + old_y[ids].nbytes),
             "fixed_budget_bytes": int(budget_bytes),
             "byte_budget_respected": bool(old_x[ids].nbytes + old_y[ids].nbytes <= budget_bytes)}
@@ -744,6 +908,8 @@ def study_taskfree(tx, ty, vx, vy, variant, seed, validation=None,
             "loss_degradations": loss_degradations,
             "loss_degradation_quantile": loss_quantile,
             "optimizer_batch_size": batch_size,
+            "scoring_diagnostics": classification_artifacts(
+                vy, predictions, classes=np.arange(10)),
             "threshold_calibration": "validation_class_stratified_per_comparison_null",
             "note": "L-moment gated online linear adaptation; not calibrated full task-free CL"}
 
@@ -833,6 +999,8 @@ def study_growth(tx, ty, vx, vy, variant, seed, validation=None,
             "growth_accepted": bool(accepted),
             "growth_trial": None if proposed is None else {k: proposed[k] for k in
                              ("score", "fixed_loss", "grown_loss", "extra_parameters")},
+            "scoring_diagnostics": classification_artifacts(
+                vy, pred, classes=np.arange(10)),
             "_checkpoint": model.state_dict(),
             "note": "Expandable MLP capacity-trial prototype; not the full ADP family"}
 
@@ -905,6 +1073,8 @@ def study_integrated(tx, ty, vx, vy, variant, seed, cfg, validation):
             "prequential_predictions": canonical.tolist(),
             "labels_for_evaluation_only": ty[ids].astype(int).tolist(),
             "validation_fixed_mapping": mapping,
+            "validation_labels": val_y[val_mask].astype(int).tolist(),
+            "validation_predictions_raw": raw_validation.astype(int).tolist(),
             "all_accuracy": float(np.mean(aligned == truth)),
             "old_accuracy": (float(np.mean(aligned[~novel_mask] == truth[~novel_mask]))
                              if (~novel_mask).any() else None),
@@ -914,6 +1084,8 @@ def study_integrated(tx, ty, vx, vy, variant, seed, cfg, validation):
             "scoring_labels": truth.astype(int).tolist(),
             "scoring_predictions_raw": raw_scoring.astype(int).tolist(),
             "scoring_predictions_aligned": aligned.astype(int).tolist(),
+            "scoring_classification_diagnostics": classification_artifacts(
+                truth, aligned, classes=np.arange(10)),
             "replay_features": int(len(replay.y)),
             "replay_bytes": replay.stored_bytes,
             "mature_memories": sum(n.state == "mature" for n in memory.nodes.values()),
@@ -1108,7 +1280,11 @@ def validation_for_checkpoint(track, state, tx, ty, valx, valy, testx, testy, va
         predval = centroid_classify(tx, ty, valx, "lmoment" if variant == "lmoment" else "mean")
         predtest = centroid_classify(tx, ty, testx, "lmoment" if variant == "lmoment" else "mean")
         return {"validation_accuracy": float(np.mean(predval == valy)),
-                "test_accuracy": float(np.mean(predtest == testy))}
+                "test_accuracy": float(np.mean(predtest == testy)),
+                "validation_diagnostics": classification_artifacts(
+                    valy, predval, classes=np.arange(10)),
+                "test_diagnostics": classification_artifacts(
+                    testy, predtest, classes=np.arange(10))}
     if state is None or track not in ("E03", "E04", "E10", "E11", "E12", "E14"):
         return None
     torch, nn, _, _ = _torch()
@@ -1131,15 +1307,27 @@ def validation_for_checkpoint(track, state, tx, ty, valx, valy, testx, testy, va
         mapped = np.asarray([alignment.get(int(p), -1) for p in predtest])
         return {"validation_clustering": accuracy(valy, predval, abstain=-999),
                 "test_accuracy_with_fixed_validation_alignment": float(np.mean(mapped == testy)),
+                "validation_raw_predictions": predval.astype(int).tolist(),
+                "validation_labels": valy.astype(int).tolist(),
+                "test_raw_predictions": predtest.astype(int).tolist(),
+                "test_labels": testy.astype(int).tolist(),
+                "test_aligned_diagnostics": classification_artifacts(
+                    testy, mapped, classes=np.arange(10)),
                 "validation_mapping_size": len(alignment)}
     return {"validation_accuracy": float(np.mean(predval == valy)),
-            "test_accuracy": float(np.mean(predtest == testy))}
+            "test_accuracy": float(np.mean(predtest == testy)),
+            "validation_diagnostics": classification_artifacts(
+                valy, predval, classes=np.arange(10)),
+            "test_diagnostics": classification_artifacts(
+                testy, predtest, classes=np.arange(10))}
 
 
-def run_study(track, variant, tx, ty, vx, vy, cfg, validation=None):
+def run_study(track, variant, tx, ty, vx, vy, cfg, validation=None, shifted=None):
     if track == "E01":
         return study_statistical(tx, ty, vx, vy, variant, cfg.seed,
-                                 cfg.statistical_projections)
+                                 cfg.statistical_projections,
+                                 evaluation_partition=("validation_candidate_half"
+                                     if cfg.validation_only else "test"))
     if track in ("E02", "E05"):
         return streaming_discovery(tx, ty, variant, cfg.seed, blocked=track == "E05",
                                    threshold=cfg.discovery_radius, holdout=(vx, vy),
@@ -1150,7 +1338,8 @@ def run_study(track, variant, tx, ty, vx, vy, cfg, validation=None):
                                    min_support=cfg.min_support)
     if track in ("E03", "E04"):
         return study_gcd(tx, ty, vx, vy, variant, cfg.seed, cfg.known_classes,
-                         track == "E04", lr=cfg.lr, steps=cfg.training_steps)
+                         track == "E04", lr=cfg.lr, steps=cfg.training_steps,
+                         validation=validation)
     if track == "E06":
         return study_structure(tx, ty, vx, vy, validation, variant, cfg.seed,
                                split_penalty=cfg.split_penalty,
@@ -1158,10 +1347,12 @@ def run_study(track, variant, tx, ty, vx, vy, cfg, validation=None):
                                min_support=cfg.min_support,
                                projections=cfg.statistical_projections)
     if track == "E07": return study_domain(tx, ty, vx, vy, variant, cfg.seed,
-                                            cfg.statistical_projections)
+                                            cfg.statistical_projections, shifted=shifted)
     if track == "E08":
         return study_hierarchy(tx, ty, vx, vy, variant, cfg.seed,
-                               parents=cfg.hierarchy_parents)
+                               parents=cfg.hierarchy_parents, validation=validation,
+                               evaluation_partition=("validation_candidate_half"
+                                   if cfg.validation_only else "test"))
     if track == "E09":
         model = LMomentNormalClassifier(
             mode="lmoment" if variant == "lmoment" else "mean_var",
@@ -1169,7 +1360,12 @@ def run_study(track, variant, tx, ty, vx, vy, cfg, validation=None):
             minimum_scale=cfg.distribution_min_scale)
         model.fit(tx, ty)
         pred = model.predict(vx)
+        val_pred = model.predict(validation[0]) if validation is not None else None
         return {"test_accuracy": float(np.mean(pred == vy)), "classes": 10,
+                "scoring_diagnostics": classification_artifacts(
+                    vy, pred, classes=np.arange(10)),
+                "validation_diagnostics": (None if val_pred is None else
+                    classification_artifacts(validation[1], val_pred, classes=np.arange(10))),
                 "note": "Frozen-feature class-statistics comparator"}
     if track == "E10":
         return study_replay(tx, ty, vx, vy, variant, cfg.seed, budget_bytes=cfg.memory_bytes,
@@ -1201,6 +1397,7 @@ def run_study(track, variant, tx, ty, vx, vy, cfg, validation=None):
 
 
 def run(cfg: Config):
+    started = time.time()
     if cfg.track not in [f"E{i:02}" for i in range(1, 15)]:
         raise ValueError("Use E01--E14")
     if cfg.variant not in ("both", "baseline", "lmoment"):
@@ -1225,6 +1422,8 @@ def run(cfg: Config):
         raise ValueError("E13 loss weights must be non-negative")
     torch = setup(cfg.seed)
     device = _device(cfg.device)
+    if str(device).startswith("cuda"):
+        torch.cuda.reset_peak_memory_stats(device)
     feature_meta = None
     if cfg.backbone == "dinov2":
         from .cifar10_pretrained import (load_cifar10_features,
@@ -1265,7 +1464,6 @@ def run(cfg: Config):
         encoder = small_encoder(cfg.feature_dim)
         split_manifest = None
         feature_quality = None
-    started = time.time()
     variants = (["baseline", "lmoment"] if cfg.variant == "both" else [cfg.variant])
     identity = run_fingerprint(asdict(cfg))
     outdir = Path(cfg.output_root) / cfg.track / f"{identity}_seed{cfg.seed}"
@@ -1334,6 +1532,10 @@ def run(cfg: Config):
                         "validation_examples": int(val_mask.sum()),
                         "scoring_examples": int(test_mask.sum()),
                         "per_class_scoring_accuracy": per_class,
+                        "validation_classification_diagnostics": classification_artifacts(
+                            val_y[val_mask], val_pred, classes=seen),
+                        "scoring_classification_diagnostics": classification_artifacts(
+                            vy[test_mask], test_pred, classes=seen),
                         "anchor_count": stage_record["anchor_count"],
                         "anchor_bytes": stage_record["anchor_bytes"],
                         "adapter_optimizer_updates": stage_record["updates"]})
@@ -1369,13 +1571,7 @@ def run(cfg: Config):
                 if cfg.validation_only:
                     corrupted = corrupted[validation_score_ids]
             metrics = run_study(cfg.track, variant, tx, ty, vx, vy, cfg,
-                                validation=(val_x, val_y))
-            if cfg.track == "E07":
-                from .cifar10_advanced import _variant
-                # Re-run this diagnostic with the paired corrupted frozen features.
-                corruption_metrics = _variant("E07", variant, tx, ty, val_x, val_y,
-                                              vx, vy, cfg, shifted=corrupted)
-                metrics.update(corruption_metrics)
+                                validation=(val_x, val_y), shifted=corrupted)
             state = metrics.pop("_checkpoint", None)
             validation_metrics = validation_for_checkpoint(cfg.track, state, tx, ty,
                 val_x, val_y, vx, vy, variant) if state is not None else None
@@ -1389,10 +1585,14 @@ def run(cfg: Config):
         tx, ty = extract(encoder, train, cfg, device)
         valx, valy = extract(encoder, val, cfg, device)
         vx, vy = extract(encoder, test, cfg, device)
+        corrupted = None
+        if cfg.track == "E07":
+            from .cifar10_advanced import CorruptedSubset
+            corrupted, _ = extract(encoder, CorruptedSubset(test, seed=cfg.seed), cfg, device)
         for variant in variants:
             # Same frozen features/seed for paired comparison; no test-label tuning.
             metrics = run_study(cfg.track, variant, tx, ty, vx, vy, cfg,
-                                validation=(valx, valy))
+                                validation=(valx, valy), shifted=corrupted)
             state = metrics.pop("_checkpoint", None)
             validation = validation_for_checkpoint(cfg.track, state, tx, ty,
                                                     valx, valy, vx, vy, variant)
@@ -1418,6 +1618,7 @@ def run(cfg: Config):
                "strict_online_encoder_training": cfg.track == "E13",
                "result_status": "reference_implementation_not_publication_reproduction",
                "device": device,
+               "resource_usage": runtime_resource_usage(torch, device),
                "evaluation_partition": ("validation_candidate_half" if cfg.validation_only
                                         else "test")}
     (outdir / "result.json").write_text(json.dumps(payload, indent=2, allow_nan=False))

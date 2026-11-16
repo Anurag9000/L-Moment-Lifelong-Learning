@@ -169,6 +169,7 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
     Unsupervised learner objects get *only* feature arrays. The scheduler
     may use labels to construct blocked arrival, explicitly declared below.
     """
+    from .cifar10_suite import classification_artifacts
     seed = cfg.seed
     rng = np.random.default_rng(seed)
     if track == "E01":
@@ -176,8 +177,13 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
                                         shrinkage=cfg.distribution_shrinkage,
                                         minimum_scale=cfg.distribution_min_scale)
         model.fit(tx, ty)  # Labeled class-distribution diagnostic.
-        return {"validation_accuracy": float(np.mean(model.predict(valx) == valy)),
-                "test_accuracy": float(np.mean(model.predict(testx) == testy)),
+        val_pred, test_pred = model.predict(valx), model.predict(testx)
+        return {"validation_accuracy": float(np.mean(val_pred == valy)),
+                "test_accuracy": float(np.mean(test_pred == testy)),
+                "validation_diagnostics": classification_artifacts(
+                    valy, val_pred, classes=np.arange(10)),
+                "test_diagnostics": classification_artifacts(
+                    testy, test_pred, classes=np.arange(10)),
                 "model": "diagonal Normal L1/L2 fitted" if kind == "lmoment" else "mean and population variance",
                 "labels_allowed": True}
     if track == "E09":
@@ -194,8 +200,16 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
         model.fit_stage(tx[~base], ty[~base])
         old_after = float(np.mean(model.predict(testx[old_eval]) == testy[old_eval]))
         new_after = float(np.mean(model.predict(testx[~old_eval]) == testy[~old_eval]))
-        return {"validation_accuracy": float(np.mean(model.predict(valx) == valy)),
-                "test_accuracy": float(np.mean(model.predict(testx) == testy)),
+        val_pred, test_pred = model.predict(valx), model.predict(testx)
+        after_old_pred = model.predict(testx[old_eval])
+        return {"validation_accuracy": float(np.mean(val_pred == valy)),
+                "test_accuracy": float(np.mean(test_pred == testy)),
+                "validation_diagnostics": classification_artifacts(
+                    valy, val_pred, classes=np.arange(10)),
+                "test_diagnostics": classification_artifacts(
+                    testy, test_pred, classes=np.arange(10)),
+                "stage2_old_diagnostics": classification_artifacts(
+                    testy[old_eval], after_old_pred, classes=np.arange(5)),
                 "old_before": old_before, "old_after": old_after,
                 "old_forgetting": old_before-old_after, "new_after": new_after,
                 "stored_bytes": model.stored_bytes, "sessions":len(model.sessions),
@@ -235,6 +249,14 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
             "prequential_coverage": float(np.mean(prequential >= 0)),
             "validation": _cluster_metrics(valy, val_prediction),
             "test": _cluster_metrics(testy, test_prediction, alignment),
+            "prequential_labels": np.asarray(ty[order], dtype=int).tolist(),
+            "prequential_predictions": np.asarray(prequential, dtype=int).tolist(),
+            "validation_predictions": val_prediction.astype(int).tolist(),
+            "validation_labels": valy.astype(int).tolist(),
+            "scoring_labels": testy.astype(int).tolist(),
+            "scoring_predictions_raw_ids": test_prediction.astype(int).tolist(),
+            "scoring_predictions_aligned": np.asarray([
+                alignment.get(int(p), -1) for p in test_prediction], dtype=int).tolist(),
             "mature_classes": sum(n.state == "mature" for n in memory.nodes.values()),
             "total_assemblies": len(memory.nodes),
             "estimated_memory_bytes": memory.bytes_estimate(),
@@ -299,6 +321,13 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
         return {"known_class_clean_accuracy": clean_accuracy,
                 "known_class_corruption_accuracy": shifted_accuracy,
                 "corruption_accuracy_drop": clean_accuracy - shifted_accuracy,
+                "clean_predictions": clean.astype(int).tolist(),
+                "corrupted_predictions": pred.astype(int).tolist(),
+                "evaluation_labels": testy[seen].astype(int).tolist(),
+                "clean_diagnostics": classification_artifacts(
+                    testy[seen], clean, classes=np.arange(5)),
+                "corrupted_diagnostics": classification_artifacts(
+                    testy[seen], pred, classes=np.arange(5)),
                 "image_domain_corruption": shifted is not None,
                 "known_labels_permitted": 5}
     if track == "E08":
@@ -311,6 +340,12 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
         return {"oracle_child_k": 10, "parent_k": 3,
                 "validation": _cluster_metrics(valy, val_child),
                 "test": _cluster_metrics(testy, test_child, alignment),
+                "validation_child_predictions": val_child.astype(int).tolist(),
+                "validation_parent_predictions": val_parent.astype(int).tolist(),
+                "validation_labels": valy.astype(int).tolist(),
+                "test_child_predictions": test_child.astype(int).tolist(),
+                "test_parent_predictions": test_parent.astype(int).tolist(),
+                "test_labels": testy.astype(int).tolist(),
                 "parent_distribution": {str(k): int(np.sum(test_parent == k)) for k in range(3)},
                 "note": "Unsupervised visual hierarchy; CIFAR-10 has no semantic taxonomy oracle"}
     if track == "E10":
@@ -328,6 +363,7 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
                             batch_size=cfg.batch_size)
         after_old = trainer.evaluate(testx, testy, seen_classes=range(5))
         new = trainer.evaluate(testx, testy, seen_classes=range(5,10))
+        test_prediction = trainer.predict(testx)
         return {"old_before": before_old, "old_after": after_old,
                 "old_forgetting": before_old - after_old,
                 "new_accuracy": new,
@@ -335,6 +371,8 @@ def _variant(track, kind, tx, ty, valx, valy, testx, testy, cfg, shifted=None):
                 "retained_features": len(buffer.y),
                 "retained_bytes": buffer.stored_bytes,
                 "fixed_budget_bytes": cfg.memory_bytes,
+                "scoring_diagnostics": classification_artifacts(
+                    testy, test_prediction, classes=np.arange(10)),
                 "policy": policy,
                 "stage_training": trainer.stages}
     if track == "E11":
@@ -447,7 +485,8 @@ class CorruptedSubset:
 
 
 def run_cifar(cfg: AdvancedConfig):
-    from .cifar10_suite import Config, make_data, small_encoder, pretrain_encoder, extract
+    from .cifar10_suite import (Config, make_data, small_encoder, pretrain_encoder,
+                                extract, runtime_resource_usage)
     from .cifar10_suite import _device, setup
     import torch
     start = time.perf_counter()
@@ -461,6 +500,8 @@ def run_cifar(cfg: AdvancedConfig):
                ssl_epochs=cfg.ssl_epochs, device=cfg.device, download=cfg.download,
                backbone="ssl")
     device = _device(cfg.device)
+    if str(device).startswith("cuda"):
+        torch.cuda.reset_peak_memory_stats(device)
     pretrained_split = None
     feature_meta = None
     if cfg.backbone == "dinov2":
@@ -523,6 +564,7 @@ def run_cifar(cfg: AdvancedConfig):
                   "config":asdict(cfg),"source_commit":source_commit(),"variants":results,
                   "backbone_provenance":feature_meta,
                   "elapsed_seconds":time.perf_counter()-start,
+                  "resource_usage":runtime_resource_usage(torch, device),
                   "oracle_K":True, "novel_ground_truth_used_for_learning":False}
         (folder/"result.json").write_text(json.dumps(report,indent=2,allow_nan=False))
         if feature_meta is not None:
@@ -573,6 +615,7 @@ def run_cifar(cfg: AdvancedConfig):
                "source": "real_images", "supervision": "per-track see code",
                "variants": results, "pretrain_loss": pretrain_loss,
                "elapsed_seconds": time.perf_counter()-start,
+               "resource_usage": runtime_resource_usage(torch, device),
                "evidence_warning": "No publication claim; stronger baseline reproductions and seeds remain"}
     payload["evaluation_partition"] = ("validation_candidate_half" if cfg.validation_only
                                       else "test")

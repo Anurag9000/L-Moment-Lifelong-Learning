@@ -108,14 +108,27 @@ def _pseudo_assign(x, k, anchors, rng_seed, known, mode, *, previous_centers=Non
         slots = list(range(known, k))
         cluster = KMeans(n_clusters=cluster_count, n_init=10,
                          random_state=rng_seed).fit(x)
-        mapping = {i: slots[i] for i in range(cluster_count)}
     elif mode == "continual_gcd":
         previous_cutoff = known if previous_cutoff is None else previous_cutoff
         cluster_count = k - previous_cutoff
         slots = list(range(previous_cutoff, k))
         cluster = KMeans(n_clusters=cluster_count, n_init=10,
                          random_state=rng_seed).fit(x)
-        mapping = {i: slots[i] for i in range(cluster_count)}
+    if mode in ("ncd", "continual_gcd"):
+        # KMeans cluster numbers are arbitrary and can permute after each
+        # pseudo-label refresh. Match new centers to the previous epoch's
+        # persistent slots before assigning any remaining slots.
+        mapping = {}
+        prior_slots = [slot for slot in slots if slot in previous_centers]
+        if prior_slots:
+            prior = np.stack([previous_centers[slot] for slot in prior_slots])
+            cost = np.square(prior[:, None] - cluster.cluster_centers_[None]).sum(2)
+            rows, columns = linear_sum_assignment(cost)
+            mapping.update({int(column): int(prior_slots[row])
+                            for row, column in zip(rows, columns)})
+        free_slots = [slot for slot in slots if slot not in mapping.values()]
+        free_clusters = [i for i in range(cluster_count) if i not in mapping]
+        mapping.update({cluster_id: slot for cluster_id, slot in zip(free_clusters, free_slots)})
     else:
         cluster = KMeans(n_clusters=k, n_init=10, random_state=rng_seed).fit(x)
         centroids = cluster.cluster_centers_
