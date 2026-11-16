@@ -1,11 +1,12 @@
 """Additional CIFAR-10 empirical reference algorithms (not published reproductions).
 
-Runs E01, E02, E05, E06, E07, E08, E09, E10 and E11 with stronger
+Runs E01--E11 (excluding currently E12--E14) with stronger
 experiment mechanics than the original smoke suite: independent validation,
 explicit data contracts, fixed pseudo-ID mapping, class-incremental replay,
 selectable statistical models and conservative drift actions.
 
-The other tracks continue to use `lmoment-cifar10`; this module does NOT claim
+E03/E04 use a trainable image-space GCD implementation; E12--E14 continue
+to use `lmoment-cifar10`. This module does NOT claim
 that all 141 proposed research families are complete or runnable.
 """
 from __future__ import annotations
@@ -32,7 +33,9 @@ from .continual_algorithms import (
     HierarchicalDistributionMemory, EvidenceGatedAdapterRouter,
 )
 
-TRACKS = ("E01", "E02", "E05", "E06", "E07", "E08", "E09", "E10", "E11")
+FEATURE_TRACKS = ("E01", "E02", "E05", "E06", "E07", "E08", "E09", "E10", "E11")
+GCD_TRACKS = ("E03", "E04")
+TRACKS = tuple(sorted(FEATURE_TRACKS + GCD_TRACKS))
 
 
 @dataclass
@@ -52,6 +55,9 @@ class AdvancedConfig:
     memory_bytes: int = 65536
     statistical_projections: int = 16
     min_support: int = 8
+    gcd_mode: str = "gcd"  # E03 may choose ncd or gcd; E04 is continual_gcd.
+    gcd_epochs_base: int = 1
+    gcd_epochs_session: int = 1
 
     def __post_init__(self):
         if self.track not in TRACKS:
@@ -60,6 +66,8 @@ class AdvancedConfig:
             raise ValueError("Require >=8 samples per class for this pilot")
         if self.min_support < 4 or self.memory_bytes <= 0:
             raise ValueError("Invalid memory capacity")
+        if self.gcd_mode not in ("ncd", "gcd"):
+            raise ValueError("E03 mode must be ncd or gcd")
 
 
 def _eval_mapping(y, predictions):
@@ -293,6 +301,8 @@ def run_features(track, train_x, train_y, validation_x, validation_y,
                 (train_x, validation_x, test_x)]
     labels = [np.asarray(x, dtype=np.int64) for x in
               (train_y, validation_y, test_y)]
+    if track not in FEATURE_TRACKS:
+        raise ValueError("Trainable E03/E04 require run_cifar(), not cached feature-only experiments")
     if any(len(x) != len(y) for x, y in zip(features, labels)):
         raise ValueError("Input feature/label dimension mismatch")
     if any(len(np.unique(y)) < 2 for y in labels):
@@ -300,9 +310,10 @@ def run_features(track, train_x, train_y, validation_x, validation_y,
     if len({x.shape[1] for x in features}) != 1:
         raise ValueError("Inconsistent feature dimensions")
     outcome = {}
-    for kind in ("mean", "lmoment"):
-        outcome[kind] = _variant(track, kind, *sum(zip(features, labels), ()), cfg,
-                                  shifted=shifted_test_x)
+    for variant in ("baseline", "lmoment"):
+        kind = "mean" if variant == "baseline" else "lmoment"
+        outcome[variant] = _variant(track, kind, *sum(zip(features, labels), ()), cfg,
+                                    shifted=shifted_test_x)
     return outcome
 
 
@@ -338,6 +349,42 @@ def run_cifar(cfg: AdvancedConfig):
     train, val, test = make_data(c)
     device = _device(cfg.device)
     encoder = small_encoder(cfg.feature_dim)
+    if cfg.track in GCD_TRACKS:
+        from .gcd_training import GCDConfig, train_gcd
+        mode = "continual_gcd" if cfg.track == "E04" else cfg.gcd_mode
+        gcd_cfg = GCDConfig(mode=mode, seed=cfg.seed, batch_size=cfg.batch_size,
+                            epochs_base=cfg.gcd_epochs_base,
+                            epochs_session=cfg.gcd_epochs_session)
+        key = hashlib.sha256(json.dumps(asdict(cfg), sort_keys=True).encode()).hexdigest()[:12]
+        folder = Path(cfg.output_root) / cfg.track / f"advanced_{key}_seed{cfg.seed}"
+        if folder.exists():
+            raise FileExistsError(f"Immutable result already exists: {folder}")
+        folder.mkdir(parents=True)
+        results = {}
+        for variant in ("baseline", "lmoment"):
+            output = train_gcd(encoder, cfg.feature_dim, train, val, test,
+                               gcd_cfg, variant=variant, device=device)
+            torch.save(output["model_state"], folder / f"{variant}_model.pt")
+            results[variant] = output["results"]
+        report = {"status":"trainable_GCD_reference_not_official_paper_reproduction",
+                  "dataset":"torchvision CIFAR-10", "source":"real_images",
+                  "config":asdict(cfg),"variants":results,
+                  "elapsed_seconds":time.perf_counter()-start,
+                  "oracle_K":True, "novel_ground_truth_used_for_learning":False}
+        (folder/"result.json").write_text(json.dumps(report,indent=2,allow_nan=False))
+        baseline_last = results["baseline"]["sessions"][-1]
+        lmoment_last = results["lmoment"]["sessions"][-1]
+        comparison = {k: {"baseline": baseline_last[k], "lmoment": lmoment_last[k],
+                          "delta": float(lmoment_last[k] - baseline_last[k])}
+                      for k in baseline_last.keys() & lmoment_last.keys()
+                      if type(baseline_last[k]) in (int, float)
+                      and type(lmoment_last[k]) in (int, float)}
+        (folder/"comparison.json").write_text(json.dumps(comparison, indent=2))
+        (folder/"split_manifest.json").write_text(json.dumps({
+            "train_indices":[int(i) for i in train.indices],
+            "val_indices":[int(i) for i in val.indices],
+            "test_indices":[int(i) for i in test.indices]},indent=2))
+        return folder, report
     pretrain_loss = pretrain_encoder(encoder, train, c, device)
     train_x, train_y = extract(encoder, train, c, device)
     val_x, val_y = extract(encoder, val, c, device)
@@ -360,10 +407,10 @@ def run_cifar(cfg: AdvancedConfig):
                "evidence_warning": "No publication claim; stronger baseline reproductions and seeds remain"}
     (folder / "result.json").write_text(json.dumps(payload, indent=2, allow_nan=False))
     comparison = {}
-    for k, v in results["mean"].items():
+    for k, v in results["baseline"].items():
         lm = results["lmoment"].get(k)
         if isinstance(v, (float, int, np.floating)) and isinstance(lm, (float, int, np.floating)):
-            comparison[k] = {"mean": float(v), "lmoment": float(lm),
+            comparison[k] = {"baseline": float(v), "lmoment": float(lm),
                              "delta": float(lm - v)}
     (folder / "comparison.json").write_text(json.dumps(comparison, indent=2))
     (folder / "split_manifest.json").write_text(json.dumps({
@@ -389,6 +436,9 @@ def main(argv=None):
     p.add_argument("--memory-bytes", type=int, default=65536)
     p.add_argument("--statistical-projections", type=int, default=16)
     p.add_argument("--min-support", type=int, default=8)
+    p.add_argument("--gcd-mode", choices=("ncd", "gcd"), default="gcd")
+    p.add_argument("--gcd-epochs-base", type=int, default=1)
+    p.add_argument("--gcd-epochs-session", type=int, default=1)
     p.add_argument("--device", default="auto")
     p.add_argument("--download", action="store_true")
     cfg = AdvancedConfig(**vars(p.parse_args(argv)))

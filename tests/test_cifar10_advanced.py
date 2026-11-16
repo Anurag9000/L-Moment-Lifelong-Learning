@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 from lmoment_lifelong.cifar10_advanced import (
     AdvancedConfig, run_features, _eval_mapping, _cluster_metrics,
-    _learn_radius, TRACKS,
+    _learn_radius, FEATURE_TRACKS, TRACKS,
 )
 
 
@@ -23,7 +23,7 @@ def test_invalid_configuration():
     assert _learn_radius(np.random.default_rng(1).normal(size=(20, 3))) > 0
 
 
-@pytest.mark.parametrize('track', TRACKS)
+@pytest.mark.parametrize('track', FEATURE_TRACKS)
 def test_advanced_reference_pair_runs(track):
     if track == 'E10':
         pytest.importorskip('torch')
@@ -40,5 +40,14 @@ def test_advanced_reference_pair_runs(track):
                        feature_dim=8,min_support=4,memory_bytes=8192)
     results=run_features(track,tx,ty,vx,vy,ex,ey,cfg,
                          shifted_test_x=ex+.1 if track=='E07' else None)
-    assert set(results)=={'mean','lmoment'}
+    assert set(results)=={'baseline','lmoment'}
     assert all(bool(r) for r in results.values())
+
+
+def test_gcd_tracks_are_declared_trainable_not_feature_only():
+    assert set(('E03','E04')).issubset(TRACKS)
+    cfg=AdvancedConfig(track='E03',samples_per_class=8,val_per_class=8,test_per_class=8)
+    with pytest.raises(ValueError):
+        run_features('E03',np.zeros((2,3)),np.array([0,1]),
+                     np.zeros((2,3)),np.array([0,1]),
+                     np.zeros((2,3)),np.array([0,1]),cfg)
