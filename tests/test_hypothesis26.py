@@ -149,7 +149,7 @@ def test_advanced_feature_variant_is_lmoment_only():
 
 
 def test_advanced_gcd_excludes_baseline_training_and_comparison(tmp_path, monkeypatch):
-    import torch
+    torch = pytest.importorskip("torch")
     from lmoment_lifelong import cifar10_suite, cifar10_advanced, gcd_training
 
     class FakeSubset:
@@ -179,7 +179,7 @@ def test_advanced_gcd_excludes_baseline_training_and_comparison(tmp_path, monkey
 
 
 def test_advanced_feature_run_hypothesis_only_has_checkpoint(tmp_path, monkeypatch):
-    import torch
+    torch = pytest.importorskip("torch")
     from lmoment_lifelong import cifar10_suite, cifar10_advanced
 
     class FakeSubset:
