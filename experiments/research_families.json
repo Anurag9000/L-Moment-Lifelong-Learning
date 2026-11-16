@@ -1,0 +1,2827 @@
+{
+  "schema": 1,
+  "total_families": 141,
+  "method_scope": "planned research; registry presence does not imply implementation",
+  "families": [
+    {
+      "family_id": "E01-A",
+      "track": "E01",
+      "title": "Estimator verification against known distributions",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E01-B",
+      "track": "E01",
+      "title": "Distribution-shape discrimination at matched lower moments",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E01-C",
+      "track": "E01",
+      "title": "Matched-low-order-L-moment counterexamples",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E01-D",
+      "track": "E01",
+      "title": "ImageNet-or-CIFAR feature distribution profiling",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E01-E",
+      "track": "E01",
+      "title": "Difficult visually similar category pairs",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E01-F",
+      "track": "E01",
+      "title": "Dependence via projected L-moments and L-comoments",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E01-G",
+      "track": "E01",
+      "title": "Low-sample contamination and tail robustness",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E01-H",
+      "track": "E01",
+      "title": "Streaming sketch accuracy versus memory and throughput",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E01-I",
+      "track": "E01",
+      "title": "Sequential drift detection at fixed false-alarm rate",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E01-J",
+      "track": "E01",
+      "title": "Class-conditional predictive distribution fitting",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E02-A",
+      "track": "E02",
+      "title": "Offline unsupervised unknown-class-count clustering",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E02-B",
+      "track": "E02",
+      "title": "Causal online predict-before-update discovery",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E02-C",
+      "track": "E02",
+      "title": "Hidden-boundary class-blocked stream",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E02-D",
+      "track": "E02",
+      "title": "Blurry class arrival and mixed-class streams",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E02-E",
+      "track": "E02",
+      "title": "Historical class recurrence without duplicate identity",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E02-F",
+      "track": "E02",
+      "title": "Growing and unknown class counts",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E02-G",
+      "track": "E02",
+      "title": "Strict fixed-byte memory discovery",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E02-H",
+      "track": "E02",
+      "title": "Frozen-versus-trainable representation sensitivity",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E03-A",
+      "track": "E03",
+      "title": "NCD with labeled known classes and novel-only unlabeled pool",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E03-B",
+      "track": "E03",
+      "title": "GCD with mixed known and novel unlabeled pool",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E03-C",
+      "track": "E03",
+      "title": "Oracle-K versus estimated-K GCD",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E03-D",
+      "track": "E03",
+      "title": "Frozen backbone versus trainable representation GCD",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E03-E",
+      "track": "E03",
+      "title": "Pseudo-label noise injection and statistical correction",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E03-F",
+      "track": "E03",
+      "title": "Old-new class frequency imbalance",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E03-G",
+      "track": "E03",
+      "title": "Visually similar fine-grained new classes",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E03-H",
+      "track": "E03",
+      "title": "Large-scale generalized category discovery",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E04-A",
+      "track": "E04",
+      "title": "Continual generalized category discovery reference",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E04-B",
+      "track": "E04",
+      "title": "Frozen visual representation C-GCD",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E04-C",
+      "track": "E04",
+      "title": "Trainable visual representation C-GCD",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E04-D",
+      "track": "E04",
+      "title": "Long-horizon incremental session count",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E04-E",
+      "track": "E04",
+      "title": "Old versus new example imbalance",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E04-F",
+      "track": "E04",
+      "title": "Exemplar-free historical preservation",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E04-G",
+      "track": "E04",
+      "title": "Bounded exemplar C-GCD",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E04-H",
+      "track": "E04",
+      "title": "Historical pseudo-label contamination",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E04-I",
+      "track": "E04",
+      "title": "Historical novel-category recurrence",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E04-J",
+      "track": "E04",
+      "title": "Large-scale continual generalized category discovery",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E05-A",
+      "track": "E05",
+      "title": "Online probabilistic versus threshold versus deferred class birth",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E05-B",
+      "track": "E05",
+      "title": "Class-birth detection delay as support grows",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E05-C",
+      "track": "E05",
+      "title": "Unknown and changing semantic class count",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E05-D",
+      "track": "E05",
+      "title": "Abrupt versus gradual arrival and false alarms",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E05-E",
+      "track": "E05",
+      "title": "Long-tailed rare novel class arrival",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E05-F",
+      "track": "E05",
+      "title": "Recurrent old categories and duplicate birth prevention",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E05-G",
+      "track": "E05",
+      "title": "Known-class frequency shift without semantic novelty",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E05-H",
+      "track": "E05",
+      "title": "Frozen versus causally adaptive encoder",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E05-I",
+      "track": "E05",
+      "title": "Fixed total memory under novel-class arrival",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E05-J",
+      "track": "E05",
+      "title": "Long-horizon on-the-fly discovery at large scale",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E06-A",
+      "track": "E06",
+      "title": "Incorrect early fragmentation repaired by merging",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E06-B",
+      "track": "E06",
+      "title": "Incorrect early grouping repaired by splitting",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E06-C",
+      "track": "E06",
+      "title": "Multimodal appearance variation without false semantics",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E06-D",
+      "track": "E06",
+      "title": "Delayed structural revision from additional evidence",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E06-E",
+      "track": "E06",
+      "title": "Pseudo-label contamination and repair",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E06-F",
+      "track": "E06",
+      "title": "Old-category reactivation without identity duplication",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E06-G",
+      "track": "E06",
+      "title": "Domain submodes without incorrect semantic birth",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E06-H",
+      "track": "E06",
+      "title": "Rare class consolidation and postponement",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E06-I",
+      "track": "E06",
+      "title": "Protected memory reconsolidation",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E06-J",
+      "track": "E06",
+      "title": "History budget and eviction without silent loss",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E06-K",
+      "track": "E06",
+      "title": "Geometry versus covariance versus L-moment structural evidence",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E06-L",
+      "track": "E06",
+      "title": "Long-horizon structural memory and class count",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E07-A",
+      "track": "E07",
+      "title": "Known semantic class under new image corruption",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E07-B",
+      "track": "E07",
+      "title": "Known class under new image style",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E07-C",
+      "track": "E07",
+      "title": "Novel class under a familiar domain",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E07-D",
+      "track": "E07",
+      "title": "Novel class simultaneous with new appearance domain",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E07-E",
+      "track": "E07",
+      "title": "Rare historical class recurrence",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E07-F",
+      "track": "E07",
+      "title": "Rare genuinely novel class detection",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E07-G",
+      "track": "E07",
+      "title": "Contamination by unrelated observations",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E07-H",
+      "track": "E07",
+      "title": "Gradual corruption severity evolution",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E07-I",
+      "track": "E07",
+      "title": "Appearance-domain recurrence and recovery",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E07-J",
+      "track": "E07",
+      "title": "Combined novelty domain noise imbalance and recurrence",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E08-A",
+      "track": "E08",
+      "title": "Flat versus learned hierarchical category memory",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E08-B",
+      "track": "E08",
+      "title": "Coarse-to-fine discovered subcategory structure",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E08-C",
+      "track": "E08",
+      "title": "Fine-to-coarse parent discovery",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E08-D",
+      "track": "E08",
+      "title": "Closely related visual category discrimination",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E08-E",
+      "track": "E08",
+      "title": "Global versus local patch-token statistics",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E08-F",
+      "track": "E08",
+      "title": "Semantic children versus appearance submodes",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E08-G",
+      "track": "E08",
+      "title": "Fine-grained historical class recurrence",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E08-H",
+      "track": "E08",
+      "title": "Unknown number of subcategories",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E08-I",
+      "track": "E08",
+      "title": "Large-scale taxonomy reconstruction",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E09-A",
+      "track": "E09",
+      "title": "Frozen-encoder Class-IL classifier comparison",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E09-B",
+      "track": "E09",
+      "title": "Large-scale exemplar-free Class-IL",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E09-C",
+      "track": "E09",
+      "title": "Incremental low-shot historical class fitting",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E09-D",
+      "track": "E09",
+      "title": "Long-tailed exemplar-free retention",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E09-E",
+      "track": "E09",
+      "title": "Similar-category higher-order distributional modeling",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E09-F",
+      "track": "E09",
+      "title": "Projection-count versus storage versus performance",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E09-G",
+      "track": "E09",
+      "title": "Parametric distribution-family misspecification",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E09-H",
+      "track": "E09",
+      "title": "Equal-byte exemplar-free statistical memory",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E09-I",
+      "track": "E09",
+      "title": "Trainable-encoder exemplar-free continual adaptation",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E10-A",
+      "track": "E10",
+      "title": "Replay-policy comparison at equal exemplars per class",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E10-B",
+      "track": "E10",
+      "title": "Fixed-total-byte image versus feature memory",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E10-C",
+      "track": "E10",
+      "title": "Replay coverage of multimodal visual distributions",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E10-D",
+      "track": "E10",
+      "title": "Class-imbalanced replay selection",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E10-E",
+      "track": "E10",
+      "title": "Gradient interference-aware replay",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E10-F",
+      "track": "E10",
+      "title": "Replay ratio at equal optimization budget",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E10-G",
+      "track": "E10",
+      "title": "Changing feature encoder and stale memory",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E10-H",
+      "track": "E10",
+      "title": "Incorrect replay pseudo-label injection",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E10-I",
+      "track": "E10",
+      "title": "Recurrent concept reconsolidation",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E10-J",
+      "track": "E10",
+      "title": "Corruption versus actual concept change",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E10-K",
+      "track": "E10",
+      "title": "Long-horizon large-scale replay selection",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E11-A",
+      "track": "E11",
+      "title": "Abrupt hidden-boundary class transition",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E11-B",
+      "track": "E11",
+      "title": "Gradual mixture drift without boundaries",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E11-C",
+      "track": "E11",
+      "title": "Domain-Incremental shift without new classes",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E11-D",
+      "track": "E11",
+      "title": "Recurrent historical domain and module reuse",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E11-E",
+      "track": "E11",
+      "title": "Harmless distribution change should not adapt",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E11-F",
+      "track": "E11",
+      "title": "Loss spike without environmental drift",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E11-G",
+      "track": "E11",
+      "title": "Distribution drift without loss deterioration",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E11-H",
+      "track": "E11",
+      "title": "Known task boundaries versus fully hidden boundaries",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E11-I",
+      "track": "E11",
+      "title": "Supervised task-free versus unlabeled SSL access",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E11-J",
+      "track": "E11",
+      "title": "Large-scale mixed nonstationary streams",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": true,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E12-A",
+      "track": "E12",
+      "title": "Fixed architecture versus growing-width MLP",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E12-B",
+      "track": "E12",
+      "title": "Width increment and candidate parameter budget",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E12-C",
+      "track": "E12",
+      "title": "Loss-only versus L-moment-only growth criteria",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E12-D",
+      "track": "E12",
+      "title": "Joint drift loss and capacity-evidence controller",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E12-E",
+      "track": "E12",
+      "title": "Candidate growth trials versus untested expansion",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E12-F",
+      "track": "E12",
+      "title": "Task-ID-oracle neural capacity growth",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E12-G",
+      "track": "E12",
+      "title": "Single-head class-incremental neural growth",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E12-H",
+      "track": "E12",
+      "title": "No-boundary task-free capacity adaptation",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E12-I",
+      "track": "E12",
+      "title": "Recurrent historical task module reuse",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E12-J",
+      "track": "E12",
+      "title": "BGD posterior updates versus ordinary optimizer",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E12-K",
+      "track": "E12",
+      "title": "Predictive-uncertainty shape versus variance triggers",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E12-L",
+      "track": "E12",
+      "title": "Large-scale vision adapter and FFN-only growth",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E13-A",
+      "track": "E13",
+      "title": "Online continual SSL on CIFAR-100",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E13-B",
+      "track": "E13",
+      "title": "Online continual SSL on Tiny-ImageNet",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E13-C",
+      "track": "E13",
+      "title": "Causal ImageNet-100 unlabeled single-pass learning",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E13-D",
+      "track": "E13",
+      "title": "Blurry nonstationary continual SSL",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E13-E",
+      "track": "E13",
+      "title": "Returning categories and historical representation retention",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E13-F",
+      "track": "E13",
+      "title": "Teacher-student historical feature distillation",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E13-G",
+      "track": "E13",
+      "title": "L-moment distributional SSL constraint",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E13-H",
+      "track": "E13",
+      "title": "Engram-retrieved self-supervised positive relations",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E13-I",
+      "track": "E13",
+      "title": "From-scratch versus pretrained continual SSL",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E13-J",
+      "track": "E13",
+      "title": "Large-scale continual SSL transfer and forgetting",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E14-A",
+      "track": "E14",
+      "title": "Unified memory stability on known classes",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E14-B",
+      "track": "E14",
+      "title": "Unified autonomous novel-class formation",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": true,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E14-C",
+      "track": "E14",
+      "title": "Known-class appearance shift without false birth",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E14-D",
+      "track": "E14",
+      "title": "Historical class recurrence and memory reactivation",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E14-E",
+      "track": "E14",
+      "title": "Deliberately induced forgetting diagnosis and recovery",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E14-F",
+      "track": "E14",
+      "title": "Incorrect historical split-merge repair",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E14-G",
+      "track": "E14",
+      "title": "Verified architecture capacity shortage and appropriate growth",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E14-H",
+      "track": "E14",
+      "title": "New categories separable with existing capacity",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E14-I",
+      "track": "E14",
+      "title": "Rare classes outliers and budgeted memory",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E14-J",
+      "track": "E14",
+      "title": "Simultaneous competing sources of change",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E14-K",
+      "track": "E14",
+      "title": "Long-horizon integrated ImageNet-100",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    },
+    {
+      "family_id": "E14-L",
+      "track": "E14",
+      "title": "Integrated ImageNet-1K scaling and Pareto comparison",
+      "dataset": "CIFAR-10 pilot when semantically applicable; full study may need other datasets",
+      "scientific_implementation": "not_complete",
+      "reference_available": false,
+      "extended_algorithm_api": false,
+      "results": "not_verified",
+      "published_baseline_reproduction": false,
+      "required_evidence": [
+        "algorithm and data contract",
+        "baseline implementation",
+        "matched ablation",
+        "training or estimation run",
+        "independent validation",
+        "multi-seed comparison",
+        "resource accounting"
+      ]
+    }
+  ]
+}
