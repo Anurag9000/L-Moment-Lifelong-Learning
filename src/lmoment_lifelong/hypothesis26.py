@@ -71,6 +71,7 @@ assert len(RUNS) == 26 and len({s.id for s in RUNS}) == 26
 class Options:
     dataset: str = "stl10"
     batch_size: int = BATCH_SIZE
+    screen_train_per_class: int = 100
     seed: int = DEFAULT_SEED
     output_root: str = "results/stl10_hypothesis26_dinov2"
     data_root: str = "datasets"
@@ -125,6 +126,8 @@ class Options:
         train_cap, test_cap = (5000, 1000) if self.dataset == "cifar10" else (500, 800)
         if self.train_per_class + self.val_per_class > train_cap:
             raise ValueError(f"{self.dataset} training partition is too small")
+        if not 8 <= self.screen_train_per_class <= self.train_per_class:
+            raise ValueError("screen_train_per_class must be between 8 and train_per_class")
         if not 8 <= self.test_per_class <= test_cap:
             raise ValueError(f"{self.dataset} test partition is too small")
         if min(self.epochs, self.ssl_epochs, self.gcd_epochs_base,
@@ -470,6 +473,7 @@ def main(argv=None) -> int:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--dataset", choices=("cifar10", "stl10"), default="stl10")
     parser.add_argument("--batch-size", type=int, default=64)
+    parser.add_argument("--screen-train-per-class", type=int, default=100)
     parser.add_argument("--data-root", default="datasets")
     parser.add_argument("--output-root", default="results/stl10_hypothesis26_dinov2")
     parser.add_argument("--train-per-class", type=int, default=400)

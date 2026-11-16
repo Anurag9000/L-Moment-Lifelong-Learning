@@ -199,7 +199,7 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
     root.mkdir(parents=True, exist_ok=True)
     manifest_path = root / "tuning_manifest.json"
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {
-        "schema": 1, "protocol": "validation_only_coordinate_search",
+        "schema": 2, "protocol": "two_fidelity_validation_only_coordinate_search",
         "max_rounds": max_rounds, "batch_size": base.batch_size,
         "source_commit": source_commit(), "base_options": asdict(base),
         "tracks": {}}
@@ -215,13 +215,15 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
         temporary.replace(manifest_path)
 
     def evaluate(spec, values, label):
-        options = replace(base, **values, validation_only=True,
+        options = replace(base, train_per_class=base.screen_train_per_class,
+                          **values, validation_only=True,
                           output_root=str(root / "candidates" / spec.id / _candidate_key(values)))
         key = _candidate_key(values)
         track_record = manifest["tracks"].setdefault(spec.id, {"candidates": {}, "rounds": []})
         if (key in track_record["candidates"]
                 and track_record["candidates"][key].get("status") == "completed"):
-            candidate_options = replace(base, **values, validation_only=True,
+            candidate_options = replace(base, train_per_class=base.screen_train_per_class,
+                **values, validation_only=True,
                 output_root=str(root / "candidates" / spec.id / key))
             candidate_job = build_job(spec, candidate_options)
             verified, reason = _verify(candidate_job)
@@ -306,6 +308,45 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
                              "objective": best["objective"]}
         manifest["tracks"][spec.id]["selected"] = selected[spec.id]
 
+    # Recheck the top three screen configurations with the full training split.
+    # Validation remains the selection signal; final test stays sealed.
+    for spec in RUNS:
+        track_record = manifest["tracks"][spec.id]
+        candidates = [r for r in track_record["candidates"].values()
+                      if r.get("status") == "completed"]
+        finalists = sorted(candidates, key=lambda r: r["score"], reverse=True)[:3]
+        confirmed = []
+        for finalist in finalists:
+            values = finalist["config"]
+            key = _candidate_key({"fidelity": "full", **values})
+            output = root / "confirmations" / spec.id / key
+            options = replace(base, **values, validation_only=True,
+                              output_root=str(output))
+            rows, failures = run_jobs([spec], options, fail_fast=True,
+                                      retry_incomplete=True)
+            if failures or not rows or rows[0]["status"] not in ("completed", "skipped_verified"):
+                raise RuntimeError(f"Full-data validation confirmation failed for {spec.id}: {rows}")
+            result = json.loads(Path(rows[0]["result_path"]).read_text())
+            score, objective = _objective(spec.id, result["variants"]["lmoment"])
+            baseline_score, baseline_objective = _objective(spec.id, result["variants"]["baseline"])
+            record = {"key": key, "config": values, "score": score,
+                      "objective": objective, "baseline_score": baseline_score,
+                      "baseline_objective": baseline_objective,
+                      "lmoment_minus_baseline": score - baseline_score,
+                      "status": "completed", "result_path": rows[0]["result_path"]}
+            track_record.setdefault("confirmations", {})[key] = record
+            confirmed.append(record)
+            manifest["updated_utc"] = __import__("datetime").datetime.now().astimezone().isoformat()
+            persist_manifest()
+        if not confirmed:
+            raise RuntimeError(f"No full-data validation finalists for {spec.id}")
+        winner = max(confirmed, key=lambda r: r["score"])
+        screen_score = next(r["score"] for r in finalists if r["config"] == winner["config"])
+        selected[spec.id] = {"config": winner["config"], "score": winner["score"],
+                             "objective": winner["objective"], "screen_score": screen_score,
+                             "confirmation_result": winner["result_path"]}
+        track_record["selected"] = selected[spec.id]
+
     manifest["selected"] = selected
     manifest["status"] = "validation_tuned"
     persist_manifest()
@@ -334,9 +375,10 @@ def main(argv=None) -> int:
     parser.add_argument("--dataset", choices=("cifar10", "stl10"), default="stl10")
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--train-per-class", type=int, default=400)
+    parser.add_argument("--screen-train-per-class", type=int, default=100)
     parser.add_argument("--val-per-class", type=int, default=100)
     parser.add_argument("--test-per-class", type=int, default=800)
-    parser.add_argument("--output-root", default="results/stl10_hypothesis26_tuned")
+    parser.add_argument("--output-root", default="results/stl10_hypothesis26_multifidelity")
     parser.add_argument("--feature-cache-root", default="results/stl10_dinov2_cache")
     parser.add_argument("--data-root", default="datasets")
     parser.add_argument("--device", default="auto")
@@ -351,7 +393,9 @@ def main(argv=None) -> int:
     parser.add_argument("--no-final-tests", action="store_true")
     args = parser.parse_args(argv)
     base = Options(dataset=args.dataset, batch_size=args.batch_size,
-                   train_per_class=args.train_per_class, val_per_class=args.val_per_class,
+                   train_per_class=args.train_per_class,
+                   screen_train_per_class=args.screen_train_per_class,
+                   val_per_class=args.val_per_class,
                    test_per_class=args.test_per_class,
                    output_root=args.output_root, feature_cache_root=args.feature_cache_root,
                    data_root=args.data_root, device=args.device,
