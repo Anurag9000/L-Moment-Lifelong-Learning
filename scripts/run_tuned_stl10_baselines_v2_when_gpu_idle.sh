@@ -10,10 +10,10 @@ log_file="$log_dir/gpu_idle_launcher.log"
 cd "$repo_root"
 mkdir -p "$log_dir"
 
-# Keep at least half the V100's VRAM free and avoid launching during active
-# compute. Stopped processes can retain CUDA allocations while using no GPU.
-idle_samples=0
-while (( idle_samples < 3 )); do
+# This feature-cache campaign uses small downstream models. Share the GPU when
+# at least 5 GiB of VRAM remains free, even if another job is using compute.
+headroom_samples=0
+while (( headroom_samples < 3 )); do
     sample="$(nvidia-smi --query-gpu=memory.used,utilization.gpu --format=csv,noheader,nounits)"
     IFS=',' read -r used_mib utilization <<< "$sample"
     used_mib="${used_mib// /}"
@@ -21,13 +21,13 @@ while (( idle_samples < 3 )); do
     timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     printf '%s memory_mib=%s utilization_pct=%s\n' \
         "$timestamp" "$used_mib" "$utilization" | tee -a "$log_file"
-    if (( used_mib < 16384 && utilization < 5 )); then
-        ((idle_samples += 1))
+    if (( used_mib < 27648 )); then
+        ((headroom_samples += 1))
     else
-        idle_samples=0
+        headroom_samples=0
     fi
-    if (( idle_samples < 3 )); then
-        sleep 60
+    if (( headroom_samples < 3 )); then
+        sleep 20
     fi
 done
 
