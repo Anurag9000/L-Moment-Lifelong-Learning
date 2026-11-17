@@ -10,7 +10,8 @@ log_file="$log_dir/gpu_idle_launcher.log"
 cd "$repo_root"
 mkdir -p "$log_dir"
 
-# Leave the shared V100 alone while other users have active CUDA workloads.
+# Keep at least half the V100's VRAM free and avoid launching during active
+# compute. Stopped processes can retain CUDA allocations while using no GPU.
 idle_samples=0
 while (( idle_samples < 3 )); do
     sample="$(nvidia-smi --query-gpu=memory.used,utilization.gpu --format=csv,noheader,nounits)"
@@ -20,7 +21,7 @@ while (( idle_samples < 3 )); do
     timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     printf '%s memory_mib=%s utilization_pct=%s\n' \
         "$timestamp" "$used_mib" "$utilization" | tee -a "$log_file"
-    if (( used_mib < 2048 && utilization < 5 )); then
+    if (( used_mib < 16384 && utilization < 5 )); then
         ((idle_samples += 1))
     else
         idle_samples=0
