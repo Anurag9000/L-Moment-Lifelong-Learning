@@ -6,6 +6,12 @@
 
 **Status:** Research proposal; dataset recommendations are hypotheses, not empirical wins.
 
+**Scope:** This is a structured literature and dataset-owner-source scout, not
+a claim that every dataset on the web has been enumerated. Counts and access
+details are a planning snapshot. Before acquisition, confirm the exact release,
+download method, and terms. This note does not certify that a candidate is
+open-license, registration-free, or cleared for redistribution.
+
 ## Executive summary
 
 The most defensible real-data opportunity found in this search is **short-record flood-frequency estimation from river-gauge data**. L-moments were developed as distribution summaries and have an established role in regional hydrology; the practical endpoint is estimating rare flood quantiles from limited, heterogeneous gauge records. The UK National River Flow Archive (NRFA) publishes annual maxima (AMAX) and peaks-over-threshold (POT) observations, and USGS provides annual peak-flow data. A recent NRFA analysis retained 792 gauges and 42,508 station-years after screening records for length and quality. This is a natural, meaningful distribution-estimation problem, although it is not a centroid-classification benchmark.
@@ -56,6 +62,32 @@ This matrix is a **prioritization aid**, not a statement that the proposed resul
 
 For every row, evaluate a **mean-only control** to answer the user's centroid question and stronger distribution-aware controls to answer whether L-moments add anything distinctive. If L-moments beat only the mean while covariance or quantiles tie them, the supported conclusion is “shape information helps beyond location,” not “L-moments are the best detector.”
 
+### Candidate readiness and selection status
+
+The ranking below is a research-priority decision, not a verified acquisition
+or implementation status. “Public source located” means a dataset-owner or
+benchmark source is identified; it does not mean the current terms permit
+redistribution or that these data have been downloaded.
+
+| Candidate | Status in this project | Why it is retained | Required gate before a run |
+|---|---|---|---|
+| NRFA Peak Flow Dataset | Public owner page and versioned release located; no project acquisition or terms audit recorded here | Direct extreme-quantile endpoint and established L-moment context | Record release/version, terms, AMAX/POT schema, quality flags, station counts after fixed screening, and catchment grouping |
+| USGS annual peaks | Public owner API/download source located; no project extraction or station audit recorded here | Independent geographic replication for annual-peak estimation | Pin query/date and parameter codes; audit station metadata, quality qualifiers, changes, and terms |
+| PACS | Benchmark paper and project page located; no project download/terms audit recorded here | Small visual domain-shift bridge after STL-10 | Verify official files/splits and terms; inventory per-domain/class support; pin feature extraction and leakage rules |
+| Office-Home | Dataset description located; no project download/terms audit recorded here | Intermediate visual confirmation between PACS and DomainNet | Verify official release, access terms, split protocol, and independent per-class/domain support |
+| DomainNet | Dataset description located; no project download/terms audit recorded here | Large-scale visual confirmation with six domains and many classes | Verify official release/access conditions, complete files and class/domain balance; estimate storage/compute before extraction |
+| NAB / TSB-AD | Benchmark sources located; no per-series semantic audit recorded here | Real time-series alarm evaluation | Audit each label's meaning, chronology, causal observability, missingness, and scoring protocol |
+| D4RL | Paper/source located; no environment/version or data-rights audit recorded here | Offline trajectory/return-distribution research | Pin task and version; verify trajectory semantics and terms; avoid counterfactual claims from logged returns |
+
+**Current recommendation.** For the project's continual-learning direction,
+start with Study B's feasibility audit on one carefully selected stream
+collection, then evaluate causal alarms and adaptation separately. For the
+strongest direct use of distribution estimation, start with NRFA AMAX
+short-record quantiles. For continuity with the visual experiments, run PACS
+first, then Office-Home; DomainNet is a scale-up only after a smaller study
+passes its decision gate. These are separate application claims and should not
+be bundled into one omnibus result.
+
 ### What current project results already say
 
 - **O-E16, natural STL-10 groups:** frozen DINOv2 ViT-B/14 features, unmodified group observations, group size 16, three seeds. On the ten closest training-centroid class pairs, centroid AUC was `0.99799 ± 0.00184`, versus `0.99762 ± 0.00220` for the full L-moment signature. Over all 45 class pairs, centroid AUC was `0.99971 ± 0.00025`, versus `0.99943 ± 0.00033`. Both methods were near ceiling; centroid was slightly ahead in AUC and TPR. The training-calibrated 5% FPR target transferred imperfectly: observed test FPRs were roughly 7–9%. This was pairwise group detection, not online novel-class discovery. See [O-E16 report](OE16_NATURAL_NEAR_CENTROID_DETECTION.md).
@@ -71,7 +103,7 @@ Together these support a narrow hypothesis: L-shape statistics may be more usefu
 
 **Candidate data.**
 
-- **UK NRFA Peak Flow Dataset:** current archive provides AMAX, POT, and catchment descriptors for UK gauges. The latest downloadable release is versioned and updated, so pin the exact release and license/terms before analysis. [Dataset/download page](https://nrfa.ceh.ac.uk/data/peak-flow-dataset), [data access and API](https://nrfa.ceh.ac.uk/data/use-nrfa-data/data-access).
+- **UK NRFA Peak Flow Dataset:** the owner page currently lists Version 15 for WINFAP 5.2+, with AMAX, POT, and catchment-descriptor files; its release note says it extends active-station coverage through water year 2025 and was released 27 August 2026. Recheck the live page and terms immediately before acquisition. [Dataset/download page](https://nrfa.ceh.ac.uk/data/peak-flow-dataset), [data access and API](https://nrfa.ceh.ac.uk/data/use-nrfa-data/data-access).
 - **NRFA station time series for a broad real-data evaluation:** a recent paper retrieved annual maxima across 1,604 catalogued stations; after quality and minimum-record-length screening it retained 792 gauges with 42,508 station-years and record lengths of 30–142 years. Its real data illustrate the range of L-moment geometry but were not used to establish known parent distributions. [Study and dataset screening](https://link.springer.com/article/10.1007/s00477-026-03402-z).
 - **USGS annual peak flows:** the USGS Water Data API/download service offers annual peak-flow values, defined as the maximum instantaneous streamflow in a water year. It is a potential independent geographic replication, subject to station selection and quality screening. [USGS Water Data download](https://api.waterdata.usgs.gov/download/), [USGS data definition](https://waterservices.usgs.gov/docs/statistics/statistics-details/).
 - **CAMELS-US:** 671 minimally disturbed US catchments with daily streamflow, meteorological forcing, and catchment attributes. Useful for flow-regime and catchment-group studies, though annual maxima alone give relatively few observations per gauge. [Original CAMELS description](https://hess.copernicus.org/articles/21/5293/2017/).
@@ -254,6 +286,8 @@ Primary and dataset-owner sources used in this scouting note:
 14. D4RL offline RL dataset paper: https://arxiv.org/abs/2004.07219
 15. Quantile regression distributional RL paper: https://ojs.aaai.org/index.php/AAAI/article/download/11791/11650
 16. Risk-sensitive distributional RL/CVaR paper: https://papers.neurips.cc/paper_files/paper/2022/hash/c88a2bd0e793550d0e885aa6e31ca277-Abstract-Conference.html
+17. NRFA Peak Flow Dataset release page (check live version and terms at acquisition): https://nrfa.ceh.ac.uk/data/peak-flow-dataset
+18. TensorFlow Datasets DomainNet catalog (secondary catalog; use the original paper/release for protocol and access terms): https://www.tensorflow.org/datasets/catalog/domainnet
 
 This source register supports dataset descriptions and methodological context. It is not evidence that L-moments have already won any of the proposed benchmarks.
 
