@@ -217,7 +217,8 @@ def _valid_feature_config(values: dict[str, Any], max_components: int | None = N
 
 def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
              final_tests: bool = True,
-             reuse_manifest: str | Path | None = None) -> dict[str, Any]:
+             reuse_manifest: str | Path | None = None,
+             score_variant: str = "lmoment") -> dict[str, Any]:
     """Screen each axis, combine winners, then coordinate-refine to convergence.
 
     Every candidate uses disjoint validation development/scoring halves. Test
@@ -225,11 +226,13 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
     """
     if max_rounds < 1:
         raise ValueError("max_rounds must be positive")
+    if score_variant not in ("baseline", "lmoment") or base.variant != score_variant:
+        raise ValueError("base.variant and score_variant must both select baseline or lmoment")
     root = Path(root)
     root.mkdir(parents=True, exist_ok=True)
     manifest_path = root / "tuning_manifest.json"
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {
-        "schema": 2, "protocol": "two_fidelity_validation_only_coordinate_search",
+        "schema": 2, "protocol": f"two_fidelity_validation_only_coordinate_search_{score_variant}",
         "max_rounds": max_rounds, "batch_size": base.batch_size,
         "source_commit": source_commit(), "base_options": asdict(base),
         "tracks": {}}
@@ -248,32 +251,56 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
         current_options = asdict(base)
         prior_options.pop("output_root", None)
         current_options.pop("output_root", None)
+        prior_options.pop("variant", None)
+        current_options.pop("variant", None)
         if prior_options != current_options:
             raise RuntimeError("Prior tuning manifest has incompatible base options")
+        # This track-specific allowlist was checked against the source history:
+        # later fixes affect O-E13/O-E14 and A-E11/GCD, while these results keep
+        # the same objective and implementation for their named tracks.
+        compatible_by_track = {
+            **{f"O-E{i:02d}": {"6d1a69a440250b220394e46861ba7adb0a0bd791"}
+               for i in range(1, 13)},
+            "O-E13": {"1fb3520752d2d240a754d2304243f4e0a5b67e0b"},
+            "O-E14": {"1de53e241edab2fc1c3f3800e57fb829b18f1abe"},
+            **{f"A-E{i:02d}": {"1fb3520752d2d240a754d2304243f4e0a5b67e0b"}
+               for i in range(1, 11)},
+            "A-E11": {"9e7ef3126a840114cea505c9381eab4e330a1fc5"},
+            "A-E03-NCD": {"9e7ef3126a840114cea505c9381eab4e330a1fc5"},
+        }
+        incompatible_tracks = set(prior.get("compatible_result_exclusions", []))
         for spec in RUNS:
             prior_track = prior.get("tracks", {}).get(spec.id)
-            if prior_track and prior_track.get("selected"):
+            if prior_track:
                 # Keep candidate-level provenance and full-data finalist choices.
                 # Their source commit remains recorded in their individual run manifests.
                 existing_track = manifest["tracks"].get(spec.id, {})
-                merged_track = dict(prior_track)
-                merged_track["candidates"] = {
-                    **prior_track.get("candidates", {}),
-                    **existing_track.get("candidates", {})}
-                merged_track["rounds"] = (prior_track.get("rounds", []) +
-                                          existing_track.get("rounds", []))
-                merged_track["confirmations"] = {
-                    **prior_track.get("confirmations", {}),
-                    **existing_track.get("confirmations", {})}
-                if existing_track.get("selected", {}).get("confirmation_result"):
-                    merged_track["selected"] = existing_track["selected"]
+                merged_track = dict(existing_track)
+                merged_track.setdefault("candidates", {})
+                for prior_key, prior_candidate in prior_track.get("candidates", {}).items():
+                    result_path = Path(prior_candidate.get("result_path", ""))
+                    if (prior_candidate.get("status") != "completed"
+                            or spec.id in incompatible_tracks
+                            or prior_candidate.get("baseline_score") is None
+                            or not result_path.is_file()):
+                        continue
+                    source_result = json.loads(result_path.read_text())
+                    if source_result.get("source_commit") not in compatible_by_track.get(spec.id, set()):
+                        continue
+                    merged_track["candidates"].setdefault(prior_key, {
+                        **prior_candidate,
+                        "score": prior_candidate["baseline_score"],
+                        "objective": prior_candidate.get("baseline_objective"),
+                        "reused_as": "independent-baseline-search seed from paired validation run",
+                        "reused_source_commit": source_result.get("source_commit")})
+                merged_track["rounds"] = existing_track.get("rounds", [])
+                merged_track["confirmations"] = existing_track.get("confirmations", {})
                 manifest["tracks"][spec.id] = merged_track
-                inherited_ids.add(spec.id)
         manifest["inherited_campaign"] = {
             "manifest": str(prior_path),
             "source_commit": prior.get("source_commit"),
-            "tracks": sorted(inherited_ids),
-            "note": "Candidate searches reused with original per-run source provenance; full-data confirmations and final evaluations rerun under this source commit."}
+            "tracks": sorted(prior.get("tracks", {})),
+            "note": "Only compatible paired-run baseline validation metrics are seeded; baseline configuration selection is performed independently."}
 
     def persist_manifest():
         temporary = manifest_path.with_suffix(".tmp")
@@ -289,6 +316,8 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
         if (key in track_record["candidates"]
                 and track_record["candidates"][key].get("status") == "completed"):
             prior_record = track_record["candidates"][key]
+            if prior_record.get("reused_as") and prior_record.get("score") is not None:
+                return prior_record
             candidate_manifest = root / "candidates" / spec.id / key / "manifest.json"
             prior_rows = (json.loads(candidate_manifest.read_text()).get("rows", [])
                           if candidate_manifest.exists() else [])
@@ -313,13 +342,20 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
                       "status": "failed", "rows": rows}
         else:
             result = json.loads(Path(rows[0]["result_path"]).read_text())
-            score, objective = _objective(spec.id, result["variants"]["lmoment"])
-            baseline_score, baseline_objective = _objective(spec.id, result["variants"]["baseline"])
+            score, objective = _objective(spec.id, result["variants"][score_variant])
+            other_variant = "baseline" if score_variant == "lmoment" else "lmoment"
+            other_score, other_objective = (None, None)
+            if other_variant in result["variants"]:
+                other_score, other_objective = _objective(spec.id, result["variants"][other_variant])
             record = {"key": key, "label": label, "config": values,
                       "score": score, "objective": objective,
-                      "baseline_score": baseline_score,
-                      "baseline_objective": baseline_objective,
-                      "lmoment_minus_baseline": score - baseline_score,
+                      f"{score_variant}_score": score,
+                      f"{score_variant}_objective": objective,
+                      f"{other_variant}_score": other_score,
+                      f"{other_variant}_objective": other_objective,
+                      "lmoment_minus_baseline": (score - other_score if score_variant == "lmoment"
+                                                  and other_score is not None else
+                                                  other_score - score if other_score is not None else None),
                       "status": "completed", "result_path": rows[0]["result_path"]}
         track_record["candidates"][key] = record
         manifest["updated_utc"] = __import__("datetime").datetime.now().astimezone().isoformat()
@@ -410,12 +446,19 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
             if failures or not rows or rows[0]["status"] not in ("completed", "skipped_verified"):
                 raise RuntimeError(f"Full-data validation confirmation failed for {spec.id}: {rows}")
             result = json.loads(Path(rows[0]["result_path"]).read_text())
-            score, objective = _objective(spec.id, result["variants"]["lmoment"])
-            baseline_score, baseline_objective = _objective(spec.id, result["variants"]["baseline"])
+            score, objective = _objective(spec.id, result["variants"][score_variant])
+            other_variant = "baseline" if score_variant == "lmoment" else "lmoment"
+            other_score, other_objective = (None, None)
+            if other_variant in result["variants"]:
+                other_score, other_objective = _objective(spec.id, result["variants"][other_variant])
             record = {"key": key, "config": values, "score": score,
-                      "objective": objective, "baseline_score": baseline_score,
-                      "baseline_objective": baseline_objective,
-                      "lmoment_minus_baseline": score - baseline_score,
+                      "objective": objective, f"{score_variant}_score": score,
+                      f"{score_variant}_objective": objective,
+                      f"{other_variant}_score": other_score,
+                      f"{other_variant}_objective": other_objective,
+                      "lmoment_minus_baseline": (score - other_score if score_variant == "lmoment"
+                                                  and other_score is not None else
+                                                  other_score - score if other_score is not None else None),
                       "status": "completed", "result_path": rows[0]["result_path"]}
             track_record.setdefault("confirmations", {})[key] = record
             confirmed.append(record)
@@ -468,6 +511,7 @@ def main(argv=None) -> int:
     parser.add_argument("--device", default="auto")
     parser.add_argument("--extraction-microbatch", type=int, default=4)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--variant", choices=("baseline", "lmoment"), default="lmoment")
     parser.add_argument("--no-download", action="store_false", dest="download",
                         help="Require dataset to already exist locally")
     parser.add_argument("--download", action="store_true", dest="download",
@@ -486,10 +530,11 @@ def main(argv=None) -> int:
                    output_root=args.output_root, feature_cache_root=args.feature_cache_root,
                    data_root=args.data_root, device=args.device,
                    extraction_microbatch=args.extraction_microbatch, seed=args.seed,
-                   download=args.download)
+                   download=args.download, variant=args.variant)
     manifest = tune_all(base, root=args.output_root, max_rounds=args.max_rounds,
                         final_tests=not args.no_final_tests,
-                        reuse_manifest=args.reuse_manifest)
+                        reuse_manifest=args.reuse_manifest,
+                        score_variant=args.variant)
     print(json.dumps({"status": manifest.get("status"),
                       "tracks": len(manifest.get("tracks", {})),
                       "manifest": str(Path(args.output_root) / "tuning_manifest.json")}, indent=2))

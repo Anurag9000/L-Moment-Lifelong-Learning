@@ -117,8 +117,11 @@ class Options:
     device: str = "auto"
     download: bool = False
     save_features: bool = False
+    variant: str = "both"
 
     def validate(self) -> None:
+        if self.variant not in ("both", "baseline", "lmoment"):
+            raise ValueError("variant must be both, baseline, or lmoment")
         if self.dataset not in ("cifar10", "stl10"):
             raise ValueError("dataset must be cifar10 or stl10")
         if self.seed < 0 or self.train_per_class < 8 or self.val_per_class < 8:
@@ -145,7 +148,7 @@ _PREPARED_CACHES: set[tuple] = set()
 def _config(spec: RunSpec, opt: Options):
     if spec.suite == "original":
         from .cifar10_suite import Config
-        return Config(track=spec.track, variant="both", seed=opt.seed,
+        return Config(track=spec.track, variant=opt.variant, seed=opt.seed,
                       dataset=opt.dataset,
                       data_root=opt.data_root,
                       output_root=str(Path(opt.output_root) / "runs" / "original"),
@@ -181,7 +184,7 @@ def _config(spec: RunSpec, opt: Options):
                       replay_ratio=opt.replay_ratio,
                       save_features=opt.save_features)
     from .cifar10_advanced import AdvancedConfig
-    return AdvancedConfig(track=spec.track, variant="both", seed=opt.seed,
+    return AdvancedConfig(track=spec.track, variant=opt.variant, seed=opt.seed,
                           dataset=opt.dataset,
                           data_root=opt.data_root,
                           output_root=str(Path(opt.output_root) / "runs" / (
@@ -223,7 +226,7 @@ def build_job(spec: RunSpec, opt: Options) -> dict[str, Any]:
     opt.validate()
     cfg = _config(spec, opt)
     cfgdict = asdict(cfg)
-    assert cfgdict["batch_size"] == opt.batch_size and cfgdict["variant"] == "both"
+    assert cfgdict["batch_size"] == opt.batch_size and cfgdict["variant"] == opt.variant
     digest = run_fingerprint(cfgdict)
     if spec.suite == "original":
         module = "lmoment_lifelong.cifar10_suite"
@@ -267,8 +270,10 @@ def _verify(job: dict[str, Any]) -> tuple[bool, str]:
         if cfg != job["config"]:
             return False, "Saved configuration differs from requested job"
         variants = result.get("variants", {})
-        if not isinstance(variants, dict) or set(variants) != {"baseline", "lmoment"}:
-            return False, "Result must contain paired baseline and L-moment variants"
+        expected_variants = ({"baseline", "lmoment"} if job["config"].get("variant") == "both"
+                             else {job["config"].get("variant")})
+        if not isinstance(variants, dict) or set(variants) != expected_variants:
+            return False, f"Result variants differ from requested {sorted(expected_variants)}"
         if result.get("source") not in ("real_images", "actual_images"):
             return False, "No confirmed actual-CIFAR-10 source marker"
         if not (result_path.parent / "split_manifest.json").is_file():
@@ -277,7 +282,9 @@ def _verify(job: dict[str, Any]) -> tuple[bool, str]:
             if not (result_path.parent / "backbone_provenance.json").is_file():
                 return False, "Missing DINOv2 checkpoint/cache provenance"
         if job["suite"] == "advanced" and job["track"] in ("E03", "E04"):
-            missing = [name for name in ("baseline_model.pt", "lmoment_model.pt")
+            required = ("baseline_model.pt", "lmoment_model.pt") if len(expected_variants) == 2 else (
+                f"{next(iter(expected_variants))}_model.pt",)
+            missing = [name for name in required
                        if not (result_path.parent / name).is_file()]
             if missing:
                 return False, "Missing paired trained GCD model checkpoint(s): " + ", ".join(missing)
@@ -326,15 +333,15 @@ def _write_summary(rows: list[dict[str, Any]], root: Path) -> None:
         if row.get("status") not in ("completed", "skipped_verified"):
             continue
         source = json.loads(Path(row["result_path"]).read_text())
-        baseline = _flatten_metrics(source["variants"]["baseline"])
-        lmoment = _flatten_metrics(source["variants"]["lmoment"])
-        stats = {**{f"baseline.{k}": v for k, v in baseline.items()},
-                 **{f"lmoment.{k}": v for k, v in lmoment.items()}}
-        deltas = {f"delta.{key}": float(lmoment[key] - baseline[key])
-                  for key in baseline.keys() & lmoment.keys()
-                  if type(baseline[key]) in (int, float)
-                  and type(lmoment[key]) in (int, float)}
-        stats.update(deltas)
+        variants = source["variants"]
+        flattened = {name: _flatten_metrics(metrics) for name, metrics in variants.items()}
+        stats = {f"{name}.{k}": v for name, metrics in flattened.items()
+                 for k, v in metrics.items()}
+        if {"baseline", "lmoment"} <= flattened.keys():
+            baseline, lmoment = flattened["baseline"], flattened["lmoment"]
+            stats.update({f"delta.{key}": float(lmoment[key] - baseline[key])
+                for key in baseline.keys() & lmoment.keys()
+                if type(baseline[key]) in (int, float) and type(lmoment[key]) in (int, float)})
         summary.append({"id": row["id"], "track": row["track"],
                         "suite": row["suite"], "metric": row["primary_metric"],
                         "result_path": row["result_path"], **stats})
