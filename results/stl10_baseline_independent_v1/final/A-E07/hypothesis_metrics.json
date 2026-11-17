@@ -1,0 +1,24 @@
+[
+  {
+    "id": "A-E07",
+    "track": "E07",
+    "suite": "advanced",
+    "metric": "known_class_corruption_accuracy",
+    "result_path": "results/stl10_baseline_independent_v1/final/A-E07/runs/advanced/E07/advanced_1ceae15e83b1_seed0/result.json",
+    "baseline.known_class_clean_accuracy": 0.988,
+    "baseline.known_class_corruption_accuracy": 0.4705,
+    "baseline.corruption_accuracy_drop": 0.5175000000000001,
+    "baseline.clean_diagnostics.per_class_accuracy.0": 0.9925,
+    "baseline.clean_diagnostics.per_class_accuracy.1": 1.0,
+    "baseline.clean_diagnostics.per_class_accuracy.2": 0.98375,
+    "baseline.clean_diagnostics.per_class_accuracy.3": 0.98,
+    "baseline.clean_diagnostics.per_class_accuracy.4": 0.98375,
+    "baseline.corrupted_diagnostics.per_class_accuracy.0": 0.3375,
+    "baseline.corrupted_diagnostics.per_class_accuracy.1": 0.995,
+    "baseline.corrupted_diagnostics.per_class_accuracy.2": 0.8375,
+    "baseline.corrupted_diagnostics.per_class_accuracy.3": 0.1025,
+    "baseline.corrupted_diagnostics.per_class_accuracy.4": 0.08,
+    "baseline.image_domain_corruption": true,
+    "baseline.known_labels_permitted": 5
+  }
+]

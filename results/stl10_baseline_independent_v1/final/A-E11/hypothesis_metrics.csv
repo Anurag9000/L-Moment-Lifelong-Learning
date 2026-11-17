@@ -1,0 +1,2 @@
+id,track,suite,metric,result_path,baseline.calibration_streams,baseline.loss_degradation_quantile,baseline.loss_degraded,baseline.loss_probe_batches,baseline.null_noop,baseline.optimizer_batch_size,baseline.shift_alarm,baseline.validation_loss_degradation_threshold,baseline.validation_shifted_loss,baseline.validation_stationary_loss
+A-E11,E11,advanced,shift_alarm,results/stl10_baseline_independent_v1/final/A-E11/runs/advanced/E11/advanced_8d47285be683_seed0/result.json,10,0.95,True,31,True,64,True,0.045750344172120094,8.143732070922852,0.0007264648447744548

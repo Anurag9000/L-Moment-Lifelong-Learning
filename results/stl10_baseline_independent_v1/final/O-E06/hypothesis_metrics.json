@@ -1,0 +1,15 @@
+[
+  {
+    "id": "O-E06",
+    "track": "E06",
+    "suite": "original",
+    "metric": "accepted",
+    "result_path": "results/stl10_baseline_independent_v1/final/O-E06/runs/original/E06/bcb59a2d010d_seed0/result.json",
+    "baseline.proposed": true,
+    "baseline.accepted": true,
+    "baseline.rollback_restored": true,
+    "baseline.holdout_gain": 153.85426559646538,
+    "baseline.scoring_ari": 0.23487340782253457,
+    "baseline.memory_bytes_after_rollback": 4915200
+  }
+]

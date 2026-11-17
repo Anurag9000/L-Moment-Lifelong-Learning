@@ -1,0 +1,31 @@
+[
+  {
+    "id": "A-E05",
+    "track": "E05",
+    "suite": "advanced",
+    "metric": "test.fixed_mapping_accuracy",
+    "result_path": "results/stl10_baseline_independent_v1/candidates/A-E05/cd115731586a/runs/advanced/E05/advanced_6841515e4cb8_seed0/result.json",
+    "baseline.calibration.threshold": 0.00060914329745713,
+    "baseline.calibration.alpha_per_comparison": 0.05,
+    "baseline.calibration.n_calibration": 128,
+    "baseline.initial_prediction_abstention": true,
+    "baseline.prequential_coverage": 0.015,
+    "baseline.validation.fixed_mapping_accuracy": 0.524,
+    "baseline.validation.coverage": 0.6,
+    "baseline.validation.discovered_clusters": 12,
+    "baseline.validation.ari_covered": 0.8827122444180018,
+    "baseline.validation.nmi_covered": 0.9218385973609381,
+    "baseline.test.fixed_mapping_accuracy": 0.556,
+    "baseline.test.coverage": 0.63,
+    "baseline.test.discovered_clusters": 12,
+    "baseline.test.ari_covered": 0.8981069496239161,
+    "baseline.test.nmi_covered": 0.9387025542228516,
+    "baseline.mature_classes": 12,
+    "baseline.total_assemblies": 13,
+    "baseline.estimated_memory_bytes": 250880,
+    "baseline.canonical_id_count": 13,
+    "baseline.merge_count": 0,
+    "baseline.events.confirm_birth": 12,
+    "baseline.events.provisional": 13
+  }
+]

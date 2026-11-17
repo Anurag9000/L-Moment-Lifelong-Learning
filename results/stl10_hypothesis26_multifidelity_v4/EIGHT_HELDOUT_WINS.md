@@ -1,4 +1,13 @@
-# Eight STL-10 held-out wins for the L-moment variant
+# Historical same-configuration STL-10 comparison: eight L-moment wins
+
+> **Superseded for best-versus-best claims.** This earlier report used the
+> L-moment-selected configuration for both methods. It did not independently
+> tune the ordinary-statistics baseline. The correct independently tuned
+> comparison is now in
+> [`BEST_VS_BEST_STL10_COMPARISON.md`](../stl10_baseline_independent_v1/BEST_VS_BEST_STL10_COMPARISON.md):
+> on the 26 objectives, L-moments win 7, tie 11, and lose 8 on the test
+> comparison. Discovery coverage and prequential results are reported there
+> alongside ARI.
 
 ## What counts as a win
 
