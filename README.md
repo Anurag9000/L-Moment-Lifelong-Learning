@@ -86,3 +86,10 @@ Run `lmoment-cifar10-advanced-sweep --tracks E03 E04 E09 E10 --seeds 0 1 2 3 4 -
 ## Seed-0, batch-512, DINOv2 CIFAR-10 tuning (26 tracks)
 
 The 26-track campaign uses one shared frozen DINOv2 ViT-B/14 feature cache and paired baseline/L-moment variants. Downstream optimizer batches are fixed at **512**; feature extraction uses its own microbatch. The tuner screens each track's representation and algorithm settings on validation, then evaluates one selected configuration on test. Use `scripts/run_tuned_cifar10_when_gpu_idle.sh` on the V100. The standard split uses 45,000 training, 5,000 validation and 10,000 held-out test CIFAR-10 images. See [the 26-track specification and server commands](docs/CIFAR10_HYPOTHESIS26_EXECUTION.md). These are reference implementations, not proof that the 141 family-level research methodologies are complete.
+
+## O-E15: controlled distribution-shape detection
+
+A separate STL-10/DINOv2 group-level diagnostic compares calibrated L-moment,
+ordinary-moment, covariance, mean, and quantile scores under matched-mean and
+natural feature conditions. It does not change the historical 26-track
+manifest. See [the O-E15 protocol and results](docs/E15_CONTROLLED_SHAPE_DETECTION.md).
