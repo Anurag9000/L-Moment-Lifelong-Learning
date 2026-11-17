@@ -255,7 +255,19 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
             if prior_track and prior_track.get("selected"):
                 # Keep candidate-level provenance and full-data finalist choices.
                 # Their source commit remains recorded in their individual run manifests.
-                manifest["tracks"][spec.id] = prior_track
+                existing_track = manifest["tracks"].get(spec.id, {})
+                merged_track = dict(prior_track)
+                merged_track["candidates"] = {
+                    **prior_track.get("candidates", {}),
+                    **existing_track.get("candidates", {})}
+                merged_track["rounds"] = (prior_track.get("rounds", []) +
+                                          existing_track.get("rounds", []))
+                merged_track["confirmations"] = {
+                    **prior_track.get("confirmations", {}),
+                    **existing_track.get("confirmations", {})}
+                if existing_track.get("selected", {}).get("confirmation_result"):
+                    merged_track["selected"] = existing_track["selected"]
+                manifest["tracks"][spec.id] = merged_track
                 inherited_ids.add(spec.id)
         manifest["inherited_campaign"] = {
             "manifest": str(prior_path),
