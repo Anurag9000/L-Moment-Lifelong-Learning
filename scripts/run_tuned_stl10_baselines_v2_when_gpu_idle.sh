@@ -44,7 +44,7 @@ export PYTHONPATH="$repo_root/src${PYTHONPATH:+:$PYTHONPATH}"
     --test-per-class 800 \
     --output-root "$output_root" \
     --feature-cache-root results/stl10_dinov2_cache_v1 \
-    --data-root datasets \
+    --data-root "$repo_root/datasets" \
     --device cuda \
     --extraction-microbatch 4 \
     --seed 0 \
