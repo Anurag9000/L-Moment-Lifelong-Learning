@@ -238,7 +238,7 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
     if manifest.get("base_options") != asdict(base):
         raise RuntimeError("Tuning manifest base options differ; choose a new output root")
     manifest["max_rounds"] = max(int(manifest.get("max_rounds", 0)), max_rounds)
-    manifest["confirmation_top_k"] = 2
+    manifest["confirmation_top_k"] = 1
 
     inherited_ids = set()
     if reuse_manifest is not None:
@@ -374,13 +374,13 @@ def tune_all(base: Options, *, root: str | Path, max_rounds: int = 20,
                              "objective": best["objective"]}
         manifest["tracks"][spec.id]["selected"] = selected[spec.id]
 
-    # Recheck the top two screen configurations with the full training split.
+    # Recheck the top screen configuration with the full training split.
     # Validation remains the selection signal; final test stays sealed.
     for spec in RUNS:
         track_record = manifest["tracks"][spec.id]
         candidates = [r for r in track_record["candidates"].values()
                       if r.get("status") == "completed"]
-        finalists = sorted(candidates, key=lambda r: r["score"], reverse=True)[:2]
+        finalists = sorted(candidates, key=lambda r: r["score"], reverse=True)[:1]
         confirmed = [r for r in track_record.get("confirmations", {}).values()
                      if r.get("status") == "completed"]
         for finalist in finalists:
