@@ -36,4 +36,6 @@ results/stl10_hypothesis26_dinov2/
 results/stl10_dinov2_cache/
 results/stl10_baseline_independent_v2/
 results/stl10_baseline_independent_v3/
+results/stl10_baseline_independent_v4/
+results/stl10_dinov2_cache_v1/projections/
 results/stl10_dinov2_cache_v1/quality_stl10_*.json

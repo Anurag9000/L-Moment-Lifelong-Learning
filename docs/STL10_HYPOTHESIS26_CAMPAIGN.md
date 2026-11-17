@@ -64,14 +64,17 @@ per class, and all 800 test images per class for the selected final run. The
 downstream batch size is 64 for STL-10; this is separate from the CIFAR-10
 batch-512 suite.
 
-The V2 output directory contains failed launch diagnostics and a source-commit
-mismatch from early retries. Those artifacts are preserved and must not be
-reported as completed candidate results. The corrected relaunch uses a fresh
-output root, `results/stl10_baseline_independent_v3`, and the idle-gated entry
-point `scripts/run_tuned_stl10_baselines_v3_when_gpu_idle.sh`. At the time this
-revision was prepared, the fresh campaign had not completed candidate
-evaluation; report results only from its manifest and final outputs after
-auditing all 26 tracks.
+The V2 and V3 output directories contain failed launch diagnostics and
+source-commit mismatches from early retries. Those artifacts are preserved and
+must not be reported as completed candidate results. The corrected relaunch
+uses a fresh output root, `results/stl10_baseline_independent_v4`, and the
+idle-gated entry point
+`scripts/run_tuned_stl10_baselines_v4_when_gpu_idle.sh`. A V3 attempt reached
+feature preparation but stopped when its newly created PCA projection cache
+made the source checkout appear dirty; generated projection caches are now
+ignored. The V4 campaign is the first attempt from a clean source revision;
+report results only from its manifest and final outputs after auditing all 26
+tracks.
 
 For this independent search, the selected baseline score is optimized on
 validation only, using the objective registered for each track. The held-out
