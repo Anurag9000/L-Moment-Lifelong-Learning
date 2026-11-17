@@ -164,11 +164,16 @@ def run(cache, output, seed, calibration_pairs, validation_pairs, test_pairs):
         eligible = [c for c in configs if c[0]] or configs
         best = max(eligible, key=lambda c: (c[1], -c[2], -c[3]))
         _, _, n, k, w, cutoff, val = best
-        trng = np.random.default_rng(seed + 991*n + k)
-        null_train = batch_scores(cal_x, cal_y, trng, n, w, method,
-                                  calibration_pairs*2, closest, True)
-        cutoff = upper_quantile(null_train)
         for pair_set_name, pairs in (("closest10", closest), ("all45", all_pairs)):
+            # Calibrate each pair set on null classes drawn from that same set.
+            # In particular, all45 includes classes absent from closest10.
+            calrng = np.random.default_rng(seed + 991*n + k + len(pairs))
+            null_train = batch_scores(cal_x, cal_y, calrng, n, w, method,
+                                      calibration_pairs*2, pairs, True)
+            cutoff = upper_quantile(null_train)
+            valrng = np.random.default_rng(seed + 5003 + 29*n + 11*k + len(pairs))
+            val_pairset = evaluate(val_x, val_y, valrng, n, w, method, cutoff,
+                                   validation_pairs, pairs)
             testrng = np.random.default_rng(seed + 100003 + 29*n + 11*k + len(pairs))
             test = evaluate(test_x, test_y, testrng, n, w, method, cutoff,
                             test_pairs, pairs)
@@ -176,8 +181,8 @@ def run(cache, output, seed, calibration_pairs, validation_pairs, test_pairs):
                 "pair_set": pair_set_name, "method": method,
                 "selected_group_size": n, "selected_projection_count": k,
                 "calibration_alpha": ALPHA, "calibration_pairs": int(len(null_train)),
-                "validation_fpr": val["false_positive_rate"],
-                "validation_tpr": val["detection_rate"],
+                "validation_fpr": val_pairset["false_positive_rate"],
+                "validation_tpr": val_pairset["detection_rate"],
                 "test_fpr": test["false_positive_rate"],
                 "test_tpr": test["detection_rate"], "test_auc": test["auc"],
                 "test_null_mean_score": float(np.mean(test["null_scores"])),
