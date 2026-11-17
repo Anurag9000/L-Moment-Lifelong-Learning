@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 repo_root="/home/anurag24092/Projects/L-Moment-Lifelong-Learning"
 python_bin="/home/anurag24092/envs/tfcl-btp/bin/python"
-output_root="results/stl10_baseline_independent_v2"
+output_root="results/stl10_baseline_independent_v3"
 log_dir="$output_root/logs"
 log_file="$log_dir/gpu_idle_launcher.log"
 

@@ -51,3 +51,32 @@ versus L-moment difference with the exact final configuration. Some implemented
 tracks are statistical or NumPy procedures and do not move their calculations
 to CUDA merely because the shared embedding extraction and neural paths use the
 GPU.
+
+## Independent baseline refinement campaign
+
+The baseline variants are tuned independently so they are not compared at a
+default or inherited configuration. The first independent search (V1) used 20
+labeled training images per class for candidate screening and completed all 26
+tracks. The larger follow-up is configured for 100 images per class during
+screening, up to 30 coordinate-refinement rounds, and baseline-only selection.
+It uses 400 training images per class for confirmation, 100 validation images
+per class, and all 800 test images per class for the selected final run. The
+downstream batch size is 64 for STL-10; this is separate from the CIFAR-10
+batch-512 suite.
+
+The V2 output directory contains failed launch diagnostics and a source-commit
+mismatch from early retries. Those artifacts are preserved and must not be
+reported as completed candidate results. The corrected relaunch uses a fresh
+output root, `results/stl10_baseline_independent_v3`, and the idle-gated entry
+point `scripts/run_tuned_stl10_baselines_v3_when_gpu_idle.sh`. At the time this
+revision was prepared, the fresh campaign had not completed candidate
+evaluation; report results only from its manifest and final outputs after
+auditing all 26 tracks.
+
+For this independent search, the selected baseline score is optimized on
+validation only, using the objective registered for each track. The held-out
+test split is reserved for the selected configuration per track. “Tuned” means
+the best configuration found within this declared finite search budget; it does
+not mean a global hyperparameter optimum. The single seed and finite
+candidate/support budgets limit uncertainty, so confirmation across additional
+seeds remains necessary for a broad research claim.
