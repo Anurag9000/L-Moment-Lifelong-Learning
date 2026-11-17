@@ -1,0 +1,22 @@
+{
+  "accuracy": {
+    "baseline": 0.656,
+    "lmoment": 0.624,
+    "delta_lmoment_minus_baseline": -0.03200000000000003
+  },
+  "continual_sessions": {
+    "baseline": 2,
+    "lmoment": 2,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "oracle_global_k": {
+    "baseline": 10,
+    "lmoment": 10,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "known_training_labels": {
+    "baseline": 5,
+    "lmoment": 5,
+    "delta_lmoment_minus_baseline": 0
+  }
+}

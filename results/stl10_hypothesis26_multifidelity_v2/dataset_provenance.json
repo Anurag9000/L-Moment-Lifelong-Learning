@@ -1,0 +1,53 @@
+{
+  "dataset": "STL-10",
+  "format": "torchvision STL10 binary layout",
+  "image_shape": [
+    96,
+    96,
+    3
+  ],
+  "label_mapping": "mirror labels 0-9 stored as 1-10",
+  "partitions": {
+    "test": {
+      "class_counts": {
+        "0": 800,
+        "1": 800,
+        "2": 800,
+        "3": 800,
+        "4": 800,
+        "5": 800,
+        "6": 800,
+        "7": 800,
+        "8": 800,
+        "9": 800
+      },
+      "images_sha256": "a89961c150d110ec31d6acd7d1013f67c0f3362ae359b1319701ca4f05326611",
+      "labels_sha256": "045b124d8a397334b82a57d25fd4fa1e947d1c53b5a52dcb72fa12a32ef46d77",
+      "parquet_sha256": "298b23e983c755dfba2c69dec181340221deb1a5ad6651990c7c5c559fb892be",
+      "rows": 8000
+    },
+    "train": {
+      "class_counts": {
+        "0": 500,
+        "1": 500,
+        "2": 500,
+        "3": 500,
+        "4": 500,
+        "5": 500,
+        "6": 500,
+        "7": 500,
+        "8": 500,
+        "9": 500
+      },
+      "images_sha256": "321aad7a4da017e6134701d1e3f4b9b9dd3a286fa27efa96e2af2df27d848b57",
+      "labels_sha256": "83cb81b68589b5c5b22bc51fd55461f064fa73ea18f6b64d827e0a9f397e7ed5",
+      "parquet_sha256": "b450f19e41454731be0bcddc7093fcf9793fe9b64ea795e6ef18ca77f34c353d",
+      "rows": 5000
+    }
+  },
+  "source_dataset": "tanganke/stl10",
+  "source_urls": {
+    "test": "https://huggingface.co/datasets/tanganke/stl10/resolve/main/data/test-00000-of-00001.parquet",
+    "train": "https://huggingface.co/datasets/tanganke/stl10/resolve/main/data/train-00000-of-00001.parquet"
+  }
+}

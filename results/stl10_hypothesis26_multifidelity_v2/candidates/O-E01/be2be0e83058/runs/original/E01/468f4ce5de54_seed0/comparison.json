@@ -1,0 +1,22 @@
+{
+  "different_mean_distance": {
+    "baseline": 30.354229566786024,
+    "lmoment": 3.359765406498487,
+    "delta_lmoment_minus_baseline": -26.99446416028754
+  },
+  "balanced_class_pair_count": {
+    "baseline": 90,
+    "lmoment": 90,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "separation_ratio": {
+    "baseline": 4.211958397753296,
+    "lmoment": 14.092361581798654,
+    "delta_lmoment_minus_baseline": 9.880403184045358
+  },
+  "matched_mean_distance": {
+    "baseline": 7.20667839050293,
+    "lmoment": 0.23841038898958405,
+    "delta_lmoment_minus_baseline": -6.968268001513346
+  }
+}

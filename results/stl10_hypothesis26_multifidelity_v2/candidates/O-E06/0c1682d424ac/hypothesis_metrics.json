@@ -1,0 +1,25 @@
+[
+  {
+    "id": "O-E06",
+    "track": "E06",
+    "suite": "original",
+    "metric": "accepted",
+    "result_path": "results/stl10_hypothesis26_multifidelity_v2/candidates/O-E06/0c1682d424ac/runs/original/E06/b37146b8a35a_seed0/result.json",
+    "baseline.proposed": true,
+    "baseline.accepted": false,
+    "baseline.rollback_restored": true,
+    "baseline.holdout_gain": -0.004106284470312652,
+    "baseline.scoring_ari": 0.4043632094699255,
+    "baseline.memory_bytes_after_rollback": 245760,
+    "lmoment.proposed": true,
+    "lmoment.accepted": false,
+    "lmoment.rollback_restored": true,
+    "lmoment.holdout_gain": -0.004106284470312652,
+    "lmoment.holdout_shape_score": 0.05244537960430774,
+    "lmoment.scoring_ari": 0.4043632094699255,
+    "lmoment.memory_bytes_after_rollback": 245760,
+    "delta.scoring_ari": 0.0,
+    "delta.holdout_gain": 0.0,
+    "delta.memory_bytes_after_rollback": 0.0
+  }
+]

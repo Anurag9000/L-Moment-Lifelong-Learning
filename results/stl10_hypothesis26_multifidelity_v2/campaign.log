@@ -1,0 +1,1129 @@
+Traceback (most recent call last):
+  File "/home/anurag-basistha/Projects/Untapped/L-Moment-Lifelong-Learning/.venv/bin/lmoment-cifar10-tune", line 10, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/anurag-basistha/Projects/Untapped/L-Moment-Lifelong-Learning/src/lmoment_lifelong/cifar10_tuning.py", line 412, in main
+    manifest = tune_all(base, root=args.output_root, max_rounds=args.max_rounds,
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/anurag-basistha/Projects/Untapped/L-Moment-Lifelong-Learning/src/lmoment_lifelong/cifar10_tuning.py", line 217, in tune_all
+    raise RuntimeError("Tuning manifest base options differ; choose a new output root")
+RuntimeError: Tuning manifest base options differ; choose a new output root
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l20.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E04: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l20.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten0_l20.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten1_l20.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E05: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten1_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten1_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: failed (Missing result.json)
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: failed (Missing result.json)
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E06: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E07: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E07: failed (Missing result.json)
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E07: failed (Missing result.json)
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E07: failed (Missing result.json)
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l20.json"
+}
+[01/01] O-E07: failed (Missing result.json)
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten0_l21.json"
+}
+[01/01] O-E07: failed (Missing result.json)
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten0_l20.json"
+}
+[01/01] O-E07: failed (Missing result.json)
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten1_l21.json"
+}
+[01/01] O-E07: failed (Missing result.json)
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten1_l20.json"
+}
+[01/01] O-E07: failed (Missing result.json)
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E07: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E07: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E07: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E07: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E07: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E07: failed (Missing result.json)
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten0_l21.json"
+}
+[01/01] O-E07: failed (Missing result.json)
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E08: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E08: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E08: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E08: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k64_whiten1_l20.json"
+}
+[01/01] O-E08: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten0_l21.json"
+}
+[01/01] O-E08: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten0_l20.json"
+}
+[01/01] O-E08: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten1_l21.json"
+}
+[01/01] O-E08: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "results/stl10_dinov2_cache_v1",
+  "quality_report": "results/stl10_dinov2_cache_v1/quality_stl10_train20_val100_test800_k128_whiten1_l20.json"
+}

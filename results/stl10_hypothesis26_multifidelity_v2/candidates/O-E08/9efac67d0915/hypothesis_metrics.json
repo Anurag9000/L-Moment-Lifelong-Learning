@@ -1,0 +1,24 @@
+[
+  {
+    "id": "O-E08",
+    "track": "E08",
+    "suite": "original",
+    "metric": "hierarchy_cluster_ari",
+    "result_path": "results/stl10_hypothesis26_multifidelity_v2/candidates/O-E08/9efac67d0915/runs/original/E08/6084f0ab7651_seed0/result.json",
+    "baseline.pseudo_class_count": 10,
+    "baseline.parent_count": 3,
+    "baseline.configured_parent_count": 3,
+    "baseline.hierarchy_cluster_ari": 0.07687689895128884,
+    "baseline.validation_hierarchy_ari": 0.08227860187870088,
+    "lmoment.pseudo_class_count": 10,
+    "lmoment.parent_count": 3,
+    "lmoment.configured_parent_count": 3,
+    "lmoment.hierarchy_cluster_ari": 0.07687689895128884,
+    "lmoment.validation_hierarchy_ari": 0.08227860187870088,
+    "delta.hierarchy_cluster_ari": 0.0,
+    "delta.pseudo_class_count": 0.0,
+    "delta.parent_count": 0.0,
+    "delta.configured_parent_count": 0.0,
+    "delta.validation_hierarchy_ari": 0.0
+  }
+]
