@@ -1094,17 +1094,43 @@ def study_integrated(tx, ty, vx, vy, variant, seed, cfg, validation):
     novel_classes = rng.permutation(np.unique(ty[~train_mask]))
     class_stages = np.array_split(novel_classes, 2)
     sessions = []
+    # Discovery identities are monotonic and may skip values after merges.
+    # Compact them into the fixed novel-class head slots while retaining the
+    # mapping across sessions. Once all slots are occupied, defer further
+    # identities instead of indexing beyond the classifier output dimension.
+    identity_to_slot = {}
+    novel_slots = 10 - known
     for stage_index, stage_classes in enumerate(class_stages):
         ids = np.concatenate([rng.permutation(np.flatnonzero(np.isin(ty, stage_classes)))])
         stream_x = tx[ids]
         prequential = memory.stream(stream_x)
         canonical = np.asarray([memory.canonical_identity(p) if p >= 0 else -1
                                for p in prequential], dtype=np.int64)
-        usable = canonical >= 0
-        pseudo_targets = known + canonical[usable]
+        slots = np.full(canonical.shape, -1, dtype=np.int64)
+        for i, identity in enumerate(canonical):
+            if identity < 0:
+                continue
+            identity = memory.canonical_identity(identity)
+            if identity not in identity_to_slot:
+                # If a previously allocated identity was merged into this
+                # canonical root, reuse its classifier slot.
+                aliased = [old for old in identity_to_slot
+                           if memory.canonical_identity(old) == identity]
+                if aliased:
+                    slot = min(identity_to_slot[old] for old in aliased)
+                    for old in aliased:
+                        identity_to_slot[old] = slot
+                    identity_to_slot[identity] = slot
+                elif len(set(identity_to_slot.values())) < novel_slots:
+                    used_slots = set(identity_to_slot.values())
+                    identity_to_slot[identity] = next(
+                        slot for slot in range(novel_slots) if slot not in used_slots)
+                else:
+                    continue
+            slots[i] = identity_to_slot[identity]
+        usable = slots >= 0
+        pseudo_targets = known + slots[usable]
         if usable.any():
-            if np.any(pseudo_targets >= 10):
-                raise ValueError("Discovered identity exceeds available classifier slots")
             current_x = stream_x[usable]
             trainer.train_stage(current_x, pseudo_targets, memory=replay,
                 steps=cfg.training_steps, lr=cfg.lr, replay_ratio=cfg.replay_ratio,
@@ -1127,6 +1153,8 @@ def study_integrated(tx, ty, vx, vy, variant, seed, cfg, validation):
             "stream_examples": int(len(stream_x)),
             "identified_examples": int(usable.sum()),
             "deferred_examples": int((~usable).sum()),
+            "identity_to_classifier_slot": {str(k): int(v)
+                                             for k, v in identity_to_slot.items()},
             "prequential_predictions": canonical.tolist(),
             "labels_for_evaluation_only": ty[ids].astype(int).tolist(),
             "validation_fixed_mapping": mapping,
