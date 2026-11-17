@@ -1,0 +1,252 @@
+{
+  "cache": {
+    "metadata": {
+      "checkpoint_filename": "model.safetensors",
+      "checkpoint_sha256": "d73036b56966966d07975d696bde331762f37297e2f095de8cea0040c3aa0841",
+      "corruption_seed": 0,
+      "corruption_sigma": 0.35,
+      "dataset": "stl10",
+      "dataset_sha256": "8fe5e65ccbae9345f3387236580ce67859a019a4bcc0625f191701e9fd6fe771",
+      "device": "cuda",
+      "extraction_microbatch": 4,
+      "feature_dim": 768,
+      "feature_normalization": "none",
+      "feature_type": "last_hidden_state_cls",
+      "files": [
+        "train_features.npy",
+        "test_features.npy",
+        "corrupted_test_features.npy",
+        "corrupted_validation_features.npy",
+        "train_labels.npy",
+        "test_labels.npy"
+      ],
+      "model_id": "facebook/dinov2-base",
+      "model_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+      "processor": {
+        "_processor_class": null,
+        "crop_size": {
+          "height": 224,
+          "width": 224
+        },
+        "do_center_crop": true,
+        "do_convert_rgb": true,
+        "do_normalize": true,
+        "do_rescale": true,
+        "do_resize": true,
+        "image_mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "image_processor_type": "BitImageProcessor",
+        "image_std": [
+          0.229,
+          0.224,
+          0.225
+        ],
+        "resample": 3,
+        "rescale_factor": 0.00392156862745098,
+        "size": {
+          "shortest_edge": 256
+        }
+      },
+      "processor_resize_crop": "processor_defaults",
+      "resolved_model_commit": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+      "schema": 1,
+      "test_images": 8000,
+      "train_images": 5000,
+      "val_per_class": 100
+    },
+    "sha256": {
+      "test_features.npy": "e48076f3c022cd48cbf58776f289b38c68aa3c118a889d92f4f9e96032a42872",
+      "test_labels.npy": "acaa52961029f98d7b2fbd3b8d25a9a2fd1c2f249bfbd8576f14deb1f2971002",
+      "train_features.npy": "c681143901f902d7d22e53c674178da7e33887fec9baaeaaa48d9854e50122ce",
+      "train_labels.npy": "8d6ffbd471f68554596db3fd97468e00ec7598123ae40ccdd050c57fa2036e11"
+    }
+  },
+  "experiment": "O-E16 natural near-centroid class-pair detection",
+  "protocol": {
+    "all_pairs_count": 45,
+    "backbone": "facebook/dinov2-base",
+    "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+    "calibration_pairs_per_candidate": 300,
+    "candidate_group_sizes": [
+      16,
+      32,
+      64
+    ],
+    "candidate_projection_counts": [
+      16,
+      32,
+      64
+    ],
+    "claim_boundary": "Unlabeled group-pair distribution detection. It is not a prequential single-image class assignment or continual discovery score.",
+    "closest_pairs": [
+      {
+        "classes": [
+          "bird",
+          "dog"
+        ],
+        "train_centroid_distance": 0.15873609483242035
+      },
+      {
+        "classes": [
+          "car",
+          "dog"
+        ],
+        "train_centroid_distance": 0.22978045046329498
+      },
+      {
+        "classes": [
+          "cat",
+          "dog"
+        ],
+        "train_centroid_distance": 0.23173381388187408
+      },
+      {
+        "classes": [
+          "bird",
+          "car"
+        ],
+        "train_centroid_distance": 0.24127067625522614
+      },
+      {
+        "classes": [
+          "airplane",
+          "bird"
+        ],
+        "train_centroid_distance": 0.2509036362171173
+      },
+      {
+        "classes": [
+          "bird",
+          "cat"
+        ],
+        "train_centroid_distance": 0.25598201155662537
+      },
+      {
+        "classes": [
+          "airplane",
+          "dog"
+        ],
+        "train_centroid_distance": 0.2712740898132324
+      },
+      {
+        "classes": [
+          "bird",
+          "horse"
+        ],
+        "train_centroid_distance": 0.30357620120048523
+      },
+      {
+        "classes": [
+          "dog",
+          "horse"
+        ],
+        "train_centroid_distance": 0.3094373643398285
+      },
+      {
+        "classes": [
+          "airplane",
+          "car"
+        ],
+        "train_centroid_distance": 0.3130004107952118
+      }
+    ],
+    "dataset": "STL-10 official train/test splits; unmodified images and cached features",
+    "feature_dimension": 768,
+    "features": "last_hidden_state_cls",
+    "pair_selection": "Ten smallest pairwise standardized training-centroid distances selected from selection subset; test labels not used for selection.",
+    "scores": "Projected centroid mean-square distance versus full projected L-moment signature discrepancy (location, log L2, tau3, tau4).",
+    "split": "Per class, official train split is partitioned into 200 selection, 150 calibration and 150 validation images; official test split is used once for final evaluation.",
+    "standardization": "Feature means and scales fit on the 200-image-per-class training selection subset only.",
+    "test_pairs_per_method_and_pair_set": 1000,
+    "threshold": "For each pair set, a per-method empirical upper training-null quantile at nominal alpha=0.05 is calibrated using null classes from that set. Validation selects group size and projection count on closest10.",
+    "validation_pairs_per_candidate": 250
+  },
+  "results": [
+    {
+      "calibration_alpha": 0.05,
+      "calibration_pairs": 600,
+      "method": "centroid",
+      "pair_set": "closest10",
+      "selected_group_size": 16,
+      "selected_projection_count": 32,
+      "test_alternative_mean_score": 0.37957971843889765,
+      "test_auc": 0.9959169999999999,
+      "test_fpr": 0.078,
+      "test_null_mean_score": 0.10661158380021764,
+      "test_tpr": 0.991,
+      "validation_fpr": 0.036,
+      "validation_tpr": 1.0
+    },
+    {
+      "calibration_alpha": 0.05,
+      "calibration_pairs": 600,
+      "method": "centroid",
+      "pair_set": "all45",
+      "selected_group_size": 16,
+      "selected_projection_count": 32,
+      "test_alternative_mean_score": 0.5335108200790932,
+      "test_auc": 0.999708,
+      "test_fpr": 0.081,
+      "test_null_mean_score": 0.09922922057110502,
+      "test_tpr": 0.999,
+      "validation_fpr": 0.06,
+      "validation_tpr": 1.0
+    },
+    {
+      "calibration_alpha": 0.05,
+      "calibration_pairs": 600,
+      "method": "lmoment_full",
+      "pair_set": "closest10",
+      "selected_group_size": 16,
+      "selected_projection_count": 32,
+      "test_alternative_mean_score": 0.39542756673069074,
+      "test_auc": 0.99515,
+      "test_fpr": 0.063,
+      "test_null_mean_score": 0.12861680308231307,
+      "test_tpr": 0.986,
+      "validation_fpr": 0.04,
+      "validation_tpr": 0.992
+    },
+    {
+      "calibration_alpha": 0.05,
+      "calibration_pairs": 600,
+      "method": "lmoment_full",
+      "pair_set": "all45",
+      "selected_group_size": 16,
+      "selected_projection_count": 32,
+      "test_alternative_mean_score": 0.6352874700383397,
+      "test_auc": 0.999264,
+      "test_fpr": 0.069,
+      "test_null_mean_score": 0.1314453905144543,
+      "test_tpr": 0.998,
+      "validation_fpr": 0.024,
+      "validation_tpr": 1.0
+    }
+  ],
+  "seed": 15,
+  "selected": {
+    "all45/centroid": {
+      "group_size": 16,
+      "projections": 32,
+      "train_calibrated_threshold": 0.1564220546625081
+    },
+    "all45/lmoment_full": {
+      "group_size": 16,
+      "projections": 32,
+      "train_calibrated_threshold": 0.1922050772332069
+    },
+    "closest10/centroid": {
+      "group_size": 16,
+      "projections": 32,
+      "train_calibrated_threshold": 0.16432031024721905
+    },
+    "closest10/lmoment_full": {
+      "group_size": 16,
+      "projections": 32,
+      "train_calibrated_threshold": 0.18716132592971096
+    }
+  }
+}

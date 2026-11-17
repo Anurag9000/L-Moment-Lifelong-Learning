@@ -203,7 +203,7 @@ def run(cache, output, seed, calibration_pairs, validation_pairs, test_pairs):
             "pair_selection": "Ten smallest pairwise standardized training-centroid distances selected from selection subset; test labels not used for selection.",
             "scores": "Projected centroid mean-square distance versus full projected L-moment signature discrepancy (location, log L2, tau3, tau4).",
             "split": "Per class, official train split is partitioned into 200 selection, 150 calibration and 150 validation images; official test split is used once for final evaluation.",
-            "threshold": "Per-method empirical upper training-null quantile at nominal alpha=0.05; validation selects group size and projection count.",
+            "threshold": "For each pair set, a per-method empirical upper training-null quantile at nominal alpha=0.05 is calibrated using null classes from that set. Validation selects group size and projection count on closest10.",
             "claim_boundary": "Unlabeled group-pair distribution detection. It is not a prequential single-image class assignment or continual discovery score.",
             "closest_pairs": [{"classes":[CLASSES[a],CLASSES[b]],"train_centroid_distance":d} for a,b,d in ranked[:10]],
             "all_pairs_count": len(all_pairs), "candidate_group_sizes": list(SIZES),

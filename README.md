@@ -93,3 +93,7 @@ A separate STL-10/DINOv2 group-level diagnostic compares calibrated L-moment,
 ordinary-moment, covariance, mean, and quantile scores under matched-mean and
 natural feature conditions. It does not change the historical 26-track
 manifest. See [the O-E15 protocol and results](docs/E15_CONTROLLED_SHAPE_DETECTION.md).
+
+O-E16 checks centroid versus full L-moment detection on unmodified STL-10
+DINOv2 features, with test class pairs selected by training-centroid closeness.
+See [the O-E16 protocol and results](docs/OE16_NATURAL_NEAR_CENTROID_DETECTION.md).

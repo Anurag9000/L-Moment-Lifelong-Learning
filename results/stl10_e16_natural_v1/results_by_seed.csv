@@ -1,0 +1,13 @@
+seed,pair_set,method,group_size,projections,validation_fpr,validation_tpr,test_fpr,test_tpr,test_auc
+15,closest10,centroid,16,32,0.036,1.000,0.078,0.991,0.995917
+15,all45,centroid,16,32,0.060,1.000,0.081,0.999,0.999708
+15,closest10,lmoment_full,16,32,0.040,0.992,0.063,0.986,0.995150
+15,all45,lmoment_full,16,32,0.024,1.000,0.069,0.998,0.999264
+16,closest10,centroid,16,64,0.036,1.000,0.075,1.000,0.999443
+16,all45,centroid,16,64,0.032,1.000,0.077,1.000,0.999952
+16,closest10,lmoment_full,16,64,0.048,1.000,0.081,1.000,0.999392
+16,all45,lmoment_full,16,64,0.052,1.000,0.079,1.000,0.999805
+17,closest10,centroid,16,32,0.040,1.000,0.088,0.999,0.998604
+17,all45,centroid,16,32,0.072,1.000,0.100,1.000,0.999455
+17,closest10,lmoment_full,16,64,0.032,1.000,0.072,0.999,0.998306
+17,all45,lmoment_full,16,64,0.056,1.000,0.106,0.999,0.999212

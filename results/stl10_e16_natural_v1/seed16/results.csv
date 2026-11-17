@@ -1,0 +1,5 @@
+pair_set,method,selected_group_size,selected_projection_count,calibration_alpha,calibration_pairs,validation_fpr,validation_tpr,test_fpr,test_tpr,test_auc,test_null_mean_score,test_alternative_mean_score
+closest10,centroid,16,64,0.05,600,0.036,1.0,0.075,1.0,0.999443,0.10951224431248362,0.35857262497272413
+all45,centroid,16,64,0.05,600,0.032,1.0,0.077,1.0,0.999952,0.10094935523531694,0.564400403254898
+closest10,lmoment_full,16,64,0.05,600,0.048,1.0,0.081,1.0,0.999392,0.13033250184571776,0.3737713304626509
+all45,lmoment_full,16,64,0.05,600,0.052,1.0,0.079,1.0,0.9998049999999999,0.13058923442272924,0.6448209944673856
