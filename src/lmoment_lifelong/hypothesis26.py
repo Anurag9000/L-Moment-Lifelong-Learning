@@ -367,7 +367,10 @@ def run_jobs(specs: list[RunSpec], opt: Options, *, dry_run=False,
     repo_root = Path(__file__).resolve().parents[2]
     dirty = subprocess.check_output(["git", "status", "--porcelain"], cwd=repo_root, text=True)
     if dirty:
-        raise RuntimeError("Commit source changes before launch so run provenance is exact")
+        raise RuntimeError(
+            "Commit source changes before launch so run provenance is exact; "
+            f"dirty paths: {dirty.strip()}"
+        )
     root = Path(opt.output_root)
     root.mkdir(parents=True, exist_ok=True)
     from .cifar10_pretrained import prepare_cifar10_cache, quality_report
