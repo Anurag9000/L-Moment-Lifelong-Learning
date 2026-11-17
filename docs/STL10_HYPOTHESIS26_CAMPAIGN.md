@@ -9,7 +9,7 @@ implemented tracks on a shared, frozen DINOv2 ViT-B/14 embedding cache.
   layout. If Stanford's dataset host is unreachable, use
   `scripts/prepare_stl10_hf_mirror.py` on the Hugging Face `tanganke/stl10`
   parquet files; it records source checksums and verifies class counts.
-- Per class: 100 train for candidate screens; the top three configurations are
+- Per class: 100 train for candidate screens; the selected screen finalist is
   revalidated with 400 train, 100 validation (all 500 official labeled train images),
   and 800 final test images (the full official test partition).
 - The validation set is split into disjoint development and scoring halves for
@@ -36,7 +36,7 @@ python -m lmoment_lifelong.cifar10_tuning \
 
 The tuner screens the representation settings and track-specific hyperparameter
 axes with 20 training examples per class, coordinate-refines each selected
-configuration, then confirms the top three candidates with 400 training
+configuration, then confirms the single selected screen finalist with 400 training
 examples per class. It records the
 validation objective for both variants and their paired difference. It evaluates
 the final test partition only after validation selection. The campaign should
