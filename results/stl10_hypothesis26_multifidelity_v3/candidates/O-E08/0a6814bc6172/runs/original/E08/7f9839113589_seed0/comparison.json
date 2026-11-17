@@ -1,0 +1,27 @@
+{
+  "pseudo_class_count": {
+    "baseline": 10,
+    "lmoment": 10,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "parent_count": {
+    "baseline": 3,
+    "lmoment": 3,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "validation_hierarchy_ari": {
+    "baseline": 0.0924169724037644,
+    "lmoment": 0.0924169724037644,
+    "delta_lmoment_minus_baseline": 0.0
+  },
+  "hierarchy_cluster_ari": {
+    "baseline": 0.0841913632932563,
+    "lmoment": 0.0841913632932563,
+    "delta_lmoment_minus_baseline": 0.0
+  },
+  "configured_parent_count": {
+    "baseline": 3,
+    "lmoment": 3,
+    "delta_lmoment_minus_baseline": 0
+  }
+}

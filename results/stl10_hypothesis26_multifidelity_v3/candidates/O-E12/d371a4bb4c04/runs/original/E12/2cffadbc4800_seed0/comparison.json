@@ -1,0 +1,22 @@
+{
+  "new_accuracy": {
+    "baseline": 1.0,
+    "lmoment": 0.956,
+    "delta_lmoment_minus_baseline": -0.04400000000000004
+  },
+  "accuracy": {
+    "baseline": 0.922,
+    "lmoment": 0.97,
+    "delta_lmoment_minus_baseline": 0.04799999999999993
+  },
+  "old_accuracy": {
+    "baseline": 0.844,
+    "lmoment": 0.984,
+    "delta_lmoment_minus_baseline": 0.14
+  },
+  "parameters_added": {
+    "baseline": 0,
+    "lmoment": 0,
+    "delta_lmoment_minus_baseline": 0
+  }
+}

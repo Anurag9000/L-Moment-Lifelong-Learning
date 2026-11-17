@@ -1,0 +1,37 @@
+{
+  "corruption_accuracy_drop": {
+    "baseline": 0.536,
+    "lmoment": 0.49199999999999994,
+    "delta_lmoment_minus_baseline": -0.044000000000000095
+  },
+  "corruption_accuracy": {
+    "baseline": 0.42,
+    "lmoment": 0.448,
+    "delta_lmoment_minus_baseline": 0.028000000000000025
+  },
+  "known_class_clean_accuracy": {
+    "baseline": 0.956,
+    "lmoment": 0.94,
+    "delta_lmoment_minus_baseline": -0.016000000000000014
+  },
+  "clean_accuracy": {
+    "baseline": 0.956,
+    "lmoment": 0.94,
+    "delta_lmoment_minus_baseline": -0.016000000000000014
+  },
+  "within_class_distance": {
+    "baseline": 15.112432479858398,
+    "lmoment": 1.328243214611302,
+    "delta_lmoment_minus_baseline": -13.784189265247097
+  },
+  "known_class_corruption_accuracy": {
+    "baseline": 0.42,
+    "lmoment": 0.448,
+    "delta_lmoment_minus_baseline": 0.028000000000000025
+  },
+  "different_class_distance": {
+    "baseline": 32.37060947418213,
+    "lmoment": 3.7663797187370016,
+    "delta_lmoment_minus_baseline": -28.60422975544513
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "known_class_clean_accuracy": {
+    "baseline": 0.968,
+    "lmoment": 0.964,
+    "delta": -0.0040000000000000036
+  },
+  "known_class_corruption_accuracy": {
+    "baseline": 0.36,
+    "lmoment": 0.376,
+    "delta": 0.016000000000000014
+  },
+  "corruption_accuracy_drop": {
+    "baseline": 0.608,
+    "lmoment": 0.588,
+    "delta": -0.020000000000000018
+  },
+  "image_domain_corruption": {
+    "baseline": 1.0,
+    "lmoment": 1.0,
+    "delta": 0.0
+  },
+  "known_labels_permitted": {
+    "baseline": 5.0,
+    "lmoment": 5.0,
+    "delta": 0.0
+  }
+}

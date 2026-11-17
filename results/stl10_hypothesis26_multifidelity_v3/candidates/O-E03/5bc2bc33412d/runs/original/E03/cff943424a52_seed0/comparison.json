@@ -1,0 +1,32 @@
+{
+  "new_accuracy": {
+    "baseline": 0.52,
+    "lmoment": 0.508,
+    "delta_lmoment_minus_baseline": -0.01200000000000001
+  },
+  "accuracy": {
+    "baseline": 0.732,
+    "lmoment": 0.728,
+    "delta_lmoment_minus_baseline": -0.0040000000000000036
+  },
+  "continual_sessions": {
+    "baseline": 1,
+    "lmoment": 1,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "oracle_global_k": {
+    "baseline": 10,
+    "lmoment": 10,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "known_training_labels": {
+    "baseline": 5,
+    "lmoment": 5,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "old_accuracy": {
+    "baseline": 0.944,
+    "lmoment": 0.9480000000000001,
+    "delta_lmoment_minus_baseline": 0.004000000000000115
+  }
+}

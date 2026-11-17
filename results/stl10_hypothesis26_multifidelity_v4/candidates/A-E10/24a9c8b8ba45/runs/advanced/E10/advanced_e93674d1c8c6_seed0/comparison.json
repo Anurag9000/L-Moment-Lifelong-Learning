@@ -1,0 +1,42 @@
+{
+  "old_before": {
+    "baseline": 1.0,
+    "lmoment": 1.0,
+    "delta": 0.0
+  },
+  "old_after": {
+    "baseline": 0.984,
+    "lmoment": 0.98,
+    "delta": -0.0040000000000000036
+  },
+  "old_forgetting": {
+    "baseline": 0.016000000000000014,
+    "lmoment": 0.020000000000000018,
+    "delta": 0.0040000000000000036
+  },
+  "new_accuracy": {
+    "baseline": 0.992,
+    "lmoment": 1.0,
+    "delta": 0.008000000000000007
+  },
+  "full_test_accuracy": {
+    "baseline": 0.988,
+    "lmoment": 0.99,
+    "delta": 0.0020000000000000018
+  },
+  "retained_features": {
+    "baseline": 63.0,
+    "lmoment": 63.0,
+    "delta": 0.0
+  },
+  "retained_bytes": {
+    "baseline": 32760.0,
+    "lmoment": 32760.0,
+    "delta": 0.0
+  },
+  "fixed_budget_bytes": {
+    "baseline": 32768.0,
+    "lmoment": 32768.0,
+    "delta": 0.0
+  }
+}

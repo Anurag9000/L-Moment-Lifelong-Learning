@@ -1,0 +1,52 @@
+{
+  "calibration_streams": {
+    "baseline": 10.0,
+    "lmoment": 10.0,
+    "delta": 0.0
+  },
+  "null_noop": {
+    "baseline": 1.0,
+    "lmoment": 1.0,
+    "delta": 0.0
+  },
+  "shift_alarm": {
+    "baseline": 1.0,
+    "lmoment": 1.0,
+    "delta": 0.0
+  },
+  "validation_stationary_loss": {
+    "baseline": 0.25267595052719116,
+    "lmoment": 0.25267595052719116,
+    "delta": 0.0
+  },
+  "validation_shifted_loss": {
+    "baseline": 5.6785688400268555,
+    "lmoment": 5.6785688400268555,
+    "delta": 0.0
+  },
+  "validation_loss_degradation_threshold": {
+    "baseline": 0.41583195328712463,
+    "lmoment": 0.41583195328712463,
+    "delta": 0.0
+  },
+  "loss_degradation_quantile": {
+    "baseline": 0.95,
+    "lmoment": 0.95,
+    "delta": 0.0
+  },
+  "loss_degraded": {
+    "baseline": 1.0,
+    "lmoment": 1.0,
+    "delta": 0.0
+  },
+  "loss_probe_batches": {
+    "baseline": 31.0,
+    "lmoment": 31.0,
+    "delta": 0.0
+  },
+  "optimizer_batch_size": {
+    "baseline": 32.0,
+    "lmoment": 32.0,
+    "delta": 0.0
+  }
+}

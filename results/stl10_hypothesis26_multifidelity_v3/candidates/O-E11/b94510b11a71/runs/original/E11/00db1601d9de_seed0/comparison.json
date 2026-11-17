@@ -1,0 +1,47 @@
+{
+  "loss_degradation_quantile": {
+    "baseline": 0.95,
+    "lmoment": 0.95,
+    "delta_lmoment_minus_baseline": 0.0
+  },
+  "test_accuracy": {
+    "baseline": 0.906,
+    "lmoment": 0.906,
+    "delta_lmoment_minus_baseline": 0.0
+  },
+  "calibrated_threshold": {
+    "baseline": 0.48087760780631955,
+    "lmoment": 0.48087760780631955,
+    "delta_lmoment_minus_baseline": 0.0
+  },
+  "optimizer_batch_size": {
+    "baseline": 128,
+    "lmoment": 128,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "loss_degradations": {
+    "baseline": 0,
+    "lmoment": 0,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "detector_comparisons": {
+    "baseline": 24,
+    "lmoment": 24,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "processed": {
+    "baseline": 200,
+    "lmoment": 200,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "updates": {
+    "baseline": 2,
+    "lmoment": 2,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "alarms": {
+    "baseline": 2,
+    "lmoment": 2,
+    "delta_lmoment_minus_baseline": 0
+  }
+}

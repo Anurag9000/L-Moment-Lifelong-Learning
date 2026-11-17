@@ -1,0 +1,32 @@
+{
+  "artificial_merge_intervention": {
+    "baseline": 1.0,
+    "lmoment": 1.0,
+    "delta": 0.0
+  },
+  "candidate_proposed": {
+    "baseline": 0.0,
+    "lmoment": 0.0,
+    "delta": 0.0
+  },
+  "accepted_heldout": {
+    "baseline": 0.0,
+    "lmoment": 0.0,
+    "delta": 0.0
+  },
+  "scoring_ari": {
+    "baseline": 0.0,
+    "lmoment": 0.0,
+    "delta": 0.0
+  },
+  "rollback_restored": {
+    "baseline": 1.0,
+    "lmoment": 1.0,
+    "delta": 0.0
+  },
+  "memory_bytes_after_rollback": {
+    "baseline": 245760.0,
+    "lmoment": 245760.0,
+    "delta": 0.0
+  }
+}

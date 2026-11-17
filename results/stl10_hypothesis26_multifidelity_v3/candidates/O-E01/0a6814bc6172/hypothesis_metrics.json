@@ -1,0 +1,21 @@
+[
+  {
+    "id": "O-E01",
+    "track": "E01",
+    "suite": "original",
+    "metric": "separation_ratio",
+    "result_path": "results/stl10_hypothesis26_multifidelity_v3/candidates/O-E01/0a6814bc6172/runs/original/E01/8d927ca4fb5c_seed0/result.json",
+    "baseline.matched_mean_distance": 0.2410980209708214,
+    "baseline.different_mean_distance": 0.8752674698829651,
+    "baseline.separation_ratio": 3.630338674529781,
+    "baseline.balanced_class_pair_count": 90,
+    "lmoment.matched_mean_distance": 0.01830163088826641,
+    "lmoment.different_mean_distance": 0.039397541552093664,
+    "lmoment.separation_ratio": 2.152679277197767,
+    "lmoment.balanced_class_pair_count": 90,
+    "delta.different_mean_distance": -0.8358699283308715,
+    "delta.separation_ratio": -1.477659397332014,
+    "delta.balanced_class_pair_count": 0.0,
+    "delta.matched_mean_distance": -0.22279639008255497
+  }
+]

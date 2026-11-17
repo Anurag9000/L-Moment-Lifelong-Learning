@@ -1,0 +1,37 @@
+{
+  "accuracy": {
+    "baseline": 0.814,
+    "lmoment": 0.806,
+    "delta_lmoment_minus_baseline": -0.007999999999999896
+  },
+  "new_accuracy": {
+    "baseline": 0.6866666666666666,
+    "lmoment": 0.6733333333333333,
+    "delta_lmoment_minus_baseline": -0.013333333333333308
+  },
+  "known_training_labels": {
+    "baseline": 5,
+    "lmoment": 5,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "memory_budget_bytes": {
+    "baseline": 65536,
+    "lmoment": 65536,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "continual_sessions": {
+    "baseline": 2,
+    "lmoment": 2,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "oracle_global_k": {
+    "baseline": 10,
+    "lmoment": 10,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "old_accuracy": {
+    "baseline": 0.8685714285714285,
+    "lmoment": 0.8628571428571429,
+    "delta_lmoment_minus_baseline": -0.005714285714285672
+  }
+}

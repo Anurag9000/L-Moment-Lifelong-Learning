@@ -1,0 +1,17 @@
+{
+  "updates": {
+    "baseline": 15,
+    "lmoment": 15,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "linear_probe_accuracy": {
+    "baseline": 0.982,
+    "lmoment": 0.984,
+    "delta_lmoment_minus_baseline": 0.0020000000000000018
+  },
+  "validation_linear_probe_accuracy": {
+    "baseline": 0.976,
+    "lmoment": 0.976,
+    "delta_lmoment_minus_baseline": 0.0
+  }
+}

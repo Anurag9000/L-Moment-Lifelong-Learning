@@ -1,0 +1,52 @@
+{
+  "seen_classes": {
+    "baseline": 10,
+    "lmoment": 10,
+    "delta": 0.0
+  },
+  "old_accuracy": {
+    "baseline": 0.956,
+    "lmoment": 0.952,
+    "delta": -0.0040000000000000036
+  },
+  "session": {
+    "baseline": 1,
+    "lmoment": 1,
+    "delta": 0.0
+  },
+  "optimizer_updates": {
+    "baseline": 40,
+    "lmoment": 40,
+    "delta": 0.0
+  },
+  "replay_bytes": {
+    "baseline": 0,
+    "lmoment": 0,
+    "delta": 0.0
+  },
+  "pseudo_groups": {
+    "baseline": 10,
+    "lmoment": 10,
+    "delta": 0.0
+  },
+  "novel_accuracy": {
+    "baseline": 0.316,
+    "lmoment": 0.312,
+    "delta": -0.0040000000000000036
+  },
+  "all_accuracy": {
+    "baseline": 0.636,
+    "lmoment": 0.632,
+    "delta": -0.0040000000000000036
+  },
+  "final_training_loss": {
+    "baseline": 4.318639066452306,
+    "lmoment": 4.31850759769124,
+    "delta": -0.00013146876106606697
+  },
+  "train_examples": {
+    "baseline": 200,
+    "lmoment": 200,
+    "delta": 0.0
+  }
+}

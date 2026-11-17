@@ -1,0 +1,42 @@
+{
+  "merge_count": {
+    "baseline": 1,
+    "lmoment": 6,
+    "delta_lmoment_minus_baseline": 5
+  },
+  "online_predictions": {
+    "baseline": 200,
+    "lmoment": 200,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "provisional_classes": {
+    "baseline": 6,
+    "lmoment": 8,
+    "delta_lmoment_minus_baseline": 2
+  },
+  "dormant_classes": {
+    "baseline": 0,
+    "lmoment": 0,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "final_memory_count": {
+    "baseline": 20,
+    "lmoment": 20,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "canonical_id_count": {
+    "baseline": 20,
+    "lmoment": 20,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "mature_classes": {
+    "baseline": 14,
+    "lmoment": 12,
+    "delta_lmoment_minus_baseline": -2
+  },
+  "memory_bytes_estimate": {
+    "baseline": 1406976,
+    "lmoment": 1284096,
+    "delta_lmoment_minus_baseline": -122880
+  }
+}

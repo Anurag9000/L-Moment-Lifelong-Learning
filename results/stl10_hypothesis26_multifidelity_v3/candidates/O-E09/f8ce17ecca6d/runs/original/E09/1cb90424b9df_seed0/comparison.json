@@ -1,0 +1,12 @@
+{
+  "classes": {
+    "baseline": 10,
+    "lmoment": 10,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "test_accuracy": {
+    "baseline": 0.974,
+    "lmoment": 0.974,
+    "delta_lmoment_minus_baseline": 0.0
+  }
+}

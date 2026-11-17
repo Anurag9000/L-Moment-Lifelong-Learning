@@ -1,0 +1,17 @@
+{
+  "validation_accuracy": {
+    "baseline": 0.948,
+    "lmoment": 0.952,
+    "delta": 0.0040000000000000036
+  },
+  "test_accuracy": {
+    "baseline": 0.972,
+    "lmoment": 0.972,
+    "delta": 0.0
+  },
+  "labels_allowed": {
+    "baseline": 1.0,
+    "lmoment": 1.0,
+    "delta": 0.0
+  }
+}

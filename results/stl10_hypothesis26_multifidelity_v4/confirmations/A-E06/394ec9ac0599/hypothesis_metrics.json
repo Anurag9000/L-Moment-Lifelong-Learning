@@ -1,0 +1,27 @@
+[
+  {
+    "id": "A-E06",
+    "track": "E06",
+    "suite": "advanced",
+    "metric": "accepted_heldout",
+    "result_path": "results/stl10_hypothesis26_multifidelity_v4/confirmations/A-E06/394ec9ac0599/runs/advanced/E06/advanced_76a363fc458e_seed0/result.json",
+    "baseline.artificial_merge_intervention": true,
+    "baseline.candidate_proposed": true,
+    "baseline.accepted_heldout": true,
+    "baseline.holdout_gain": 154.44039623614134,
+    "baseline.scoring_ari": 0.22468617203145608,
+    "baseline.rollback_restored": true,
+    "baseline.memory_bytes_after_rollback": 4915200,
+    "lmoment.artificial_merge_intervention": true,
+    "lmoment.candidate_proposed": true,
+    "lmoment.accepted_heldout": true,
+    "lmoment.holdout_gain": 154.44039623614134,
+    "lmoment.holdout_shape_score": 0.7654838398319972,
+    "lmoment.scoring_ari": 0.22468617203145608,
+    "lmoment.rollback_restored": true,
+    "lmoment.memory_bytes_after_rollback": 4915200,
+    "delta.holdout_gain": 0.0,
+    "delta.scoring_ari": 0.0,
+    "delta.memory_bytes_after_rollback": 0.0
+  }
+]

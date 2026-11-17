@@ -1,0 +1,17 @@
+{
+  "scoring_ari": {
+    "baseline": 0.18796992481203006,
+    "lmoment": 0.18796992481203006,
+    "delta_lmoment_minus_baseline": 0.0
+  },
+  "memory_bytes_after_rollback": {
+    "baseline": 20480,
+    "lmoment": 20480,
+    "delta_lmoment_minus_baseline": 0
+  },
+  "holdout_gain": {
+    "baseline": -0.0054928629361676445,
+    "lmoment": -0.0054928629361676445,
+    "delta_lmoment_minus_baseline": 0.0
+  }
+}

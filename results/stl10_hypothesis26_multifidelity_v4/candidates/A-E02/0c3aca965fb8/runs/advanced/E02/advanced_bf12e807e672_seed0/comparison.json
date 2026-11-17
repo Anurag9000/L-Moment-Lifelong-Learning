@@ -1,0 +1,37 @@
+{
+  "initial_prediction_abstention": {
+    "baseline": 1.0,
+    "lmoment": 1.0,
+    "delta": 0.0
+  },
+  "prequential_coverage": {
+    "baseline": 0.0,
+    "lmoment": 0.0,
+    "delta": 0.0
+  },
+  "mature_classes": {
+    "baseline": 25.0,
+    "lmoment": 12.0,
+    "delta": -13.0
+  },
+  "total_assemblies": {
+    "baseline": 25.0,
+    "lmoment": 12.0,
+    "delta": -13.0
+  },
+  "estimated_memory_bytes": {
+    "baseline": 1480704.0,
+    "lmoment": 1105920.0,
+    "delta": -374784.0
+  },
+  "canonical_id_count": {
+    "baseline": 25.0,
+    "lmoment": 12.0,
+    "delta": -13.0
+  },
+  "merge_count": {
+    "baseline": 0.0,
+    "lmoment": 13.0,
+    "delta": 13.0
+  }
+}

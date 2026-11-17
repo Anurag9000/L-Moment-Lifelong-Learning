@@ -1,0 +1,20 @@
+COMMAND: /home/anurag-basistha/Projects/Untapped/L-Moment-Lifelong-Learning/.venv/bin/python -m lmoment_lifelong.cifar10_advanced --dataset stl10 --track E11 --seed 0 --data-root datasets/stl10_binary --output-root results/stl10_hypothesis26_multifidelity_v4/candidates/A-E11/9efac67d0915/runs/advanced --samples-per-class 20 --val-per-class 100 --test-per-class 800 --ssl-epochs 10 --batch-size 64 --feature-dim 128 --backbone dinov2 --feature-cache results/stl10_dinov2_cache_v1 --extraction-microbatch 4 --no-l2-normalize --validation-only --download --device cuda --memory-bytes 65536 --statistical-projections 16 --min-support 8 --gcd-mode gcd --gcd-epochs-base 10 --gcd-epochs-session 10 --lr 0.001 --gcd-supervised-weight 1.0 --gcd-pseudo-weight 1.0 --gcd-consistency-weight 0.1 --gcd-preservation-weight 0.05 --distribution-shrinkage 5.0 --distribution-min-scale 0.02 --radius-factor 1.5 --candidate-radius-factor 2.0 --max-discovered-classes 50 --training-steps 50 --replay-ratio 0.5 --hierarchy-parents 3 --drift-window 16 --loss-quantile 0.95 --split-penalty 0.05 --split-shape-floor 1e-06 --variant both
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/anurag-basistha/Projects/Untapped/L-Moment-Lifelong-Learning/src/lmoment_lifelong/cifar10_advanced.py", line 696, in <module>
+    main()
+  File "/home/anurag-basistha/Projects/Untapped/L-Moment-Lifelong-Learning/src/lmoment_lifelong/cifar10_advanced.py", line 690, in main
+    path, payload = run_cifar(cfg)
+                    ^^^^^^^^^^^^^^
+  File "/home/anurag-basistha/Projects/Untapped/L-Moment-Lifelong-Learning/src/lmoment_lifelong/cifar10_advanced.py", line 604, in run_cifar
+    results = run_features(cfg.track, train_x, train_y, val_x, val_y, test_x, test_y,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/anurag-basistha/Projects/Untapped/L-Moment-Lifelong-Learning/src/lmoment_lifelong/cifar10_advanced.py", line 466, in run_features
+    outcome[variant] = _variant(track, kind, *sum(zip(features, labels), ()), cfg,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/anurag-basistha/Projects/Untapped/L-Moment-Lifelong-Learning/src/lmoment_lifelong/cifar10_advanced.py", line 379, in _variant
+    torch, _, _, _ = _torch()
+                     ^^^^^^
+NameError: name '_torch' is not defined. Did you mean: 'torch'?
