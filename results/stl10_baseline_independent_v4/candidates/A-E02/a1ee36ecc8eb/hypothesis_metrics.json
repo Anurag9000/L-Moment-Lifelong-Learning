@@ -1,0 +1,33 @@
+[
+  {
+    "id": "A-E02",
+    "track": "E02",
+    "suite": "advanced",
+    "metric": "test.fixed_mapping_accuracy",
+    "result_path": "results/stl10_baseline_independent_v4/candidates/A-E02/a1ee36ecc8eb/runs/advanced/E02/advanced_0fb34f16d3ae_seed0/result.json",
+    "baseline.calibration.threshold": 0.0013157185980194675,
+    "baseline.calibration.alpha_per_comparison": 0.05,
+    "baseline.calibration.n_calibration": 128,
+    "baseline.initial_prediction_abstention": true,
+    "baseline.prequential_coverage": 0.022,
+    "baseline.validation.fixed_mapping_accuracy": 0.096,
+    "baseline.validation.coverage": 0.096,
+    "baseline.validation.discovered_clusters": 2,
+    "baseline.validation.ari_covered": 1.0,
+    "baseline.validation.nmi_covered": 1.0,
+    "baseline.test.fixed_mapping_accuracy": 0.084,
+    "baseline.test.coverage": 0.084,
+    "baseline.test.discovered_clusters": 2,
+    "baseline.test.ari_covered": 1.0,
+    "baseline.test.nmi_covered": 1.0,
+    "baseline.mature_classes": 21,
+    "baseline.total_assemblies": 24,
+    "baseline.estimated_memory_bytes": 303104,
+    "baseline.canonical_id_count": 24,
+    "baseline.merge_count": 100,
+    "baseline.events.merge_provisional": 72,
+    "baseline.events.confirm_birth": 49,
+    "baseline.events.merge_confirmed": 28,
+    "baseline.events.provisional": 124
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "A-E08",
+    "track": "E08",
+    "suite": "advanced",
+    "metric": "test.fixed_mapping_accuracy",
+    "result_path": "results/stl10_baseline_independent_v4/final/A-E08/runs/advanced/E08/advanced_1e31ec3d9e55_seed0/result.json",
+    "baseline.oracle_child_k": 10,
+    "baseline.parent_k": 3,
+    "baseline.validation.fixed_mapping_accuracy": 0.844,
+    "baseline.validation.coverage": 1.0,
+    "baseline.validation.discovered_clusters": 10,
+    "baseline.validation.ari_covered": 0.7858730525059907,
+    "baseline.validation.nmi_covered": 0.9027517600085694,
+    "baseline.test.fixed_mapping_accuracy": 0.838,
+    "baseline.test.coverage": 1.0,
+    "baseline.test.discovered_clusters": 10,
+    "baseline.test.ari_covered": 0.77304584976418,
+    "baseline.test.nmi_covered": 0.8914889154988627,
+    "baseline.parent_distribution.0": 7016,
+    "baseline.parent_distribution.1": 192,
+    "baseline.parent_distribution.2": 792
+  }
+]

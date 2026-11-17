@@ -83,3 +83,8 @@ the best configuration found within this declared finite search budget; it does
 not mean a global hyperparameter optimum. The single seed and finite
 candidate/support budgets limit uncertainty, so confirmation across additional
 seeds remains necessary for a broad research claim.
+
+The completed V4 baseline-only search, its independent-baseline versus
+L-moment comparison, per-track selected settings, compute evidence, and sync
+checksums are documented in
+[`STL10_BASELINE_INDEPENDENT_V4_REPORT.md`](STL10_BASELINE_INDEPENDENT_V4_REPORT.md).

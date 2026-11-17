@@ -1,0 +1,16 @@
+[
+  {
+    "id": "A-E06",
+    "track": "E06",
+    "suite": "advanced",
+    "metric": "accepted_heldout",
+    "result_path": "results/stl10_baseline_independent_v4/candidates/A-E06/c960b8239e04/runs/advanced/E06/advanced_0d4ab1d800cd_seed0/result.json",
+    "baseline.artificial_merge_intervention": true,
+    "baseline.candidate_proposed": true,
+    "baseline.accepted_heldout": true,
+    "baseline.holdout_gain": 4.141852511378002,
+    "baseline.scoring_ari": 0.22468617203145608,
+    "baseline.rollback_restored": true,
+    "baseline.memory_bytes_after_rollback": 102400
+  }
+]

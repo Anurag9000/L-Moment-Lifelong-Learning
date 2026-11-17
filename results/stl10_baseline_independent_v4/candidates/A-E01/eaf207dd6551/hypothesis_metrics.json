@@ -1,0 +1,32 @@
+[
+  {
+    "id": "A-E01",
+    "track": "E01",
+    "suite": "advanced",
+    "metric": "test_accuracy",
+    "result_path": "results/stl10_baseline_independent_v4/candidates/A-E01/eaf207dd6551/runs/advanced/E01/advanced_cda7719c71fa_seed0/result.json",
+    "baseline.validation_accuracy": 0.98,
+    "baseline.test_accuracy": 0.992,
+    "baseline.validation_diagnostics.per_class_accuracy.0": 0.98,
+    "baseline.validation_diagnostics.per_class_accuracy.1": 0.98,
+    "baseline.validation_diagnostics.per_class_accuracy.2": 0.98,
+    "baseline.validation_diagnostics.per_class_accuracy.3": 1.0,
+    "baseline.validation_diagnostics.per_class_accuracy.4": 1.0,
+    "baseline.validation_diagnostics.per_class_accuracy.5": 0.96,
+    "baseline.validation_diagnostics.per_class_accuracy.6": 1.0,
+    "baseline.validation_diagnostics.per_class_accuracy.7": 0.98,
+    "baseline.validation_diagnostics.per_class_accuracy.8": 1.0,
+    "baseline.validation_diagnostics.per_class_accuracy.9": 0.92,
+    "baseline.test_diagnostics.per_class_accuracy.0": 0.98,
+    "baseline.test_diagnostics.per_class_accuracy.1": 0.98,
+    "baseline.test_diagnostics.per_class_accuracy.2": 1.0,
+    "baseline.test_diagnostics.per_class_accuracy.3": 0.96,
+    "baseline.test_diagnostics.per_class_accuracy.4": 1.0,
+    "baseline.test_diagnostics.per_class_accuracy.5": 1.0,
+    "baseline.test_diagnostics.per_class_accuracy.6": 1.0,
+    "baseline.test_diagnostics.per_class_accuracy.7": 1.0,
+    "baseline.test_diagnostics.per_class_accuracy.8": 1.0,
+    "baseline.test_diagnostics.per_class_accuracy.9": 1.0,
+    "baseline.labels_allowed": true
+  }
+]

@@ -1,0 +1,2 @@
+id,track,suite,metric,result_path,baseline.accepted,baseline.holdout_gain,baseline.memory_bytes_after_rollback,baseline.proposed,baseline.rollback_restored,baseline.scoring_ari
+O-E06,E06,original,accepted,results/stl10_baseline_independent_v4/candidates/O-E06/e96394a7c59b/runs/original/E06/b451a63617e8_seed0/result.json,False,-0.046440976926253624,1228800,True,True,0.9208012930401136

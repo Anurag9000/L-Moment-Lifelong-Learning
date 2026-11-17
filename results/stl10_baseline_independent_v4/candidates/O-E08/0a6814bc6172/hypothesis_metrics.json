@@ -1,0 +1,14 @@
+[
+  {
+    "id": "O-E08",
+    "track": "E08",
+    "suite": "original",
+    "metric": "hierarchy_cluster_ari",
+    "result_path": "results/stl10_baseline_independent_v4/candidates/O-E08/0a6814bc6172/runs/original/E08/a677e50dd48e_seed0/result.json",
+    "baseline.pseudo_class_count": 10,
+    "baseline.parent_count": 3,
+    "baseline.configured_parent_count": 3,
+    "baseline.hierarchy_cluster_ari": 0.06007647161550612,
+    "baseline.validation_hierarchy_ari": 0.05900625426458977
+  }
+]

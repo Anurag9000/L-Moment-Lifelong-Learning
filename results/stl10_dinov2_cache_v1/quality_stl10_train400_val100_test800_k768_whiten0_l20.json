@@ -129,7 +129,7 @@
     ]
   ],
   "between_within_variance_ratio": 0.24621449410915375,
-  "covariance_trace": 2214.92348721751,
+  "covariance_trace": 2214.923487217509,
   "covariance_effective_rank": 767,
   "feature_variance_min": 0.005919869523495436,
   "feature_variance_max": 4.387683391571045,

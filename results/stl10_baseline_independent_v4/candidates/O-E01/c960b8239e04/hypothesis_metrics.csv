@@ -1,0 +1,2 @@
+id,track,suite,metric,result_path,baseline.balanced_class_pair_count,baseline.different_mean_distance,baseline.matched_mean_distance,baseline.separation_ratio
+O-E01,E01,original,separation_ratio,results/stl10_baseline_independent_v4/candidates/O-E01/c960b8239e04/runs/original/E01/9632cfb9485d_seed0/result.json,90,4.685402626461453,1.9549436926841737,2.3966944132433343

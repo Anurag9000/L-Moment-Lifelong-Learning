@@ -1,0 +1,13 @@
+[
+  {
+    "id": "O-E01",
+    "track": "E01",
+    "suite": "original",
+    "metric": "separation_ratio",
+    "result_path": "results/stl10_baseline_independent_v4/candidates/O-E01/d7123bcac008/runs/original/E01/0bf72b144181_seed0/result.json",
+    "baseline.matched_mean_distance": 0.2766589879989624,
+    "baseline.different_mean_distance": 0.5336985462241702,
+    "baseline.separation_ratio": 1.9290844302017467,
+    "baseline.balanced_class_pair_count": 90
+  }
+]

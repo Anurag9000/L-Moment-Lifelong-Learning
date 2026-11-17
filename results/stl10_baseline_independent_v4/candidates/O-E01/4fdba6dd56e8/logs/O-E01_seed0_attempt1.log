@@ -1,0 +1,670 @@
+COMMAND: /home/anurag24092/envs/tfcl-btp/bin/python -m lmoment_lifelong.cifar10_suite --dataset stl10 --track E01 --variant baseline --data-root /home/anurag24092/Projects/L-Moment-Lifelong-Learning/datasets --output-root results/stl10_baseline_independent_v4/candidates/O-E01/4fdba6dd56e8/runs/original --seed 0 --samples-per-class 100 --val-per-class 100 --test-per-class 800 --epochs 10 --ssl-epochs 10 --batch-size 64 --lr 0.001 --feature-dim 256 --device cuda --backbone dinov2 --feature-cache results/stl10_dinov2_cache_v1 --extraction-microbatch 4 --validation-only --statistical-projections 16 --min-support 8 --memory-bytes 65536 --discovery-radius 0.6 --candidate-radius-factor 2.0 --max-discovered-classes 50 --drift-window 16 --loss-quantile 0.95 --growth-width 16 --growth-trial-steps 25 --growth-parameter-penalty 0.0 --split-penalty 0.05 --split-shape-floor 1e-06 --hierarchy-parents 3 --feature-ssl-anchor-weight 0.5 --feature-ssl-shape-weight 0.1 --distribution-shrinkage 5.0 --distribution-min-scale 0.02 --training-steps 50 --known-classes 5 --replay-ratio 0.5
+
+{
+  "result_path": "results/stl10_baseline_independent_v4/candidates/O-E01/4fdba6dd56e8/runs/original/E01/4fa4c2c9da04_seed0/result.json",
+  "metrics": {
+    "baseline": {
+      "matched_mean_distance": 0.25300148129463196,
+      "different_mean_distance": 0.7921213759316339,
+      "separation_ratio": 3.1308961982288626,
+      "same_class_pair_scores": [
+        0.3587389290332794,
+        0.2462715208530426,
+        0.26514390110969543,
+        0.2643495202064514,
+        0.18553628027439117,
+        0.2295222133398056,
+        0.33193784952163696,
+        0.22519738972187042,
+        0.1845712959766388,
+        0.23874591290950775
+      ],
+      "different_class_pair_scores": [
+        0.6849591135978699,
+        0.6671565771102905,
+        0.7272157669067383,
+        0.9349598288536072,
+        0.6809466481208801,
+        0.792915403842926,
+        0.8204358220100403,
+        0.8571411371231079,
+        0.8442947864532471,
+        0.6775338649749756,
+        0.592034101486206,
+        0.7023264765739441,
+        0.8861964344978333,
+        0.5438077449798584,
+        0.6647579073905945,
+        0.6867371797561646,
+        0.7587365508079529,
+        0.7936270236968994,
+        0.7053223252296448,
+        0.5908624529838562,
+        0.6703423261642456,
+        0.9274534583091736,
+        0.5887568593025208,
+        0.7037693858146667,
+        0.7806158661842346,
+        0.8121459484100342,
+        0.7484584450721741,
+        0.6853751540184021,
+        0.6275908350944519,
+        0.6814486384391785,
+        0.8839209675788879,
+        0.5483722686767578,
+        0.7486826777458191,
+        0.7411818504333496,
+        0.8081763982772827,
+        0.8238359093666077,
+        0.9203066229820251,
+        0.8742200136184692,
+        0.9388796091079712,
+        0.8917012214660645,
+        0.8793132901191711,
+        0.9733076095581055,
+        0.9564803242683411,
+        1.049580454826355,
+        1.0102850198745728,
+        0.6431105136871338,
+        0.5535331964492798,
+        0.5858474373817444,
+        0.582638680934906,
+        0.8866406083106995,
+        0.6940876841545105,
+        0.7114810943603516,
+        0.7637278437614441,
+        0.784365177154541,
+        0.8261842131614685,
+        0.7514657378196716,
+        0.8020995855331421,
+        0.8024611473083496,
+        0.9685205221176147,
+        0.7144019603729248,
+        0.850576639175415,
+        0.9179717898368835,
+        0.8890005350112915,
+        0.8330660462379456,
+        0.6950045228004456,
+        0.7822452783584595,
+        0.7643113136291504,
+        0.9434273838996887,
+        0.7024480700492859,
+        0.8091525435447693,
+        0.8991923332214355,
+        0.8895994424819946,
+        0.8332942724227905,
+        0.7610694169998169,
+        0.7824299931526184,
+        0.8267704844474792,
+        1.029105544090271,
+        0.7771297693252563,
+        0.8707643151283264,
+        0.8850392699241638,
+        0.9315144419670105,
+        0.8367384076118469,
+        0.7662035226821899,
+        0.7628920674324036,
+        0.8359094858169556,
+        0.9926844239234924,
+        0.753563404083252,
+        0.8617458343505859,
+        0.9324407577514648,
+        0.9188988208770752
+      ],
+      "ordered_class_pair_scores": [
+        {
+          "same_class": 0,
+          "different_class": 1,
+          "same_class_distance": 0.3587389290332794,
+          "different_class_distance": 0.6849591135978699
+        },
+        {
+          "same_class": 0,
+          "different_class": 2,
+          "same_class_distance": 0.3587389290332794,
+          "different_class_distance": 0.6671565771102905
+        },
+        {
+          "same_class": 0,
+          "different_class": 3,
+          "same_class_distance": 0.3587389290332794,
+          "different_class_distance": 0.7272157669067383
+        },
+        {
+          "same_class": 0,
+          "different_class": 4,
+          "same_class_distance": 0.3587389290332794,
+          "different_class_distance": 0.9349598288536072
+        },
+        {
+          "same_class": 0,
+          "different_class": 5,
+          "same_class_distance": 0.3587389290332794,
+          "different_class_distance": 0.6809466481208801
+        },
+        {
+          "same_class": 0,
+          "different_class": 6,
+          "same_class_distance": 0.3587389290332794,
+          "different_class_distance": 0.792915403842926
+        },
+        {
+          "same_class": 0,
+          "different_class": 7,
+          "same_class_distance": 0.3587389290332794,
+          "different_class_distance": 0.8204358220100403
+        },
+        {
+          "same_class": 0,
+          "different_class": 8,
+          "same_class_distance": 0.3587389290332794,
+          "different_class_distance": 0.8571411371231079
+        },
+        {
+          "same_class": 0,
+          "different_class": 9,
+          "same_class_distance": 0.3587389290332794,
+          "different_class_distance": 0.8442947864532471
+        },
+        {
+          "same_class": 1,
+          "different_class": 0,
+          "same_class_distance": 0.2462715208530426,
+          "different_class_distance": 0.6775338649749756
+        },
+        {
+          "same_class": 1,
+          "different_class": 2,
+          "same_class_distance": 0.2462715208530426,
+          "different_class_distance": 0.592034101486206
+        },
+        {
+          "same_class": 1,
+          "different_class": 3,
+          "same_class_distance": 0.2462715208530426,
+          "different_class_distance": 0.7023264765739441
+        },
+        {
+          "same_class": 1,
+          "different_class": 4,
+          "same_class_distance": 0.2462715208530426,
+          "different_class_distance": 0.8861964344978333
+        },
+        {
+          "same_class": 1,
+          "different_class": 5,
+          "same_class_distance": 0.2462715208530426,
+          "different_class_distance": 0.5438077449798584
+        },
+        {
+          "same_class": 1,
+          "different_class": 6,
+          "same_class_distance": 0.2462715208530426,
+          "different_class_distance": 0.6647579073905945
+        },
+        {
+          "same_class": 1,
+          "different_class": 7,
+          "same_class_distance": 0.2462715208530426,
+          "different_class_distance": 0.6867371797561646
+        },
+        {
+          "same_class": 1,
+          "different_class": 8,
+          "same_class_distance": 0.2462715208530426,
+          "different_class_distance": 0.7587365508079529
+        },
+        {
+          "same_class": 1,
+          "different_class": 9,
+          "same_class_distance": 0.2462715208530426,
+          "different_class_distance": 0.7936270236968994
+        },
+        {
+          "same_class": 2,
+          "different_class": 0,
+          "same_class_distance": 0.26514390110969543,
+          "different_class_distance": 0.7053223252296448
+        },
+        {
+          "same_class": 2,
+          "different_class": 1,
+          "same_class_distance": 0.26514390110969543,
+          "different_class_distance": 0.5908624529838562
+        },
+        {
+          "same_class": 2,
+          "different_class": 3,
+          "same_class_distance": 0.26514390110969543,
+          "different_class_distance": 0.6703423261642456
+        },
+        {
+          "same_class": 2,
+          "different_class": 4,
+          "same_class_distance": 0.26514390110969543,
+          "different_class_distance": 0.9274534583091736
+        },
+        {
+          "same_class": 2,
+          "different_class": 5,
+          "same_class_distance": 0.26514390110969543,
+          "different_class_distance": 0.5887568593025208
+        },
+        {
+          "same_class": 2,
+          "different_class": 6,
+          "same_class_distance": 0.26514390110969543,
+          "different_class_distance": 0.7037693858146667
+        },
+        {
+          "same_class": 2,
+          "different_class": 7,
+          "same_class_distance": 0.26514390110969543,
+          "different_class_distance": 0.7806158661842346
+        },
+        {
+          "same_class": 2,
+          "different_class": 8,
+          "same_class_distance": 0.26514390110969543,
+          "different_class_distance": 0.8121459484100342
+        },
+        {
+          "same_class": 2,
+          "different_class": 9,
+          "same_class_distance": 0.26514390110969543,
+          "different_class_distance": 0.7484584450721741
+        },
+        {
+          "same_class": 3,
+          "different_class": 0,
+          "same_class_distance": 0.2643495202064514,
+          "different_class_distance": 0.6853751540184021
+        },
+        {
+          "same_class": 3,
+          "different_class": 1,
+          "same_class_distance": 0.2643495202064514,
+          "different_class_distance": 0.6275908350944519
+        },
+        {
+          "same_class": 3,
+          "different_class": 2,
+          "same_class_distance": 0.2643495202064514,
+          "different_class_distance": 0.6814486384391785
+        },
+        {
+          "same_class": 3,
+          "different_class": 4,
+          "same_class_distance": 0.2643495202064514,
+          "different_class_distance": 0.8839209675788879
+        },
+        {
+          "same_class": 3,
+          "different_class": 5,
+          "same_class_distance": 0.2643495202064514,
+          "different_class_distance": 0.5483722686767578
+        },
+        {
+          "same_class": 3,
+          "different_class": 6,
+          "same_class_distance": 0.2643495202064514,
+          "different_class_distance": 0.7486826777458191
+        },
+        {
+          "same_class": 3,
+          "different_class": 7,
+          "same_class_distance": 0.2643495202064514,
+          "different_class_distance": 0.7411818504333496
+        },
+        {
+          "same_class": 3,
+          "different_class": 8,
+          "same_class_distance": 0.2643495202064514,
+          "different_class_distance": 0.8081763982772827
+        },
+        {
+          "same_class": 3,
+          "different_class": 9,
+          "same_class_distance": 0.2643495202064514,
+          "different_class_distance": 0.8238359093666077
+        },
+        {
+          "same_class": 4,
+          "different_class": 0,
+          "same_class_distance": 0.18553628027439117,
+          "different_class_distance": 0.9203066229820251
+        },
+        {
+          "same_class": 4,
+          "different_class": 1,
+          "same_class_distance": 0.18553628027439117,
+          "different_class_distance": 0.8742200136184692
+        },
+        {
+          "same_class": 4,
+          "different_class": 2,
+          "same_class_distance": 0.18553628027439117,
+          "different_class_distance": 0.9388796091079712
+        },
+        {
+          "same_class": 4,
+          "different_class": 3,
+          "same_class_distance": 0.18553628027439117,
+          "different_class_distance": 0.8917012214660645
+        },
+        {
+          "same_class": 4,
+          "different_class": 5,
+          "same_class_distance": 0.18553628027439117,
+          "different_class_distance": 0.8793132901191711
+        },
+        {
+          "same_class": 4,
+          "different_class": 6,
+          "same_class_distance": 0.18553628027439117,
+          "different_class_distance": 0.9733076095581055
+        },
+        {
+          "same_class": 4,
+          "different_class": 7,
+          "same_class_distance": 0.18553628027439117,
+          "different_class_distance": 0.9564803242683411
+        },
+        {
+          "same_class": 4,
+          "different_class": 8,
+          "same_class_distance": 0.18553628027439117,
+          "different_class_distance": 1.049580454826355
+        },
+        {
+          "same_class": 4,
+          "different_class": 9,
+          "same_class_distance": 0.18553628027439117,
+          "different_class_distance": 1.0102850198745728
+        },
+        {
+          "same_class": 5,
+          "different_class": 0,
+          "same_class_distance": 0.2295222133398056,
+          "different_class_distance": 0.6431105136871338
+        },
+        {
+          "same_class": 5,
+          "different_class": 1,
+          "same_class_distance": 0.2295222133398056,
+          "different_class_distance": 0.5535331964492798
+        },
+        {
+          "same_class": 5,
+          "different_class": 2,
+          "same_class_distance": 0.2295222133398056,
+          "different_class_distance": 0.5858474373817444
+        },
+        {
+          "same_class": 5,
+          "different_class": 3,
+          "same_class_distance": 0.2295222133398056,
+          "different_class_distance": 0.582638680934906
+        },
+        {
+          "same_class": 5,
+          "different_class": 4,
+          "same_class_distance": 0.2295222133398056,
+          "different_class_distance": 0.8866406083106995
+        },
+        {
+          "same_class": 5,
+          "different_class": 6,
+          "same_class_distance": 0.2295222133398056,
+          "different_class_distance": 0.6940876841545105
+        },
+        {
+          "same_class": 5,
+          "different_class": 7,
+          "same_class_distance": 0.2295222133398056,
+          "different_class_distance": 0.7114810943603516
+        },
+        {
+          "same_class": 5,
+          "different_class": 8,
+          "same_class_distance": 0.2295222133398056,
+          "different_class_distance": 0.7637278437614441
+        },
+        {
+          "same_class": 5,
+          "different_class": 9,
+          "same_class_distance": 0.2295222133398056,
+          "different_class_distance": 0.784365177154541
+        },
+        {
+          "same_class": 6,
+          "different_class": 0,
+          "same_class_distance": 0.33193784952163696,
+          "different_class_distance": 0.8261842131614685
+        },
+        {
+          "same_class": 6,
+          "different_class": 1,
+          "same_class_distance": 0.33193784952163696,
+          "different_class_distance": 0.7514657378196716
+        },
+        {
+          "same_class": 6,
+          "different_class": 2,
+          "same_class_distance": 0.33193784952163696,
+          "different_class_distance": 0.8020995855331421
+        },
+        {
+          "same_class": 6,
+          "different_class": 3,
+          "same_class_distance": 0.33193784952163696,
+          "different_class_distance": 0.8024611473083496
+        },
+        {
+          "same_class": 6,
+          "different_class": 4,
+          "same_class_distance": 0.33193784952163696,
+          "different_class_distance": 0.9685205221176147
+        },
+        {
+          "same_class": 6,
+          "different_class": 5,
+          "same_class_distance": 0.33193784952163696,
+          "different_class_distance": 0.7144019603729248
+        },
+        {
+          "same_class": 6,
+          "different_class": 7,
+          "same_class_distance": 0.33193784952163696,
+          "different_class_distance": 0.850576639175415
+        },
+        {
+          "same_class": 6,
+          "different_class": 8,
+          "same_class_distance": 0.33193784952163696,
+          "different_class_distance": 0.9179717898368835
+        },
+        {
+          "same_class": 6,
+          "different_class": 9,
+          "same_class_distance": 0.33193784952163696,
+          "different_class_distance": 0.8890005350112915
+        },
+        {
+          "same_class": 7,
+          "different_class": 0,
+          "same_class_distance": 0.22519738972187042,
+          "different_class_distance": 0.8330660462379456
+        },
+        {
+          "same_class": 7,
+          "different_class": 1,
+          "same_class_distance": 0.22519738972187042,
+          "different_class_distance": 0.6950045228004456
+        },
+        {
+          "same_class": 7,
+          "different_class": 2,
+          "same_class_distance": 0.22519738972187042,
+          "different_class_distance": 0.7822452783584595
+        },
+        {
+          "same_class": 7,
+          "different_class": 3,
+          "same_class_distance": 0.22519738972187042,
+          "different_class_distance": 0.7643113136291504
+        },
+        {
+          "same_class": 7,
+          "different_class": 4,
+          "same_class_distance": 0.22519738972187042,
+          "different_class_distance": 0.9434273838996887
+        },
+        {
+          "same_class": 7,
+          "different_class": 5,
+          "same_class_distance": 0.22519738972187042,
+          "different_class_distance": 0.7024480700492859
+        },
+        {
+          "same_class": 7,
+          "different_class": 6,
+          "same_class_distance": 0.22519738972187042,
+          "different_class_distance": 0.8091525435447693
+        },
+        {
+          "same_class": 7,
+          "different_class": 8,
+          "same_class_distance": 0.22519738972187042,
+          "different_class_distance": 0.8991923332214355
+        },
+        {
+          "same_class": 7,
+          "different_class": 9,
+          "same_class_distance": 0.22519738972187042,
+          "different_class_distance": 0.8895994424819946
+        },
+        {
+          "same_class": 8,
+          "different_class": 0,
+          "same_class_distance": 0.1845712959766388,
+          "different_class_distance": 0.8332942724227905
+        },
+        {
+          "same_class": 8,
+          "different_class": 1,
+          "same_class_distance": 0.1845712959766388,
+          "different_class_distance": 0.7610694169998169
+        },
+        {
+          "same_class": 8,
+          "different_class": 2,
+          "same_class_distance": 0.1845712959766388,
+          "different_class_distance": 0.7824299931526184
+        },
+        {
+          "same_class": 8,
+          "different_class": 3,
+          "same_class_distance": 0.1845712959766388,
+          "different_class_distance": 0.8267704844474792
+        },
+        {
+          "same_class": 8,
+          "different_class": 4,
+          "same_class_distance": 0.1845712959766388,
+          "different_class_distance": 1.029105544090271
+        },
+        {
+          "same_class": 8,
+          "different_class": 5,
+          "same_class_distance": 0.1845712959766388,
+          "different_class_distance": 0.7771297693252563
+        },
+        {
+          "same_class": 8,
+          "different_class": 6,
+          "same_class_distance": 0.1845712959766388,
+          "different_class_distance": 0.8707643151283264
+        },
+        {
+          "same_class": 8,
+          "different_class": 7,
+          "same_class_distance": 0.1845712959766388,
+          "different_class_distance": 0.8850392699241638
+        },
+        {
+          "same_class": 8,
+          "different_class": 9,
+          "same_class_distance": 0.1845712959766388,
+          "different_class_distance": 0.9315144419670105
+        },
+        {
+          "same_class": 9,
+          "different_class": 0,
+          "same_class_distance": 0.23874591290950775,
+          "different_class_distance": 0.8367384076118469
+        },
+        {
+          "same_class": 9,
+          "different_class": 1,
+          "same_class_distance": 0.23874591290950775,
+          "different_class_distance": 0.7662035226821899
+        },
+        {
+          "same_class": 9,
+          "different_class": 2,
+          "same_class_distance": 0.23874591290950775,
+          "different_class_distance": 0.7628920674324036
+        },
+        {
+          "same_class": 9,
+          "different_class": 3,
+          "same_class_distance": 0.23874591290950775,
+          "different_class_distance": 0.8359094858169556
+        },
+        {
+          "same_class": 9,
+          "different_class": 4,
+          "same_class_distance": 0.23874591290950775,
+          "different_class_distance": 0.9926844239234924
+        },
+        {
+          "same_class": 9,
+          "different_class": 5,
+          "same_class_distance": 0.23874591290950775,
+          "different_class_distance": 0.753563404083252
+        },
+        {
+          "same_class": 9,
+          "different_class": 6,
+          "same_class_distance": 0.23874591290950775,
+          "different_class_distance": 0.8617458343505859
+        },
+        {
+          "same_class": 9,
+          "different_class": 7,
+          "same_class_distance": 0.23874591290950775,
+          "different_class_distance": 0.9324407577514648
+        },
+        {
+          "same_class": 9,
+          "different_class": 8,
+          "same_class_distance": 0.23874591290950775,
+          "different_class_distance": 0.9188988208770752
+        }
+      ],
+      "balanced_class_pair_count": 90,
+      "same_class_q05_q50_q95": [
+        0.18500553891062738,
+        0.24250871688127518,
+        0.3466784432530403
+      ],
+      "different_class_q05_q50_q95": [
+        0.5871566772460938,
+        0.7932712137699127,
+        0.9711534202098846
+      ],
+      "evaluation_partition": "validation_candidate_half"
+    }
+  }
+}
