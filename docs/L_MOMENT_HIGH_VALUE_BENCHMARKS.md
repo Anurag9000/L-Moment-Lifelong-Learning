@@ -232,3 +232,252 @@ Primary and dataset-owner sources used in this scouting note:
 16. Risk-sensitive distributional RL/CVaR paper: https://papers.neurips.cc/paper_files/paper/2022/hash/c88a2bd0e793550d0e885aa6e31ca277-Abstract-Conference.html
 
 This source register supports dataset descriptions and methodological context. It is not evidence that L-moments have already won any of the proposed benchmarks.
+
+## 7. Executable study blueprints
+
+This section turns the candidate areas above into concrete, falsifiable studies.
+The order below is a recommendation, not a claim that these experiments have
+run. Every study needs a feasibility audit and a frozen analysis plan before
+large-scale tuning. Keep the original, untouched benchmark result separate
+from any constructed or selected hard subset.
+
+### Study A: short-record river-flow quantiles
+
+**Question.** Given a short record at a gauge, does an L-moment-based regional
+estimator improve prediction of high-flow quantiles at a held-out gauge or in a
+held-out time period, compared with mean/variance summaries and established
+frequency-analysis methods?
+
+**Data unit and target.** A unit is a gauge's annual-maximum series (AMAX), or a
+predeclared peaks-over-threshold series with its exposure/rate information.
+The primary targets are held-out quantiles such as Q0.90, Q0.95 and Q0.99;
+return levels may be secondary where record length and stationarity assumptions
+support them. Do not mix AMAX and POT estimates without accounting for their
+different sampling models.
+
+**Protocol.** Pin an NRFA release and its terms of use. Screen gauges using
+predeclared quality and record-length criteria, and publish the screening
+counts. For cross-site transfer, split by catchment/region so no years from a
+test gauge enter training. Separately test short-record estimation by fitting
+on the first `n` years (predeclare several `n`) and evaluating later years or a
+long-record reference estimate. The latter is an uncertain reference, so
+report its uncertainty and do not call it ground truth. Fit any regionalization,
+standardization or family-selection step on training gauges only.
+
+**Methods.** Include the accepted local/regional frequency-analysis workflow;
+L-moment parameter estimation with its declared distribution-family selection;
+maximum-likelihood or probability-weighted-moment fitting where appropriate;
+a quantile-regression or empirical-quantile comparator; and a mean-only
+location/scale control. Match distribution-family search and tuning budgets.
+Report failures and invalid-support estimates rather than silently dropping
+them.
+
+**Primary outcomes.** Pinball loss and relative/absolute error at each target
+quantile, interval coverage and width, calibration, failure rate, and
+performance by record length and hydrologic subgroup. Resample gauges or
+regions, not individual annual values, for uncertainty. Analyze sensitivity to
+nonstationarity, regulation, missingness and influential floods.
+
+**Decision gate.** Proceed only if an L-moment method improves a predeclared
+held-out quantile or calibration endpoint over both the domain-standard method
+and strong quantile baselines, with uncertainty intervals and no unacceptable
+increase in invalid fits. A result against a mean-only control alone is not
+enough.
+
+### Study B: task-free real-stream shape drift
+
+**Question.** Does a causal L-moment monitor improve the detection-delay versus
+false-alarm tradeoff for real, actionable feature-distribution changes, and
+does acting on its alarms improve downstream prequential performance?
+
+**Data unit and target.** A unit is a chronological stream/channel sequence or
+an entity-level feature window. Maintain two separate endpoints: (1) detecting
+annotated anomalies or regime changes, and (2) detecting controlled changes
+whose mechanism is known. A public benchmark's anomaly label must not be
+assumed to mean a change in `P(X)`; audit whether it instead reflects a label,
+concept, or event change.
+
+**Protocol.** Use NAB and/or TSB-AD for untouched benchmark evaluation, after
+documenting each series' label semantics and causal alarm rules. Add controlled
+real-data interventions on disjoint source intervals: stationary resampling
+nulls, location-shift positives, covariance changes, and mean-matched
+tail/skew changes. Preserve temporal dependence with block resampling where
+possible. The intervention parameters are selected on development intervals;
+test intervals and test annotations remain untouched. Use rolling reference
+and current windows with fixed, causal update order: score the current window
+before its observations are used to update the detector.
+
+**Methods.** Mean/centroid, variance or covariance, classical skewness and
+kurtosis, L-moment ratios and full L signatures, fixed quantiles, MMD or energy
+distance, plus suitable CUSUM/ADWIN and benchmark-native alarm methods. Compare
+detectors at common calibration false-alarm rates. Separately connect alarms to
+CONTINUE/REUSE/CALIBRATE/UPDATE policies and compare the same learner with
+alarms from each detector; do not combine detection and adaptation into one
+opaque score.
+
+**Primary outcomes.** False alarms per unit time, event precision/recall,
+detection delay, missed events, calibration, and runtime. For adaptation,
+report prequential loss/accuracy, recovery time and unnecessary updates. Use
+series-level or time-block uncertainty estimates, not IID row bootstrap.
+
+**Decision gate.** The L-moment monitor must improve a predeclared
+false-alarm/delay frontier on untouched real streams or improve adaptation
+utility at matched alarm burden. A win only on synthetic or deliberately
+mean-matched intervention data supports a mechanism claim, not broad anomaly
+detection.
+
+### Study C: visual cross-domain discovery
+
+**Question.** With a fixed pretrained visual representation, does group-level
+L-moment evidence improve class discovery or reduce false class births when
+class and visual-domain variation are explicitly separated?
+
+**Dataset sequence.** Begin with PACS because the four domains and seven
+categories make class/domain effects inspectable. Use Office-Home as a second
+confirmation; use DomainNet only after a smaller study passes its gate. Record
+the exact dataset release, official split, license/terms and DINO checkpoint
+revision. The existing STL-10/O-E15/O-E16 work is a protocol precedent, not
+evidence that any of these new datasets will show the same outcome.
+
+**Protocol.** Extract and cache frozen DINOv2 features once, with per-image
+IDs, split, transform and checksum metadata. Fit transforms and fixed
+projections only on training data. Run distinct tasks: held-out-domain
+generalization for known classes; unlabeled class discovery with domains
+balanced; known-class domain-shift detection; and combined semantic-plus-domain
+novelty. Hide labels and class count from the learner unless an explicitly
+named protocol permits them. Test both natural class pairs and training-picked
+near-centroid pairs; report the latter as a conditional subset. Groups must
+contain independent images, and all methods receive identical group membership
+and support.
+
+**Methods.** Nearest centroid/prototype and nearest-neighbor controls;
+diagonal and shrinkage covariance; conventional skew/kurtosis; full L signature
+and L-shape-only signature; fixed quantiles; MMD or sliced Wasserstein; and a
+task-appropriate published GCD/domain method where the implementation and
+protocol can be reproduced. Include both frozen linear-probe representation
+quality and the downstream discovery task. Do not let an evaluator-only label
+mapping or oracle K leak into assignment.
+
+**Primary outcomes.** Held-out-domain accuracy and calibration; for discovery,
+known/novel/all accuracy under a validation-fitted mapping, ARI/NMI, estimated-K
+error, false births, novel recall, delay, identity continuity, and memory cost.
+Pairwise AUC is a diagnostic, not a substitute for discovery accuracy.
+
+**Decision gate.** Require a gain on an untouched held-out domain/class order
+and a task-level discovery metric, beyond covariance and quantile/MMD controls,
+at matched tuning and memory budgets. If only the selected near-centroid subset
+improves, state that conditional result and its prevalence explicitly.
+
+### Study D: risk-sensitive return regimes in reinforcement learning
+
+**Question.** At equal trajectory and environment budgets, does an L-moment
+summary of returns improve identification of a harmful lower-tail regime or
+the policy decision made under risk sensitivity?
+
+**Data unit and protocol.** A unit is an independently seeded trajectory set
+for a fixed policy/environment pair. Use a D4RL task only after verifying its
+license, version, observation/action fields and intended offline-RL protocol.
+Split by environment seed or task where possible. Keep policy identity and
+trajectory generation fixed across statistical methods. For an offline study,
+do not imply that logged returns reveal counterfactual policy outcomes.
+
+**Methods.** Mean return; empirical quantile and CVaR estimators; quantile
+regression/distributional critic where learning is in scope; conventional
+moments; L-moment return summaries; and a task-native risk-sensitive method.
+Evaluate decision thresholds selected on validation, not test. Preserve
+trajectory grouping when estimating uncertainty.
+
+**Primary outcomes.** Lower-tail quantile error, CVaR error, catastrophic
+failure-probability calibration, risk-sensitive regret, expected return,
+sample-efficiency and sensitivity to the number of trajectories. Report return
+distribution plots or calibration summaries; four L-moment values do not
+replace a full learned return distribution.
+
+**Decision gate.** Continue only if the method improves risk-sensitive regret
+or tail calibration over quantile/CVaR baselines at equal data and compute
+budgets. A change detector AUC by itself is insufficient evidence of safer
+policy selection.
+
+### Study E: environmental and industrial sensor streams
+
+**Question.** Can distributional summaries provide earlier, calibrated warning
+of tail/asymmetry changes that correspond to independently annotated failures
+or environmental events?
+
+**Data and protocol.** Screen rainfall, wind, drought/low-flow, industrial
+sensor and predictive-maintenance datasets for an explicit entity, time axis,
+event label and enough independent pre/post windows. Pin releases and
+documentation. Split by site/device and time to prevent device or event
+leakage. Establish whether labels indicate a sensor-distribution shift at all;
+some faults are conditional or relational and may not change a single channel's
+marginal distribution. Treat each domain separately and do not pool labels or
+units without a stated target.
+
+**Methods and outcomes.** Reuse the stream detector baselines and causal alarm
+protocol in Study B. Add task-standard predictive-maintenance methods where a
+valid reproduction is available. Report false alarms per operating hour,
+lead-time distribution, event recall, missed events, site-held-out calibration,
+and cost-weighted utility if event costs are defensibly specified. For
+biomedical monitoring, require patient-level splits, clinical endpoint review
+and appropriate governance before any performance claim; no patient-facing
+deployment conclusion follows from retrospective benchmark scores.
+
+**Decision gate.** Require site/device-held-out utility and calibration, plus
+evidence that the detected shift precedes the event without unacceptable alarm
+burden. If the dataset has no valid temporal or event semantics, exclude it
+rather than relabeling ordinary classification as drift detection.
+
+## 8. Shared run card and reporting checklist
+
+Create one immutable run card per dataset/task/method combination. At minimum,
+record:
+
+1. **Claim and estimand:** the exact operational question and primary endpoint;
+   distinguish mean-only failure, group detection, discovery, adaptation and
+   tail estimation.
+2. **Data:** source URL, release, terms/license, checksum, entity IDs, sample
+   counts, exclusions, time range, label semantics and official split.
+3. **Information boundary:** what the learner sees at each step; evaluator-only
+   labels/K; ordering and prediction-before-update contract; all transformations
+   fitted on allowed training data.
+4. **Representation:** pretrained checkpoint and immutable revision, weights
+   source, preprocessing, embedding layer/dimension, cache hash and extraction
+   hardware. For nonvisual data, record channel/feature selection and scaling.
+5. **Statistics:** exact estimator definitions, projection seed/matrix,
+   group/window support, missing-data behavior, uncertainty estimate and
+   threshold calibration procedure.
+6. **Baselines:** method implementation/source revision, search space, tuning
+   budget, compute/memory budget, selected configuration and validation score.
+   Do not compare an untuned L-moment method to a tuned baseline or vice versa.
+7. **Evaluation:** fixed test protocol, primary and secondary metrics,
+   uncertainty unit, number of seeds/sites/classes, calibration drift and all
+   failed/invalid cases.
+8. **Runtime and provenance:** source commit, command, environment/dependency
+   lock, machine/GPU, start/end times, logs, output hashes and whether the run
+   was static analysis, smoke test, completed training, or final evaluation.
+9. **Interpretation:** whether evidence is natural or intervention-based,
+   unconditional or selected, exploratory or confirmatory, and which claims it
+   cannot support.
+
+Use a paired analysis wherever methods share the same stream, gauge, class
+order, trajectory seeds or test groups. Publish per-unit rows alongside
+aggregates. Preserve negative results, calibration failures and tuning
+failures. Do not select a headline metric after viewing test results.
+
+### Current evidence versus planned work
+
+- **Completed in this repository:** synthetic shape-power study; O-E15
+  controlled STL-10 group-discrepancy diagnostic; O-E16 natural STL-10
+  near-centroid group detection; and earlier STL-10 26-track reference
+  campaigns. Consult each run report for its exact status and limitations.
+- **Not established by these results:** broad L-moment superiority, online
+  novel-class discovery gains, flood-quantile gains, real-stream adaptation
+  gains, or RL safety gains.
+- **Proposed next evidence:** feasibility-audit a hydrology dataset for
+  tail-estimation claims, or a real stream dataset for task-free learning
+  claims. Select one primary application before launching a large tuning
+  campaign; the visual and RL studies are separate follow-ups.
+
+For the completed 26-track STL-10 campaign, the paired baseline and
+L-moment runs and their tuning/evaluation protocol are documented separately
+in [the STL-10 26-track campaign specification](STL10_HYPOTHESIS26_CAMPAIGN.md).

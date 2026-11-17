@@ -97,3 +97,13 @@ manifest. See [the O-E15 protocol and results](docs/E15_CONTROLLED_SHAPE_DETECTI
 O-E16 checks centroid versus full L-moment detection on unmodified STL-10
 DINOv2 features, with test class pairs selected by training-centroid closeness.
 See [the O-E16 protocol and results](docs/OE16_NATURAL_NEAR_CENTROID_DETECTION.md).
+
+## Real-data opportunities for L-moment research
+
+The [high-value benchmark scouting note](docs/L_MOMENT_HIGH_VALUE_BENCHMARKS.md)
+documents candidate applications including river-flow extremes, task-free
+stream drift, cross-domain visual discovery, risk-sensitive reinforcement
+learning, and environmental/industrial sensors. It includes concrete study
+protocols, fair baseline sets, data-split and leakage rules, metrics, decision
+gates, and a run-card checklist. These are proposed studies; the document
+clearly distinguishes them from completed STL-10 and synthetic evidence.
