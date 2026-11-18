@@ -2,6 +2,7 @@
 
 ## Result summary
 
+- **Search-budget caveat:** the independent mean-baseline search here used 100 screening images per class and a 30-round cap. The L-moment values below come from the earlier paired V4 search, which used 20 screening images per class and a 20-round cap. Therefore the 7/17/tie comparison below is provisional and is **not** a matched best-vs-best comparison. An independent L-moment search using the baseline's 100/30 budget is now running in `results/stl10_lmoment_independent_v1`.
 - **Campaign:** complete; all 26 tracks have a selected configuration, a completed full-data confirmation, and a completed final row.
 - **Search:** 1,618 candidate configurations recorded: 1,612 completed and 6 failed. The selected runs were chosen by validation objectives. All 26 tracks stopped after 4, 6, or 8 refinement rounds; none reached the 30-round cap, and none ended on an improving round. This is convergence within the declared finite coordinate search, not a proof of a global optimum.
 - **Comparison on held-out STL-10 test metrics:** L-moments scored higher on 7 tracks, the independently tuned ordinary-statistics baseline scored higher on 17, and 2 tied. Higher is better for each track objective. Values and deltas are meaningful within a track; they must not be aggregated across different metrics.
