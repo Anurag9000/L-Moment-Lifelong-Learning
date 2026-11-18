@@ -64,17 +64,16 @@ per class, and all 800 test images per class for the selected final run. The
 downstream batch size is 64 for STL-10; this is separate from the CIFAR-10
 batch-512 suite.
 
-The V2 and V3 output directories contain failed launch diagnostics and
-source-commit mismatches from early retries. Those artifacts are preserved and
-must not be reported as completed candidate results. The corrected relaunch
+The historical V2 and V3 attempts contained failed launch diagnostics and
+source-commit mismatches from early retries. They were not completed candidate
+results; those output directories have since been removed. The corrected relaunch
 uses a fresh output root, `results/stl10_baseline_independent_v4`, and the
 idle-gated entry point
 `scripts/run_tuned_stl10_baselines_v4_when_gpu_idle.sh`. A V3 attempt reached
 feature preparation but stopped when its newly created PCA projection cache
 made the source checkout appear dirty; generated projection caches are now
-ignored. The V4 campaign is the first attempt from a clean source revision;
-report results only from its manifest and final outputs after auditing all 26
-tracks.
+ignored. The V4 campaign was the first attempt from a clean source revision;
+its output files have since been cleared.
 
 For this independent search, the selected baseline score is optimized on
 validation only, using the objective registered for each track. The held-out
@@ -84,7 +83,9 @@ not mean a global hyperparameter optimum. The single seed and finite
 candidate/support budgets limit uncertainty, so confirmation across additional
 seeds remains necessary for a broad research claim.
 
-The completed V4 baseline-only search, its independent-baseline versus
-L-moment comparison, per-track selected settings, compute evidence, and sync
-checksums are documented in
-[`STL10_BASELINE_INDEPENDENT_V4_REPORT.md`](STL10_BASELINE_INDEPENDENT_V4_REPORT.md).
+The final comparison suite contains 26 experiment tracks and 52 jobs total,
+with one baseline and one L-moment evaluation per track. The selected settings
+are retained in
+[`configs/stl10_final_suite_hyperparameters.json`](../configs/stl10_final_suite_hyperparameters.json).
+Prior STL-10 outputs and reports were cleared before the final evaluations;
+the held-out results remain to be generated.
