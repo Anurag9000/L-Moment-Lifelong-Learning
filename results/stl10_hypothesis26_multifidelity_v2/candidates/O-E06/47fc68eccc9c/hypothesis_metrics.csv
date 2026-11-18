@@ -1,2 +1,0 @@
-id,track,suite,metric,result_path,baseline.accepted,baseline.memory_bytes_after_rollback,baseline.proposed,baseline.rollback_restored,baseline.scoring_ari,delta.memory_bytes_after_rollback,delta.scoring_ari,lmoment.accepted,lmoment.memory_bytes_after_rollback,lmoment.proposed,lmoment.rollback_restored,lmoment.scoring_ari
-O-E06,E06,original,accepted,results/stl10_hypothesis26_multifidelity_v2/candidates/O-E06/47fc68eccc9c/runs/original/E06/3c68f4382df5_seed0/result.json,False,245760,False,True,0.0,0.0,0.0,False,245760,False,True,0.0

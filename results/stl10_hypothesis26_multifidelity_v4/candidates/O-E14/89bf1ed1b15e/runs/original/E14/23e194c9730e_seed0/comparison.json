@@ -1,7 +1,0 @@
-{
-  "replay_budget_bytes": {
-    "baseline": 262144,
-    "lmoment": 262144,
-    "delta_lmoment_minus_baseline": 0
-  }
-}

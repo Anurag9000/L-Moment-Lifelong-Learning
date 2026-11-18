@@ -1,2 +1,0 @@
-id,track,suite,metric,result_path,baseline.accepted_heldout,baseline.artificial_merge_intervention,baseline.candidate_proposed,baseline.holdout_gain,baseline.memory_bytes_after_rollback,baseline.rollback_restored,baseline.scoring_ari
-A-E06,E06,advanced,accepted_heldout,results/stl10_baseline_independent_v4/candidates/A-E06/5eb216018e55/runs/advanced/E06/advanced_2088a82eb40a_seed0/result.json,True,True,True,3.1516606623143106,409600,True,0.1105291175143952

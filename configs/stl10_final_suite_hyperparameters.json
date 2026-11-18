@@ -1,0 +1,373 @@
+{
+  "dataset": "stl10",
+  "protocol": {
+    "backbone": "facebook/dinov2-base",
+    "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+    "batch_size": 64,
+    "max_rounds": 30,
+    "screen_train_per_class": 100,
+    "seed": 0,
+    "test_per_class": 800,
+    "train_per_class": 400,
+    "validation_per_class": 100
+  },
+  "provenance": {
+    "baseline_source_commit": "17116038e29da3d63f1000173ded74663c609728",
+    "baseline_tuning_status": "complete",
+    "lmoment_source_commit": "17116038e29da3d63f1000173ded74663c609728",
+    "lmoment_tuning_status": "26 selected; 23 validation confirmations; 0 held-out test rows"
+  },
+  "purpose": "Input hyperparameters for final matched STL-10 comparison; selected configs only, no prior result metrics or candidate history.",
+  "selected_hyperparameters": {
+    "lmoment": {
+      "A-E01": {
+        "distribution_shrinkage": 0,
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": true
+      },
+      "A-E02": {
+        "candidate_radius_factor": 1.5,
+        "feature_dim": 64,
+        "l2_normalize": false,
+        "max_discovered_classes": 20,
+        "min_support": 16,
+        "pca_whiten": false,
+        "statistical_projections": 32
+      },
+      "A-E03-GCD": {
+        "feature_dim": 64,
+        "gcd_epochs_base": 20,
+        "gcd_supervised_weight": 2,
+        "l2_normalize": false,
+        "pca_whiten": false
+      },
+      "A-E03-NCD": {
+        "feature_dim": 768,
+        "gcd_pseudo_weight": 2,
+        "gcd_supervised_weight": 0.25,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "A-E04": {
+        "feature_dim": 768,
+        "l2_normalize": false,
+        "pca_whiten": false
+      },
+      "A-E05": {
+        "feature_dim": 64,
+        "l2_normalize": false,
+        "pca_whiten": false,
+        "radius_factor": 2,
+        "statistical_projections": 32
+      },
+      "A-E06": {
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "A-E07": {
+        "distribution_min_scale": 0.1,
+        "distribution_shrinkage": 25,
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "A-E08": {
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "A-E09": {
+        "distribution_shrinkage": 0,
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": true
+      },
+      "A-E10": {
+        "feature_dim": 128,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "A-E11": {
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "O-E01": {
+        "feature_dim": 64,
+        "l2_normalize": false,
+        "pca_whiten": false
+      },
+      "O-E02": {
+        "discovery_radius": 0.9,
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "O-E03": {
+        "batch_size": 128,
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "lr": 0.01,
+        "pca_whiten": false,
+        "training_steps": 25
+      },
+      "O-E04": {
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "lr": 0.01,
+        "memory_bytes": 131072,
+        "pca_whiten": false,
+        "training_steps": 200
+      },
+      "O-E05": {
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "O-E06": {
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "O-E07": {
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "O-E08": {
+        "feature_dim": 64,
+        "l2_normalize": false,
+        "pca_whiten": false
+      },
+      "O-E09": {
+        "distribution_shrinkage": 0,
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": true
+      },
+      "O-E10": {
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "lr": 0.01,
+        "memory_bytes": 131072,
+        "pca_whiten": false
+      },
+      "O-E11": {
+        "batch_size": 16,
+        "feature_dim": 256,
+        "l2_normalize": false,
+        "lr": 0.03,
+        "pca_whiten": false
+      },
+      "O-E12": {
+        "feature_dim": 768,
+        "l2_normalize": false,
+        "pca_whiten": false
+      },
+      "O-E13": {
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "O-E14": {
+        "batch_size": 16,
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "lr": 0.01,
+        "pca_whiten": false,
+        "replay_ratio": 0.65
+      }
+    },
+    "ordinary_statistics_baseline": {
+      "A-E01": {
+        "distribution_shrinkage": 0.0,
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": true
+      },
+      "A-E02": {
+        "candidate_radius_factor": 1.5,
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "max_discovered_classes": 10,
+        "min_support": 16,
+        "pca_whiten": false,
+        "radius_factor": 1.0
+      },
+      "A-E03-GCD": {
+        "feature_dim": 64,
+        "gcd_epochs_base": 20,
+        "gcd_supervised_weight": 2.0,
+        "l2_normalize": false,
+        "pca_whiten": false
+      },
+      "A-E03-NCD": {
+        "feature_dim": 768,
+        "gcd_pseudo_weight": 2.0,
+        "gcd_supervised_weight": 0.25,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "A-E04": {
+        "feature_dim": 768,
+        "l2_normalize": false,
+        "pca_whiten": false
+      },
+      "A-E05": {
+        "feature_dim": 128,
+        "l2_normalize": false,
+        "pca_whiten": false
+      },
+      "A-E06": {
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "A-E07": {
+        "distribution_min_scale": 0.1,
+        "distribution_shrinkage": 25.0,
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "A-E08": {
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "A-E09": {
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": true
+      },
+      "A-E10": {
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "A-E11": {
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "O-E01": {
+        "feature_dim": 64,
+        "l2_normalize": false,
+        "pca_whiten": false
+      },
+      "O-E02": {
+        "candidate_radius_factor": 3.0,
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "O-E03": {
+        "batch_size": 128,
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "lr": 0.01,
+        "pca_whiten": false,
+        "training_steps": 25
+      },
+      "O-E04": {
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "lr": 0.01,
+        "memory_bytes": 131072,
+        "pca_whiten": false,
+        "training_steps": 200
+      },
+      "O-E05": {
+        "feature_dim": 256,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "O-E06": {
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "O-E07": {
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "O-E08": {
+        "feature_dim": 64,
+        "l2_normalize": false,
+        "pca_whiten": false
+      },
+      "O-E09": {
+        "distribution_shrinkage": 0.0,
+        "feature_dim": 64,
+        "l2_normalize": true,
+        "pca_whiten": true
+      },
+      "O-E10": {
+        "batch_size": 128,
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "lr": 0.01,
+        "memory_bytes": 262144,
+        "pca_whiten": false
+      },
+      "O-E11": {
+        "batch_size": 16,
+        "feature_dim": 512,
+        "l2_normalize": false,
+        "lr": 0.03,
+        "pca_whiten": false
+      },
+      "O-E12": {
+        "feature_dim": 768,
+        "l2_normalize": false,
+        "pca_whiten": false,
+        "training_steps": 25
+      },
+      "O-E13": {
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "pca_whiten": false
+      },
+      "O-E14": {
+        "discovery_radius": 0.9,
+        "feature_dim": 768,
+        "l2_normalize": true,
+        "memory_bytes": 131072,
+        "min_support": 32,
+        "pca_whiten": false,
+        "training_steps": 100
+      }
+    }
+  },
+  "tracks": [
+    "A-E03-GCD",
+    "A-E04",
+    "A-E05",
+    "A-E06",
+    "A-E07",
+    "A-E08",
+    "A-E09",
+    "A-E10",
+    "A-E11",
+    "A-E03-NCD",
+    "O-E01",
+    "O-E02",
+    "O-E03",
+    "O-E04",
+    "O-E05",
+    "O-E06",
+    "O-E07",
+    "O-E08",
+    "O-E09",
+    "O-E10",
+    "O-E11",
+    "O-E12",
+    "O-E13",
+    "O-E14",
+    "A-E01",
+    "A-E02"
+  ]
+}
