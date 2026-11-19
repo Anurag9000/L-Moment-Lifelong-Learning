@@ -107,6 +107,33 @@ def assert_selected_config(actual: dict[str, Any], selected: dict[str, Any], lab
         raise ValueError(f"{label} run does not use independently selected settings: {mismatches}")
 
 
+def cuda_peak_bytes(payload: dict[str, Any]) -> int | None:
+    value = payload.get("resource_usage", {}).get("cuda_peak_allocated_bytes")
+    return None if value is None else int(value)
+
+
+def candidate_cuda_summary(track_search: dict[str, Any]) -> dict[str, int | None]:
+    completed = [candidate for candidate in track_search.get("candidates", {}).values()
+                 if candidate.get("status") == "completed"]
+    measured: list[int] = []
+    missing = 0
+    for candidate in completed:
+        result_path = localize_result_path(
+            candidate["result_path"], "stl10_lmoment_independent_v1")
+        peak = cuda_peak_bytes(read_json(result_path))
+        if peak is None:
+            missing += 1
+        else:
+            measured.append(peak)
+    return {
+        "completed_candidates": len(completed),
+        "candidates_with_cuda_allocation": sum(peak > 0 for peak in measured),
+        "candidates_with_cuda_measurement": len(measured),
+        "candidates_missing_cuda_measurement": missing,
+        "max_cuda_peak_allocated_bytes": max(measured) if measured else None,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--lmoment-root", type=Path,
@@ -146,6 +173,7 @@ def main() -> int:
         if b_variant is None:
             raise ValueError(f"Missing baseline metrics for {track_id}")
         b_score, objective = _objective(track_id, b_variant)
+        b_cuda_peak = cuda_peak_bytes(baseline_payload)
 
         l_row = lmoment_rows[track_id]
         l_path = localize_result_path(l_row["result_path"], "stl10_lmoment_independent_v1")
@@ -161,6 +189,7 @@ def main() -> int:
         if l_variant is None:
             raise ValueError(f"Missing L-moment metrics for {track_id}")
         l_score, l_objective = _objective(track_id, l_variant)
+        l_cuda_peak = cuda_peak_bytes(l_payload)
         if objective != l_objective:
             raise ValueError(f"Objective mismatch for {track_id}: {objective} != {l_objective}")
 
@@ -175,6 +204,7 @@ def main() -> int:
         track_search = lmanifest["tracks"][track_id]
         candidates = list(track_search.get("candidates", {}).values())
         confirmations = list(track_search.get("confirmations", {}).values())
+        cuda_summary = candidate_cuda_summary(track_search)
         rows.append({
             "track": track_id,
             "objective": objective,
@@ -191,6 +221,12 @@ def main() -> int:
             "lmoment_candidates_failed": sum(c.get("status") == "failed" for c in candidates),
             "lmoment_rounds": len(track_search.get("rounds", [])),
             "lmoment_confirmations_completed": sum(c.get("status") == "completed" for c in confirmations),
+            "lmoment_candidates_with_cuda_allocation": cuda_summary["candidates_with_cuda_allocation"],
+            "lmoment_candidates_with_cuda_measurement": cuda_summary["candidates_with_cuda_measurement"],
+            "lmoment_candidates_missing_cuda_measurement": cuda_summary["candidates_missing_cuda_measurement"],
+            "lmoment_candidate_max_cuda_peak_allocated_bytes": cuda_summary["max_cuda_peak_allocated_bytes"],
+            "ordinary_statistics_test_cuda_peak_allocated_bytes": b_cuda_peak,
+            "lmoment_test_cuda_peak_allocated_bytes": l_cuda_peak,
             "split_manifest_sha256": b_split,
             "baseline_result": str(baseline_path.relative_to(ROOT)),
             "lmoment_result": str(l_path.relative_to(ROOT)),
@@ -224,6 +260,15 @@ def main() -> int:
             "screen_train_per_class": 100,
             "max_rounds": lmanifest["max_rounds"],
             "selected": lmanifest["selected"],
+        },
+        "lmoment_cuda_search_usage": {
+            "completed_candidates": completed_candidates,
+            "candidates_with_cuda_allocation": sum(
+                row["lmoment_candidates_with_cuda_allocation"] for row in rows),
+            "candidates_with_cuda_measurement": sum(
+                row["lmoment_candidates_with_cuda_measurement"] for row in rows),
+            "candidates_missing_cuda_measurement": sum(
+                row["lmoment_candidates_missing_cuda_measurement"] for row in rows),
         },
         "caveat": "Single seed and one dataset. Best observed within the declared finite validation search, not a global hyperparameter optimum. Track objectives differ and are not pooled.",
         "comparison_csv": str(out_csv.relative_to(ROOT)),
@@ -266,7 +311,8 @@ def main() -> int:
         "",
         "- Dataset: STL-10; frozen DINOv2 ViT-B/14 (`facebook/dinov2-base`), revision `fed69336d31be0ed1883be4cd5ea0456fa3fdbac`.",
         "- Seed: 0. Candidate screening used 100 train images per class; selected configurations were confirmed on 400 train and 100 validation images per class.",
-        "- Both independent searches used the same normalized base protocol, CUDA device, downstream batch size 64, and a maximum of 30 coordinate-refinement rounds.",
+        "- Both independent searches used the same normalized base protocol, requested CUDA, downstream batch size 64, and a maximum of 30 coordinate-refinement rounds. Cached-feature statistical tracks can perform their core computation on CPU even when CUDA is requested.",
+        "- CUDA use is reported from each result's `resource_usage.cuda_peak_allocated_bytes`; a zero value means no CUDA tensor allocation was observed for that run. Candidate allocation counts include completed L-moment screening and refinement runs.",
         f"- Ordinary-statistics tuning: source `{baseline_provenance.get('baseline_source_commit')}`; 1,618 candidate configurations (1,612 completed, 6 failed), with 26 selected settings, confirmations, and final rows, recorded in baseline campaign commit `bbb0c38f`.",
         f"- L-moment tuning: source `{lmanifest.get('source_commit')}`; {completed_candidates} completed candidates and {failed_candidates} failed candidates across 26 tracks; {lmoment_rounds} refinement-round records; 26 selected settings confirmed on the full validation data.",
         "- Each selected configuration received one held-out test evaluation. All 26 baseline and L-moment split-manifest SHA-256 values match.",
@@ -275,15 +321,20 @@ def main() -> int:
         "",
         "Scores use each track's registered objective. Higher is better. Objectives differ by track, so scores and deltas should not be averaged across tracks.",
         "",
-        "| Track | Objective | Ordinary statistics | L-moments | L-moments − baseline | Winner | L candidates | Refinement rounds |",
-        "|---|---|---:|---:|---:|---|---:|---:|",
+        "| Track | Objective | Ordinary statistics | L-moments | L-moments − baseline | Winner | L candidates | L candidates with CUDA allocation | Refinement rounds | Test CUDA peak MiB (ordinary / L) |",
+        "|---|---|---:|---:|---:|---|---:|---:|---:|---:|",
     ]
     for row in rows:
+        baseline_cuda_mib = row["ordinary_statistics_test_cuda_peak_allocated_bytes"]
+        lmoment_cuda_mib = row["lmoment_test_cuda_peak_allocated_bytes"]
+        baseline_cuda_mib = "n/a" if baseline_cuda_mib is None else f"{baseline_cuda_mib / 1048576:.1f}"
+        lmoment_cuda_mib = "n/a" if lmoment_cuda_mib is None else f"{lmoment_cuda_mib / 1048576:.1f}"
         lines.append(
             f"| {row['track']} | {row['objective']} | {row['ordinary_statistics_baseline_test_score']:.6f} "
             f"| {row['lmoment_test_score']:.6f} | {row['lmoment_minus_baseline']:+.6f} "
             f"| {row['winner']} | {row['lmoment_candidates_completed']} "
-            f"| {max(0, row['lmoment_rounds'] - 1)} |"
+            f"| {row['lmoment_candidates_with_cuda_allocation']}/{row['lmoment_candidates_with_cuda_measurement']} "
+            f"| {max(0, row['lmoment_rounds'] - 1)} | {baseline_cuda_mib} / {lmoment_cuda_mib} |"
         )
     lines.extend([
         "",
