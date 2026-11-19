@@ -1,0 +1,32 @@
+[
+  {
+    "id": "A-E01",
+    "track": "E01",
+    "suite": "advanced",
+    "metric": "test_accuracy",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/A-E01/runs/advanced/E01/advanced_7d015ae920a0_seed0/result.json",
+    "lmoment.validation_accuracy": 0.988,
+    "lmoment.test_accuracy": 0.985625,
+    "lmoment.validation_diagnostics.per_class_accuracy.0": 1.0,
+    "lmoment.validation_diagnostics.per_class_accuracy.1": 0.99,
+    "lmoment.validation_diagnostics.per_class_accuracy.2": 0.98,
+    "lmoment.validation_diagnostics.per_class_accuracy.3": 0.97,
+    "lmoment.validation_diagnostics.per_class_accuracy.4": 1.0,
+    "lmoment.validation_diagnostics.per_class_accuracy.5": 0.99,
+    "lmoment.validation_diagnostics.per_class_accuracy.6": 1.0,
+    "lmoment.validation_diagnostics.per_class_accuracy.7": 0.99,
+    "lmoment.validation_diagnostics.per_class_accuracy.8": 1.0,
+    "lmoment.validation_diagnostics.per_class_accuracy.9": 0.96,
+    "lmoment.test_diagnostics.per_class_accuracy.0": 1.0,
+    "lmoment.test_diagnostics.per_class_accuracy.1": 0.9925,
+    "lmoment.test_diagnostics.per_class_accuracy.2": 0.98625,
+    "lmoment.test_diagnostics.per_class_accuracy.3": 0.95125,
+    "lmoment.test_diagnostics.per_class_accuracy.4": 0.99625,
+    "lmoment.test_diagnostics.per_class_accuracy.5": 0.98375,
+    "lmoment.test_diagnostics.per_class_accuracy.6": 0.99875,
+    "lmoment.test_diagnostics.per_class_accuracy.7": 0.9775,
+    "lmoment.test_diagnostics.per_class_accuracy.8": 0.985,
+    "lmoment.test_diagnostics.per_class_accuracy.9": 0.985,
+    "lmoment.labels_allowed": true
+  }
+]

@@ -1,0 +1,13 @@
+[
+  {
+    "id": "O-E01",
+    "track": "E01",
+    "suite": "original",
+    "metric": "separation_ratio",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E01/runs/original/E01/f65695a841aa_seed0/result.json",
+    "lmoment.matched_mean_distance": 0.011231869330743369,
+    "lmoment.different_mean_distance": 3.463595224533307,
+    "lmoment.separation_ratio": 308.3721081986691,
+    "lmoment.balanced_class_pair_count": 90
+  }
+]

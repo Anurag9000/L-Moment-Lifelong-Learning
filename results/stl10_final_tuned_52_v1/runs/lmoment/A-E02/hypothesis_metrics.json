@@ -1,0 +1,33 @@
+[
+  {
+    "id": "A-E02",
+    "track": "E02",
+    "suite": "advanced",
+    "metric": "test.fixed_mapping_accuracy",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/A-E02/runs/advanced/E02/advanced_95f2f86fc67f_seed0/result.json",
+    "lmoment.calibration.threshold": 0.5165632366624947,
+    "lmoment.calibration.alpha_per_comparison": 0.05,
+    "lmoment.calibration.n_calibration": 128,
+    "lmoment.initial_prediction_abstention": true,
+    "lmoment.prequential_coverage": 0.4415,
+    "lmoment.validation.fixed_mapping_accuracy": 0.312,
+    "lmoment.validation.coverage": 0.555,
+    "lmoment.validation.discovered_clusters": 20,
+    "lmoment.validation.ari_covered": 0.5696570547823665,
+    "lmoment.validation.nmi_covered": 0.7992664842024387,
+    "lmoment.test.fixed_mapping_accuracy": 0.27475,
+    "lmoment.test.coverage": 0.5325,
+    "lmoment.test.discovered_clusters": 20,
+    "lmoment.test.ari_covered": 0.5449090803190244,
+    "lmoment.test.nmi_covered": 0.7836924720968312,
+    "lmoment.mature_classes": 20,
+    "lmoment.total_assemblies": 20,
+    "lmoment.estimated_memory_bytes": 675840,
+    "lmoment.canonical_id_count": 20,
+    "lmoment.merge_count": 0,
+    "lmoment.events.confirm_birth": 20,
+    "lmoment.events.capacity_recovery_assign": 1912,
+    "lmoment.events.provisional": 20,
+    "lmoment.events.capacity_defer": 2
+  }
+]

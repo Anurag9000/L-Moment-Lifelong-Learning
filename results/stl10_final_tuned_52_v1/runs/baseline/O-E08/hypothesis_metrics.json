@@ -1,0 +1,14 @@
+[
+  {
+    "id": "O-E08",
+    "track": "E08",
+    "suite": "original",
+    "metric": "hierarchy_cluster_ari",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E08/runs/original/E08/6b6dec73e1e3_seed0/result.json",
+    "baseline.pseudo_class_count": 10,
+    "baseline.parent_count": 3,
+    "baseline.configured_parent_count": 3,
+    "baseline.hierarchy_cluster_ari": 0.047239063462628295,
+    "baseline.validation_hierarchy_ari": 0.048985791563982015
+  }
+]

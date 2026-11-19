@@ -1,0 +1,2 @@
+id,track,suite,metric,result_path,baseline.accepted_heldout,baseline.artificial_merge_intervention,baseline.candidate_proposed,baseline.holdout_gain,baseline.memory_bytes_after_rollback,baseline.rollback_restored,baseline.scoring_ari
+A-E06,E06,advanced,accepted_heldout,/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/A-E06/runs/advanced/E06/advanced_b3765c31dba1_seed0/result.json,True,True,True,0.06752671017644189,409600,True,0.32598252550244167

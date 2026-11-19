@@ -1,0 +1,12 @@
+{
+  "source_host": "V100-server",
+  "source_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1",
+  "destination_host": "Kakarot",
+  "destination_path": "results/stl10_final_tuned_52_v1",
+  "archive_sha256": "a9212bde2f20773e8fba53ac99c6070471891e9c16336d9c7bee85037c1218a4",
+  "archive_bytes": 192739341,
+  "verification": "Downloaded archive SHA-256 matched the V100 source; archive extracted successfully.",
+  "source_checkpoint_count": 24,
+  "github_checkpoint_policy": "Checkpoint files retained on Kakarot; excluded from GitHub commit.",
+  "received_utc": "2026-11-19T09:11:47Z"
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "A-E06",
+    "track": "E06",
+    "suite": "advanced",
+    "metric": "accepted_heldout",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/A-E06/runs/advanced/E06/advanced_0de25dff0f42_seed0/result.json",
+    "lmoment.artificial_merge_intervention": true,
+    "lmoment.candidate_proposed": true,
+    "lmoment.accepted_heldout": true,
+    "lmoment.holdout_gain": 0.06752671017644189,
+    "lmoment.holdout_shape_score": 0.05296804243003002,
+    "lmoment.scoring_ari": 0.32598252550244167,
+    "lmoment.rollback_restored": true,
+    "lmoment.memory_bytes_after_rollback": 409600
+  }
+]

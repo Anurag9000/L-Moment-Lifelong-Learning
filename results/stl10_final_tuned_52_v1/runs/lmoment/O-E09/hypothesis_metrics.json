@@ -1,0 +1,31 @@
+[
+  {
+    "id": "O-E09",
+    "track": "E09",
+    "suite": "original",
+    "metric": "test_accuracy",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original/E09/73254f3dc1a5_seed0/result.json",
+    "lmoment.test_accuracy": 0.985625,
+    "lmoment.classes": 10,
+    "lmoment.scoring_diagnostics.per_class_accuracy.0": 1.0,
+    "lmoment.scoring_diagnostics.per_class_accuracy.1": 0.9925,
+    "lmoment.scoring_diagnostics.per_class_accuracy.2": 0.98625,
+    "lmoment.scoring_diagnostics.per_class_accuracy.3": 0.95125,
+    "lmoment.scoring_diagnostics.per_class_accuracy.4": 0.99625,
+    "lmoment.scoring_diagnostics.per_class_accuracy.5": 0.98375,
+    "lmoment.scoring_diagnostics.per_class_accuracy.6": 0.99875,
+    "lmoment.scoring_diagnostics.per_class_accuracy.7": 0.9775,
+    "lmoment.scoring_diagnostics.per_class_accuracy.8": 0.985,
+    "lmoment.scoring_diagnostics.per_class_accuracy.9": 0.985,
+    "lmoment.validation_diagnostics.per_class_accuracy.0": 1.0,
+    "lmoment.validation_diagnostics.per_class_accuracy.1": 0.99,
+    "lmoment.validation_diagnostics.per_class_accuracy.2": 0.98,
+    "lmoment.validation_diagnostics.per_class_accuracy.3": 0.97,
+    "lmoment.validation_diagnostics.per_class_accuracy.4": 1.0,
+    "lmoment.validation_diagnostics.per_class_accuracy.5": 0.99,
+    "lmoment.validation_diagnostics.per_class_accuracy.6": 1.0,
+    "lmoment.validation_diagnostics.per_class_accuracy.7": 0.99,
+    "lmoment.validation_diagnostics.per_class_accuracy.8": 1.0,
+    "lmoment.validation_diagnostics.per_class_accuracy.9": 0.96
+  }
+]

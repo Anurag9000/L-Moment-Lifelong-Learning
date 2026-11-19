@@ -1,0 +1,24 @@
+[
+  {
+    "id": "A-E08",
+    "track": "E08",
+    "suite": "advanced",
+    "metric": "test.fixed_mapping_accuracy",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/A-E08/runs/advanced/E08/advanced_daa5442afe3c_seed0/result.json",
+    "lmoment.oracle_child_k": 10,
+    "lmoment.parent_k": 3,
+    "lmoment.validation.fixed_mapping_accuracy": 0.805,
+    "lmoment.validation.coverage": 1.0,
+    "lmoment.validation.discovered_clusters": 10,
+    "lmoment.validation.ari_covered": 0.7264563094948184,
+    "lmoment.validation.nmi_covered": 0.8679156685652443,
+    "lmoment.test.fixed_mapping_accuracy": 0.797875,
+    "lmoment.test.coverage": 1.0,
+    "lmoment.test.discovered_clusters": 10,
+    "lmoment.test.ari_covered": 0.7187913990280073,
+    "lmoment.test.nmi_covered": 0.8630979523370028,
+    "lmoment.parent_distribution.0": 7016,
+    "lmoment.parent_distribution.1": 192,
+    "lmoment.parent_distribution.2": 792
+  }
+]

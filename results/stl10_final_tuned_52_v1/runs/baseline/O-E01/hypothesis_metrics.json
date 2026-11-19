@@ -1,0 +1,13 @@
+[
+  {
+    "id": "O-E01",
+    "track": "E01",
+    "suite": "original",
+    "metric": "separation_ratio",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E01/runs/original/E01/e1c3ee0d9828_seed0/result.json",
+    "baseline.matched_mean_distance": 1.5932999789714812,
+    "baseline.different_mean_distance": 30.42624068790012,
+    "baseline.separation_ratio": 19.09636671654329,
+    "baseline.balanced_class_pair_count": 90
+  }
+]

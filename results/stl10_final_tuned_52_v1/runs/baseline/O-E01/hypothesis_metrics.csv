@@ -1,0 +1,2 @@
+id,track,suite,metric,result_path,baseline.balanced_class_pair_count,baseline.different_mean_distance,baseline.matched_mean_distance,baseline.separation_ratio
+O-E01,E01,original,separation_ratio,/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E01/runs/original/E01/e1c3ee0d9828_seed0/result.json,90,30.42624068790012,1.5932999789714812,19.09636671654329

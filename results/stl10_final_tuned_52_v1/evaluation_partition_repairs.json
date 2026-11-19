@@ -1,0 +1,66 @@
+{
+  "count": 6,
+  "reason": "Missing explicit marker in trainable GCD branch",
+  "repairs": [
+    {
+      "track": "A-E03-GCD",
+      "variant": "baseline",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/A-E03-GCD/runs/advanced/E03/advanced_f92b3e443030_seed0/result.json",
+      "original_sha256": "0da96e34f4d0a8f05249da994206c75e1ba37a1dd29d3a4589556254a26d7f02",
+      "repaired_sha256": "d918db5fb8cf6f4a9ee297024f49d49d264df713cf72ec268f4914942a52d102",
+      "test_indices": 8000,
+      "test_labels": 8000,
+      "test_predictions_aligned": 8000
+    },
+    {
+      "track": "A-E03-GCD",
+      "variant": "lmoment",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/A-E03-GCD/runs/advanced/E03/advanced_c69db1c95dd5_seed0/result.json",
+      "original_sha256": "937cfd6723ade7a4015d3ea0161731e723dd2d1a2fcb378da6585f42ac572c46",
+      "repaired_sha256": "3c4fb11d1d9bdc27f70a704cb53ecc6abc7dde01c9cf913a0477a29defcd0702",
+      "test_indices": 8000,
+      "test_labels": 8000,
+      "test_predictions_aligned": 8000
+    },
+    {
+      "track": "A-E04",
+      "variant": "baseline",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/A-E04/runs/advanced/E04/advanced_4deef3796b5a_seed0/result.json",
+      "original_sha256": "69a93d199c03f8ddbcc4e55f67b77d7ae14b3d3616701168c87bd52803bb0e1f",
+      "repaired_sha256": "f106dbd578b1fd95e4a96ac8af084c1788e81ba4f20cf44143816f14c220013c",
+      "test_indices": 8000,
+      "test_labels": 8000,
+      "test_predictions_aligned": 8000
+    },
+    {
+      "track": "A-E04",
+      "variant": "lmoment",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/A-E04/runs/advanced/E04/advanced_84fe74cf48e0_seed0/result.json",
+      "original_sha256": "d209a990a123de9b24e4745c81531ca356cb3c7e187868a089d6c8af0c4123ff",
+      "repaired_sha256": "edf6c2fabc524faa988a6e703555ec9f61e7ac0cbef75bdf7b1350a1cf9dac36",
+      "test_indices": 8000,
+      "test_labels": 8000,
+      "test_predictions_aligned": 8000
+    },
+    {
+      "track": "A-E03-NCD",
+      "variant": "baseline",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/A-E03-NCD/runs/advanced_ncd/E03/advanced_27f47f60be9a_seed0/result.json",
+      "original_sha256": "7554aadb7a3c64caa1d6507166aeb903b824f1db11625ade0b752d2d8ab6243c",
+      "repaired_sha256": "3b2e31a74bd9534df8b2e7216b82104a220289eb46035fb7d60119d8e7347f82",
+      "test_indices": 8000,
+      "test_labels": 8000,
+      "test_predictions_aligned": 8000
+    },
+    {
+      "track": "A-E03-NCD",
+      "variant": "lmoment",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/A-E03-NCD/runs/advanced_ncd/E03/advanced_8cca234dd05e_seed0/result.json",
+      "original_sha256": "0bd8bef7fad99720f6a039945fa0258fdc5a6e91f9c9fb95a245e12f968274b6",
+      "repaired_sha256": "7622d7cf12d01f493bc86eace2ae815f836b33644bb21f60c72c995602328fd0",
+      "test_indices": 8000,
+      "test_labels": 8000,
+      "test_predictions_aligned": 8000
+    }
+  ]
+}

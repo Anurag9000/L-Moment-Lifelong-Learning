@@ -1,0 +1,2 @@
+id,track,suite,metric,result_path,lmoment.calibration_streams,lmoment.loss_degradation_quantile,lmoment.loss_degraded,lmoment.loss_probe_batches,lmoment.null_noop,lmoment.optimizer_batch_size,lmoment.shift_alarm,lmoment.validation_loss_degradation_threshold,lmoment.validation_shifted_loss,lmoment.validation_stationary_loss
+A-E11,E11,advanced,shift_alarm,/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/A-E11/runs/advanced/E11/advanced_61785ee44e5b_seed0/result.json,10,0.95,True,31,True,64,True,0.046052830293774605,8.198648452758789,0.0007280129939317703

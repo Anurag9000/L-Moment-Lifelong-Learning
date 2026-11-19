@@ -1,0 +1,16 @@
+[
+  {
+    "id": "O-E06",
+    "track": "E06",
+    "suite": "original",
+    "metric": "accepted",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E06/runs/original/E06/75962beba27f_seed0/result.json",
+    "lmoment.proposed": true,
+    "lmoment.accepted": true,
+    "lmoment.rollback_restored": true,
+    "lmoment.holdout_gain": 0.06752671017644189,
+    "lmoment.holdout_shape_score": 0.05296804243003002,
+    "lmoment.scoring_ari": 0.32598252550244167,
+    "lmoment.memory_bytes_after_rollback": 409600
+  }
+]

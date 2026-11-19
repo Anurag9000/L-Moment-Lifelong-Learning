@@ -1,0 +1,690 @@
+Using a slow image processor as `use_fast` is unset and a slow processor was saved with this model. `use_fast=True` will be the default behavior in v4.52, even if the model was saved with a slow processor. This will result in minor differences in outputs. You'll still be able to use a slow processor with `use_fast=False`.
+[DINOv2] 4/5000 .train_features.tmp.npy
+[DINOv2] 404/5000 .train_features.tmp.npy
+[DINOv2] 804/5000 .train_features.tmp.npy
+[DINOv2] 1204/5000 .train_features.tmp.npy
+[DINOv2] 1604/5000 .train_features.tmp.npy
+[DINOv2] 2004/5000 .train_features.tmp.npy
+[DINOv2] 2404/5000 .train_features.tmp.npy
+[DINOv2] 2804/5000 .train_features.tmp.npy
+[DINOv2] 3204/5000 .train_features.tmp.npy
+[DINOv2] 3604/5000 .train_features.tmp.npy
+[DINOv2] 4004/5000 .train_features.tmp.npy
+[DINOv2] 4404/5000 .train_features.tmp.npy
+[DINOv2] 4804/5000 .train_features.tmp.npy
+[DINOv2] 4/8000 .test_features.tmp.npy
+[DINOv2] 404/8000 .test_features.tmp.npy
+[DINOv2] 804/8000 .test_features.tmp.npy
+[DINOv2] 1204/8000 .test_features.tmp.npy
+[DINOv2] 1604/8000 .test_features.tmp.npy
+[DINOv2] 2004/8000 .test_features.tmp.npy
+[DINOv2] 2404/8000 .test_features.tmp.npy
+[DINOv2] 2804/8000 .test_features.tmp.npy
+[DINOv2] 3204/8000 .test_features.tmp.npy
+[DINOv2] 3604/8000 .test_features.tmp.npy
+[DINOv2] 4004/8000 .test_features.tmp.npy
+[DINOv2] 4404/8000 .test_features.tmp.npy
+[DINOv2] 4804/8000 .test_features.tmp.npy
+[DINOv2] 5204/8000 .test_features.tmp.npy
+[DINOv2] 5604/8000 .test_features.tmp.npy
+[DINOv2] 6004/8000 .test_features.tmp.npy
+[DINOv2] 6404/8000 .test_features.tmp.npy
+[DINOv2] 6804/8000 .test_features.tmp.npy
+[DINOv2] 7204/8000 .test_features.tmp.npy
+[DINOv2] 7604/8000 .test_features.tmp.npy
+[DINOv2] 4/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 404/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 804/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 1204/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 1604/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 2004/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 2404/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 2804/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 3204/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 3604/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 4004/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 4404/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 4804/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 5204/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 5604/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 6004/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 6404/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 6804/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 7204/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 7604/8000 .corrupted_test_features.tmp.npy
+[DINOv2] 4/1000 .corrupted_validation_features.tmp.npy
+[DINOv2] 404/1000 .corrupted_validation_features.tmp.npy
+[DINOv2] 804/1000 .corrupted_validation_features.tmp.npy
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E01: completed
+[01/52] O-E01 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E01: completed
+[02/52] O-E01 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E02: completed
+[03/52] O-E02 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E02: completed
+[04/52] O-E02 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E03: completed
+[05/52] O-E03 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E03: completed
+[06/52] O-E03 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E04: completed
+[07/52] O-E04 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E04: completed
+[08/52] O-E04 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k256_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+[09/52] O-E05 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: completed
+[10/52] O-E05 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+[11/52] O-E06 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E06: completed
+[12/52] O-E06 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E07: completed
+[13/52] O-E07 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E07: completed
+[14/52] O-E07 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E08: completed
+[15/52] O-E08 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E08: completed
+[16/52] O-E08 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E09: completed
+[17/52] O-E09 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E09: failed (Missing result.json)
+Traceback (most recent call last):
+  File "/tmp/run_stl10_final_52.py", line 51, in <module>
+    raise RuntimeError(f"Job failed: {spec.id} {variant}: {rows}")
+RuntimeError: Job failed: O-E09 lmoment: [{'id': 'O-E09', 'suite': 'original', 'track': 'E09', 'name': 'Class-statistics classification', 'primary_metric': 'test_accuracy', 'limitation': 'Frozen-feature comparator; not trainable class-IL', 'gcd_mode': None, 'command': ['/home/anurag24092/envs/lmoment-hypothesis26/bin/python', '-m', 'lmoment_lifelong.cifar10_suite', '--dataset', 'stl10', '--track', 'E09', '--variant', 'lmoment', '--data-root', '/home/anurag24092/Projects/L-Moment-Lifelong-Learning/datasets', '--output-root', '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original', '--seed', '0', '--samples-per-class', '400', '--val-per-class', '100', '--test-per-class', '800', '--epochs', '10', '--ssl-epochs', '10', '--batch-size', '64', '--lr', '0.001', '--feature-dim', '64', '--device', 'cuda', '--backbone', 'dinov2', '--feature-cache', '/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache', '--extraction-microbatch', '4', '--pca-whiten', '--statistical-projections', '16', '--min-support', '8', '--memory-bytes', '65536', '--discovery-radius', '0.6', '--candidate-radius-factor', '2.0', '--max-discovered-classes', '50', '--drift-window', '16', '--loss-quantile', '0.95', '--growth-width', '16', '--growth-trial-steps', '25', '--growth-parameter-penalty', '0.0', '--split-penalty', '0.05', '--split-shape-floor', '1e-06', '--hierarchy-parents', '3', '--feature-ssl-anchor-weight', '0.5', '--feature-ssl-shape-weight', '0.1', '--distribution-shrinkage', '0', '--distribution-min-scale', '0.02', '--training-steps', '50', '--known-classes', '5', '--replay-ratio', '0.5'], 'config': {'dataset': 'stl10', 'track': 'E09', 'variant': 'lmoment', 'data_root': '/home/anurag24092/Projects/L-Moment-Lifelong-Learning/datasets', 'output_root': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original', 'seed': 0, 'samples_per_class': 400, 'val_per_class': 100, 'test_per_class': 800, 'epochs': 10, 'ssl_epochs': 10, 'batch_size': 64, 'lr': 0.001, 'feature_dim': 64, 'memory_limit': 32, 'device': 'cuda', 'download': False, 'backbone': 'dinov2', 'feature_cache': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache', 'extraction_microbatch': 4, 'pca_whiten': True, 'l2_normalize': True, 'validation_only': False, 'statistical_projections': 16, 'min_support': 8, 'memory_bytes': 65536, 'discovery_radius': 0.6, 'candidate_radius_factor': 2.0, 'max_discovered_classes': 50, 'drift_window': 16, 'loss_quantile': 0.95, 'growth_width': 16, 'growth_trial_steps': 25, 'growth_parameter_penalty': 0.0, 'split_penalty': 0.05, 'split_shape_floor': 1e-06, 'hierarchy_parents': 3, 'feature_ssl_anchor_weight': 0.5, 'feature_ssl_shape_weight': 0.1, 'distribution_shrinkage': 0, 'distribution_min_scale': 0.02, 'training_steps': 50, 'known_classes': 5, 'replay_ratio': 0.5, 'save_features': False}, 'source_commit': 'd66bcdf603ab94ceaed1cc88ffe448c794ff2b9f', 'result_path': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original/E09/e288720a6f51_seed0/result.json', 'directory': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original/E09/e288720a6f51_seed0', 'started_utc': '2026-11-18T21:28:15+00:00', 'elapsed_seconds': 4.52, 'log': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/logs/O-E09_seed0_attempt1.log', 'status': 'failed', 'exit_code': 0, 'message': 'Missing result.json', 'finished_utc': '2026-11-18T21:28:20+00:00'}]
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E01: skipped_verified (verified)
+[01/52] O-E01 baseline: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E01: skipped_verified (verified)
+[02/52] O-E01 lmoment: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E02: skipped_verified (verified)
+[03/52] O-E02 baseline: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E02: skipped_verified (verified)
+[04/52] O-E02 lmoment: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E03: skipped_verified (verified)
+[05/52] O-E03 baseline: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E03: skipped_verified (verified)
+[06/52] O-E03 lmoment: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E04: skipped_verified (verified)
+[07/52] O-E04 baseline: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E04: skipped_verified (verified)
+[08/52] O-E04 lmoment: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k256_whiten0_l21.json"
+}
+[01/01] O-E05: skipped_verified (verified)
+[09/52] O-E05 baseline: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E05: skipped_verified (verified)
+[10/52] O-E05 lmoment: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E06: skipped_verified (verified)
+[11/52] O-E06 baseline: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E06: skipped_verified (verified)
+[12/52] O-E06 lmoment: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E07: skipped_verified (verified)
+[13/52] O-E07 baseline: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] O-E07: skipped_verified (verified)
+[14/52] O-E07 lmoment: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E08: skipped_verified (verified)
+[15/52] O-E08 baseline: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] O-E08: skipped_verified (verified)
+[16/52] O-E08 lmoment: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E09: skipped_verified (verified)
+[17/52] O-E09 baseline: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] O-E09: skipped_verified (verified)
+[18/52] O-E09 lmoment: skipped_verified
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E10: completed
+[19/52] O-E10 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E10: completed
+[20/52] O-E10 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k512_whiten0_l20.json"
+}
+[01/01] O-E11: completed
+[21/52] O-E11 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k256_whiten0_l20.json"
+}
+[01/01] O-E11: completed
+[22/52] O-E11 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E12: completed
+[23/52] O-E12 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] O-E12: completed
+[24/52] O-E12 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E13: completed
+[25/52] O-E13 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E13: completed
+[26/52] O-E13 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E14: completed
+[27/52] O-E14 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] O-E14: completed
+[28/52] O-E14 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] A-E01: completed
+[29/52] A-E01 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] A-E01: completed
+[30/52] A-E01 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] A-E02: completed
+[31/52] A-E02 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] A-E02: completed
+[32/52] A-E02 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] A-E03-GCD: completed
+[33/52] A-E03-GCD baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] A-E03-GCD: completed
+[34/52] A-E03-GCD lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] A-E04: completed
+[35/52] A-E04 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l20.json"
+}
+[01/01] A-E04: completed
+[36/52] A-E04 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k128_whiten0_l20.json"
+}
+[01/01] A-E05: completed
+[37/52] A-E05 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l20.json"
+}
+[01/01] A-E05: completed
+[38/52] A-E05 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] A-E06: completed
+[39/52] A-E06 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] A-E06: completed
+[40/52] A-E06 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] A-E07: completed
+[41/52] A-E07 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] A-E07: completed
+[42/52] A-E07 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] A-E08: completed
+[43/52] A-E08 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] A-E08: completed
+[44/52] A-E08 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] A-E09: completed
+[45/52] A-E09 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten1_l21.json"
+}
+[01/01] A-E09: completed
+[46/52] A-E09 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k64_whiten0_l21.json"
+}
+[01/01] A-E10: completed
+[47/52] A-E10 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k128_whiten0_l21.json"
+}
+[01/01] A-E10: completed
+[48/52] A-E10 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] A-E11: completed
+[49/52] A-E11 baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] A-E11: completed
+[50/52] A-E11 lmoment: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] A-E03-NCD: completed
+[51/52] A-E03-NCD baseline: completed
+{
+  "backbone": "facebook/dinov2-base",
+  "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+  "feature_dim": 768,
+  "feature_cache": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache",
+  "quality_report": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache/quality_stl10_train400_val100_test800_k768_whiten0_l21.json"
+}
+[01/01] A-E03-NCD: completed
+[52/52] A-E03-NCD lmoment: completed

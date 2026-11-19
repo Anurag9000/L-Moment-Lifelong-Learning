@@ -1,0 +1,31 @@
+[
+  {
+    "id": "O-E09",
+    "track": "E09",
+    "suite": "original",
+    "metric": "test_accuracy",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E09/runs/original/E09/4b7dd31cd9d5_seed0/result.json",
+    "baseline.test_accuracy": 0.986,
+    "baseline.classes": 10,
+    "baseline.scoring_diagnostics.per_class_accuracy.0": 1.0,
+    "baseline.scoring_diagnostics.per_class_accuracy.1": 0.99375,
+    "baseline.scoring_diagnostics.per_class_accuracy.2": 0.98625,
+    "baseline.scoring_diagnostics.per_class_accuracy.3": 0.95125,
+    "baseline.scoring_diagnostics.per_class_accuracy.4": 0.99625,
+    "baseline.scoring_diagnostics.per_class_accuracy.5": 0.985,
+    "baseline.scoring_diagnostics.per_class_accuracy.6": 0.99875,
+    "baseline.scoring_diagnostics.per_class_accuracy.7": 0.97875,
+    "baseline.scoring_diagnostics.per_class_accuracy.8": 0.985,
+    "baseline.scoring_diagnostics.per_class_accuracy.9": 0.985,
+    "baseline.validation_diagnostics.per_class_accuracy.0": 1.0,
+    "baseline.validation_diagnostics.per_class_accuracy.1": 0.99,
+    "baseline.validation_diagnostics.per_class_accuracy.2": 0.98,
+    "baseline.validation_diagnostics.per_class_accuracy.3": 0.97,
+    "baseline.validation_diagnostics.per_class_accuracy.4": 1.0,
+    "baseline.validation_diagnostics.per_class_accuracy.5": 0.99,
+    "baseline.validation_diagnostics.per_class_accuracy.6": 1.0,
+    "baseline.validation_diagnostics.per_class_accuracy.7": 0.99,
+    "baseline.validation_diagnostics.per_class_accuracy.8": 1.0,
+    "baseline.validation_diagnostics.per_class_accuracy.9": 0.96
+  }
+]

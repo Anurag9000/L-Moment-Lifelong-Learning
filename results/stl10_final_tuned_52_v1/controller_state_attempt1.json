@@ -1,0 +1,179 @@
+{
+  "schema": 1,
+  "status": "failed",
+  "source_commit": "d66bcdf603ab94ceaed1cc88ffe448c794ff2b9f",
+  "config_file": "/tmp/lmoment-stl10-final-src/configs/stl10_final_suite_hyperparameters.json",
+  "protocol": {
+    "backbone": "facebook/dinov2-base",
+    "backbone_revision": "fed69336d31be0ed1883be4cd5ea0456fa3fdbac",
+    "batch_size": 64,
+    "max_rounds": 30,
+    "screen_train_per_class": 100,
+    "seed": 0,
+    "test_per_class": 800,
+    "train_per_class": 400,
+    "validation_per_class": 100
+  },
+  "planned": 52,
+  "processed": 17,
+  "completed": 17,
+  "failed": 1,
+  "current": null,
+  "jobs": [
+    {
+      "track": "O-E01",
+      "method": "ordinary_statistics_baseline",
+      "variant": "baseline",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E01/runs/original/E01/e1c3ee0d9828_seed0/result.json",
+      "finished_utc": "2026-11-18T20:54:44+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E01",
+      "method": "lmoment",
+      "variant": "lmoment",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E01/runs/original/E01/f65695a841aa_seed0/result.json",
+      "finished_utc": "2026-11-18T20:54:52+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E02",
+      "method": "ordinary_statistics_baseline",
+      "variant": "baseline",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E02/runs/original/E02/a8e0a0044c7b_seed0/result.json",
+      "finished_utc": "2026-11-18T21:10:54+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E02",
+      "method": "lmoment",
+      "variant": "lmoment",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E02/runs/original/E02/6d102ba1f938_seed0/result.json",
+      "finished_utc": "2026-11-18T21:11:54+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E03",
+      "method": "ordinary_statistics_baseline",
+      "variant": "baseline",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E03/runs/original/E03/e1a6bb49bea6_seed0/result.json",
+      "finished_utc": "2026-11-18T21:12:07+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E03",
+      "method": "lmoment",
+      "variant": "lmoment",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E03/runs/original/E03/2a8714e568d0_seed0/result.json",
+      "finished_utc": "2026-11-18T21:12:19+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E04",
+      "method": "ordinary_statistics_baseline",
+      "variant": "baseline",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E04/runs/original/E04/5ebb720322d4_seed0/result.json",
+      "finished_utc": "2026-11-18T21:12:31+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E04",
+      "method": "lmoment",
+      "variant": "lmoment",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E04/runs/original/E04/cd850646c1c8_seed0/result.json",
+      "finished_utc": "2026-11-18T21:12:43+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E05",
+      "method": "ordinary_statistics_baseline",
+      "variant": "baseline",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E05/runs/original/E05/e36599e42ea1_seed0/result.json",
+      "finished_utc": "2026-11-18T21:17:32+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E05",
+      "method": "lmoment",
+      "variant": "lmoment",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E05/runs/original/E05/53ca33f7525d_seed0/result.json",
+      "finished_utc": "2026-11-18T21:27:08+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E06",
+      "method": "ordinary_statistics_baseline",
+      "variant": "baseline",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E06/runs/original/E06/722302b829e3_seed0/result.json",
+      "finished_utc": "2026-11-18T21:27:17+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E06",
+      "method": "lmoment",
+      "variant": "lmoment",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E06/runs/original/E06/75962beba27f_seed0/result.json",
+      "finished_utc": "2026-11-18T21:27:26+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E07",
+      "method": "ordinary_statistics_baseline",
+      "variant": "baseline",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E07/runs/original/E07/1544036346bc_seed0/result.json",
+      "finished_utc": "2026-11-18T21:27:33+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E07",
+      "method": "lmoment",
+      "variant": "lmoment",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E07/runs/original/E07/66084f54c31f_seed0/result.json",
+      "finished_utc": "2026-11-18T21:27:41+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E08",
+      "method": "ordinary_statistics_baseline",
+      "variant": "baseline",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E08/runs/original/E08/6b6dec73e1e3_seed0/result.json",
+      "finished_utc": "2026-11-18T21:27:51+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E08",
+      "method": "lmoment",
+      "variant": "lmoment",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E08/runs/original/E08/5a0867b1bc63_seed0/result.json",
+      "finished_utc": "2026-11-18T21:28:01+00:00",
+      "message": "verified"
+    },
+    {
+      "track": "O-E09",
+      "method": "ordinary_statistics_baseline",
+      "variant": "baseline",
+      "status": "completed",
+      "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/O-E09/runs/original/E09/4b7dd31cd9d5_seed0/result.json",
+      "finished_utc": "2026-11-18T21:28:12+00:00",
+      "message": "verified"
+    }
+  ],
+  "error": "RuntimeError(\"Job failed: O-E09 lmoment: [{'id': 'O-E09', 'suite': 'original', 'track': 'E09', 'name': 'Class-statistics classification', 'primary_metric': 'test_accuracy', 'limitation': 'Frozen-feature comparator; not trainable class-IL', 'gcd_mode': None, 'command': ['/home/anurag24092/envs/lmoment-hypothesis26/bin/python', '-m', 'lmoment_lifelong.cifar10_suite', '--dataset', 'stl10', '--track', 'E09', '--variant', 'lmoment', '--data-root', '/home/anurag24092/Projects/L-Moment-Lifelong-Learning/datasets', '--output-root', '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original', '--seed', '0', '--samples-per-class', '400', '--val-per-class', '100', '--test-per-class', '800', '--epochs', '10', '--ssl-epochs', '10', '--batch-size', '64', '--lr', '0.001', '--feature-dim', '64', '--device', 'cuda', '--backbone', 'dinov2', '--feature-cache', '/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache', '--extraction-microbatch', '4', '--pca-whiten', '--statistical-projections', '16', '--min-support', '8', '--memory-bytes', '65536', '--discovery-radius', '0.6', '--candidate-radius-factor', '2.0', '--max-discovered-classes', '50', '--drift-window', '16', '--loss-quantile', '0.95', '--growth-width', '16', '--growth-trial-steps', '25', '--growth-parameter-penalty', '0.0', '--split-penalty', '0.05', '--split-shape-floor', '1e-06', '--hierarchy-parents', '3', '--feature-ssl-anchor-weight', '0.5', '--feature-ssl-shape-weight', '0.1', '--distribution-shrinkage', '0', '--distribution-min-scale', '0.02', '--training-steps', '50', '--known-classes', '5', '--replay-ratio', '0.5'], 'config': {'dataset': 'stl10', 'track': 'E09', 'variant': 'lmoment', 'data_root': '/home/anurag24092/Projects/L-Moment-Lifelong-Learning/datasets', 'output_root': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original', 'seed': 0, 'samples_per_class': 400, 'val_per_class': 100, 'test_per_class': 800, 'epochs': 10, 'ssl_epochs': 10, 'batch_size': 64, 'lr': 0.001, 'feature_dim': 64, 'memory_limit': 32, 'device': 'cuda', 'download': False, 'backbone': 'dinov2', 'feature_cache': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache', 'extraction_microbatch': 4, 'pca_whiten': True, 'l2_normalize': True, 'validation_only': False, 'statistical_projections': 16, 'min_support': 8, 'memory_bytes': 65536, 'discovery_radius': 0.6, 'candidate_radius_factor': 2.0, 'max_discovered_classes': 50, 'drift_window': 16, 'loss_quantile': 0.95, 'growth_width': 16, 'growth_trial_steps': 25, 'growth_parameter_penalty': 0.0, 'split_penalty': 0.05, 'split_shape_floor': 1e-06, 'hierarchy_parents': 3, 'feature_ssl_anchor_weight': 0.5, 'feature_ssl_shape_weight': 0.1, 'distribution_shrinkage': 0, 'distribution_min_scale': 0.02, 'training_steps': 50, 'known_classes': 5, 'replay_ratio': 0.5, 'save_features': False}, 'source_commit': 'd66bcdf603ab94ceaed1cc88ffe448c794ff2b9f', 'result_path': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original/E09/e288720a6f51_seed0/result.json', 'directory': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original/E09/e288720a6f51_seed0', 'started_utc': '2026-11-18T21:28:15+00:00', 'elapsed_seconds': 4.52, 'log': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/logs/O-E09_seed0_attempt1.log', 'status': 'failed', 'exit_code': 0, 'message': 'Missing result.json', 'finished_utc': '2026-11-18T21:28:20+00:00'}]\")",
+  "traceback": "Traceback (most recent call last):\n  File \"/tmp/run_stl10_final_52.py\", line 51, in <module>\n    raise RuntimeError(f\"Job failed: {spec.id} {variant}: {rows}\")\nRuntimeError: Job failed: O-E09 lmoment: [{'id': 'O-E09', 'suite': 'original', 'track': 'E09', 'name': 'Class-statistics classification', 'primary_metric': 'test_accuracy', 'limitation': 'Frozen-feature comparator; not trainable class-IL', 'gcd_mode': None, 'command': ['/home/anurag24092/envs/lmoment-hypothesis26/bin/python', '-m', 'lmoment_lifelong.cifar10_suite', '--dataset', 'stl10', '--track', 'E09', '--variant', 'lmoment', '--data-root', '/home/anurag24092/Projects/L-Moment-Lifelong-Learning/datasets', '--output-root', '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original', '--seed', '0', '--samples-per-class', '400', '--val-per-class', '100', '--test-per-class', '800', '--epochs', '10', '--ssl-epochs', '10', '--batch-size', '64', '--lr', '0.001', '--feature-dim', '64', '--device', 'cuda', '--backbone', 'dinov2', '--feature-cache', '/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache', '--extraction-microbatch', '4', '--pca-whiten', '--statistical-projections', '16', '--min-support', '8', '--memory-bytes', '65536', '--discovery-radius', '0.6', '--candidate-radius-factor', '2.0', '--max-discovered-classes', '50', '--drift-window', '16', '--loss-quantile', '0.95', '--growth-width', '16', '--growth-trial-steps', '25', '--growth-parameter-penalty', '0.0', '--split-penalty', '0.05', '--split-shape-floor', '1e-06', '--hierarchy-parents', '3', '--feature-ssl-anchor-weight', '0.5', '--feature-ssl-shape-weight', '0.1', '--distribution-shrinkage', '0', '--distribution-min-scale', '0.02', '--training-steps', '50', '--known-classes', '5', '--replay-ratio', '0.5'], 'config': {'dataset': 'stl10', 'track': 'E09', 'variant': 'lmoment', 'data_root': '/home/anurag24092/Projects/L-Moment-Lifelong-Learning/datasets', 'output_root': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original', 'seed': 0, 'samples_per_class': 400, 'val_per_class': 100, 'test_per_class': 800, 'epochs': 10, 'ssl_epochs': 10, 'batch_size': 64, 'lr': 0.001, 'feature_dim': 64, 'memory_limit': 32, 'device': 'cuda', 'download': False, 'backbone': 'dinov2', 'feature_cache': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/dinov2_cache', 'extraction_microbatch': 4, 'pca_whiten': True, 'l2_normalize': True, 'validation_only': False, 'statistical_projections': 16, 'min_support': 8, 'memory_bytes': 65536, 'discovery_radius': 0.6, 'candidate_radius_factor': 2.0, 'max_discovered_classes': 50, 'drift_window': 16, 'loss_quantile': 0.95, 'growth_width': 16, 'growth_trial_steps': 25, 'growth_parameter_penalty': 0.0, 'split_penalty': 0.05, 'split_shape_floor': 1e-06, 'hierarchy_parents': 3, 'feature_ssl_anchor_weight': 0.5, 'feature_ssl_shape_weight': 0.1, 'distribution_shrinkage': 0, 'distribution_min_scale': 0.02, 'training_steps': 50, 'known_classes': 5, 'replay_ratio': 0.5, 'save_features': False}, 'source_commit': 'd66bcdf603ab94ceaed1cc88ffe448c794ff2b9f', 'result_path': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original/E09/e288720a6f51_seed0/result.json', 'directory': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/runs/original/E09/e288720a6f51_seed0', 'started_utc': '2026-11-18T21:28:15+00:00', 'elapsed_seconds': 4.52, 'log': '/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E09/logs/O-E09_seed0_attempt1.log', 'status': 'failed', 'exit_code': 0, 'message': 'Missing result.json', 'finished_utc': '2026-11-18T21:28:20+00:00'}]\n"
+}

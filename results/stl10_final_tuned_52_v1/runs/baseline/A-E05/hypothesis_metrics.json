@@ -1,0 +1,32 @@
+[
+  {
+    "id": "A-E05",
+    "track": "E05",
+    "suite": "advanced",
+    "metric": "test.fixed_mapping_accuracy",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/baseline/A-E05/runs/advanced/E05/advanced_480c0288c56c_seed0/result.json",
+    "baseline.calibration.threshold": 1.9780124562487102,
+    "baseline.calibration.alpha_per_comparison": 0.05,
+    "baseline.calibration.n_calibration": 128,
+    "baseline.initial_prediction_abstention": true,
+    "baseline.prequential_coverage": 0.896,
+    "baseline.validation.fixed_mapping_accuracy": 0.397,
+    "baseline.validation.coverage": 0.989,
+    "baseline.validation.discovered_clusters": 50,
+    "baseline.validation.ari_covered": 0.4146360762499165,
+    "baseline.validation.nmi_covered": 0.7540172597970553,
+    "baseline.test.fixed_mapping_accuracy": 0.3785,
+    "baseline.test.coverage": 0.98975,
+    "baseline.test.discovered_clusters": 50,
+    "baseline.test.ari_covered": 0.41271022714384165,
+    "baseline.test.nmi_covered": 0.7436383754719514,
+    "baseline.mature_classes": 50,
+    "baseline.total_assemblies": 50,
+    "baseline.estimated_memory_bytes": 2597888,
+    "baseline.canonical_id_count": 50,
+    "baseline.merge_count": 0,
+    "baseline.events.confirm_birth": 50,
+    "baseline.events.provisional": 50,
+    "baseline.events.capacity_recovery_assign": 16
+  }
+]

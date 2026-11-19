@@ -1,0 +1,24 @@
+[
+  {
+    "id": "A-E07",
+    "track": "E07",
+    "suite": "advanced",
+    "metric": "known_class_corruption_accuracy",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/A-E07/runs/advanced/E07/advanced_229eae62c601_seed0/result.json",
+    "lmoment.known_class_clean_accuracy": 0.99425,
+    "lmoment.known_class_corruption_accuracy": 0.50525,
+    "lmoment.corruption_accuracy_drop": 0.489,
+    "lmoment.clean_diagnostics.per_class_accuracy.0": 1.0,
+    "lmoment.clean_diagnostics.per_class_accuracy.1": 0.99625,
+    "lmoment.clean_diagnostics.per_class_accuracy.2": 0.99,
+    "lmoment.clean_diagnostics.per_class_accuracy.3": 0.9925,
+    "lmoment.clean_diagnostics.per_class_accuracy.4": 0.9925,
+    "lmoment.corrupted_diagnostics.per_class_accuracy.0": 0.4925,
+    "lmoment.corrupted_diagnostics.per_class_accuracy.1": 0.9925,
+    "lmoment.corrupted_diagnostics.per_class_accuracy.2": 0.79,
+    "lmoment.corrupted_diagnostics.per_class_accuracy.3": 0.13,
+    "lmoment.corrupted_diagnostics.per_class_accuracy.4": 0.12125,
+    "lmoment.image_domain_corruption": true,
+    "lmoment.known_labels_permitted": 5
+  }
+]

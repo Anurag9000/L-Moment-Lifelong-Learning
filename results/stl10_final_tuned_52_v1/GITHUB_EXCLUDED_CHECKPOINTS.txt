@@ -1,0 +1,27 @@
+Model checkpoints intentionally excluded from the GitHub commit.
+Count: 24
+
+runs/baseline/A-E03-GCD/runs/advanced/E03/advanced_f92b3e443030_seed0/baseline_model.pt	4162 bytes
+runs/baseline/A-E03-NCD/runs/advanced_ncd/E03/advanced_27f47f60be9a_seed0/baseline_model.pt	32322 bytes
+runs/baseline/A-E04/runs/advanced/E04/advanced_4deef3796b5a_seed0/baseline_model.pt	32322 bytes
+runs/baseline/O-E02/runs/original/E02/a8e0a0044c7b_seed0/baseline_model.pt	20923004 bytes
+runs/baseline/O-E03/runs/original/E03/e1a6bb49bea6_seed0/baseline_model.pt	32258 bytes
+runs/baseline/O-E04/runs/original/E04/5ebb720322d4_seed0/baseline_model.pt	4098 bytes
+runs/baseline/O-E05/runs/original/E05/e36599e42ea1_seed0/baseline_model.pt	4003260 bytes
+runs/baseline/O-E10/runs/original/E10/59fb5a315047_seed0/baseline_model.pt	32258 bytes
+runs/baseline/O-E11/runs/original/E11/8c78899cf4e7_seed0/baseline_model.pt	22018 bytes
+runs/baseline/O-E12/runs/original/E12/e94b86de4c1e_seed0/baseline_model.pt	101960 bytes
+runs/baseline/O-E13/runs/original/E13/80a7c3695bfb_seed0/baseline_model.pt	14189716 bytes
+runs/baseline/O-E14/runs/original/E14/05fbfbe17f05_seed0/baseline_model.pt	201800 bytes
+runs/lmoment/A-E03-GCD/runs/advanced/E03/advanced_c69db1c95dd5_seed0/lmoment_model.pt	4156 bytes
+runs/lmoment/A-E03-NCD/runs/advanced_ncd/E03/advanced_8cca234dd05e_seed0/lmoment_model.pt	32316 bytes
+runs/lmoment/A-E04/runs/advanced/E04/advanced_84fe74cf48e0_seed0/lmoment_model.pt	32316 bytes
+runs/lmoment/O-E02/runs/original/E02/6d102ba1f938_seed0/lmoment_model.pt	4546488 bytes
+runs/lmoment/O-E03/runs/original/E03/2a8714e568d0_seed0/lmoment_model.pt	32252 bytes
+runs/lmoment/O-E04/runs/original/E04/cd850646c1c8_seed0/lmoment_model.pt	4092 bytes
+runs/lmoment/O-E05/runs/original/E05/53ca33f7525d_seed0/lmoment_model.pt	4115256 bytes
+runs/lmoment/O-E10/runs/original/E10/042c08171561_seed0/lmoment_model.pt	32252 bytes
+runs/lmoment/O-E11/runs/original/E11/ad1b0fb3df9e_seed0/lmoment_model.pt	11772 bytes
+runs/lmoment/O-E12/runs/original/E12/59f557948b74_seed0/lmoment_model.pt	101952 bytes
+runs/lmoment/O-E13/runs/original/E13/2eca2ac55359_seed0/lmoment_model.pt	14189704 bytes
+runs/lmoment/O-E14/runs/original/E14/37369589c800_seed0/lmoment_model.pt	201792 bytes

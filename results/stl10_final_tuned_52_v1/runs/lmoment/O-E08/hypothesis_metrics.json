@@ -1,0 +1,14 @@
+[
+  {
+    "id": "O-E08",
+    "track": "E08",
+    "suite": "original",
+    "metric": "hierarchy_cluster_ari",
+    "result_path": "/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/O-E08/runs/original/E08/5a0867b1bc63_seed0/result.json",
+    "lmoment.pseudo_class_count": 10,
+    "lmoment.parent_count": 3,
+    "lmoment.configured_parent_count": 3,
+    "lmoment.hierarchy_cluster_ari": 0.047239063462628295,
+    "lmoment.validation_hierarchy_ari": 0.048985791563982015
+  }
+]

@@ -1,0 +1,2 @@
+id,track,suite,metric,result_path,lmoment.accepted_heldout,lmoment.artificial_merge_intervention,lmoment.candidate_proposed,lmoment.holdout_gain,lmoment.holdout_shape_score,lmoment.memory_bytes_after_rollback,lmoment.rollback_restored,lmoment.scoring_ari
+A-E06,E06,advanced,accepted_heldout,/home/anurag24092/heldout/stl10_final_tuned_52_v1/runs/lmoment/A-E06/runs/advanced/E06/advanced_0de25dff0f42_seed0/result.json,True,True,True,0.06752671017644189,0.05296804243003002,409600,True,0.32598252550244167
